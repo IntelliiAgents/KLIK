@@ -1,0 +1,88 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --bg-parchment: #FAF6EE;
+    --text-ink: #1A2228;
+    --brand-teal: #133D4B;
+    --brand-terracotta: #C8522C;
+    --brand-mustard: #DE9E36;
+    --brand-eucalyptus: #4B6354;
+  }
+
+  html {
+    background-color: #FAF6EE;
+    color: #1A2228;
+    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    -webkit-tap-highlight-color: transparent;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background-color: #FAF6EE;
+    min-height: 100vh;
+    padding-bottom: env(safe-area-inset-bottom, 24px);
+    overflow-x: hidden;
+  }
+
+  /* Accessible focus indicators */
+  :focus-visible {
+    outline: 2px solid #C8522C;
+    outline-offset: 2px;
+  }
+
+  /* Respect reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    ::before,
+    ::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+/* African-inspired geometric subtle border pattern */
+.border-pattern-klik {
+  background-image: repeating-linear-gradient(
+    45deg,
+    #133D4B 0,
+    #133D4B 8px,
+    #FAF6EE 8px,
+    #FAF6EE 16px,
+    #C8522C 16px,
+    #C8522C 24px,
+    #DE9E36 24px,
+    #DE9E36 32px
+  );
+  height: 4px;
+}
+
+/* Mapbox GL styles override to fit warmth */
+.mapboxgl-popup-content {
+  border-radius: 12px !important;
+  padding: 14px !important;
+  box-shadow: 0 4px 16px rgba(19, 61, 75, 0.15) !important;
+  font-family: inherit !important;
+  background-color: #FAF6EE !important;
+  border: 1px solid #E5DCCD !important;
+}
+
+.mapboxgl-popup-close-button {
+  font-size: 18px !important;
+  padding: 4px 8px !important;
+  color: #133D4B !important;
+}
+
+/* Hide scrollbar for category pills while maintaining scrollability */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}

@@ -1,0 +1,35 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="100" fill="#FAF6EE"/>
+  <!-- Decorative border ring -->
+  <circle cx="256" cy="256" r="236" fill="none" stroke="#133D4B" stroke-width="4" stroke-opacity="0.2"/>
+  
+  <!-- Protea & Mountain Motif -->
+  <g transform="translate(116, 80) scale(0.55)">
+    <!-- Mountain outline -->
+    <path d="M120,240 L200,160 L250,210 L310,130 L400,240 Z" fill="none" stroke="#6F5B47" stroke-width="12" stroke-linejoin="round" stroke-linecap="round"/>
+    
+    <!-- Protea Head -->
+    <g transform="translate(80, 70)">
+      <path d="M40,110 C20,80 20,40 45,10 C70,40 70,80 50,110 Z" fill="#D33E36"/>
+      <path d="M20,110 C-5,85 0,50 20,25 C35,55 35,85 25,110 Z" fill="#C8522C"/>
+      <path d="M70,110 C95,85 90,50 70,25 C55,55 55,85 65,110 Z" fill="#C8522C"/>
+      <!-- Leaves -->
+      <path d="M45,110 C10,140 0,170 -15,185 C-5,160 15,135 40,115 Z" fill="#4B6354"/>
+      <path d="M45,110 C80,140 90,170 105,185 C95,160 75,135 50,115 Z" fill="#4B6354"/>
+      <path d="M45,110 L45,210" stroke="#4B6354" stroke-width="10" stroke-linecap="round"/>
+    </g>
+
+    <!-- Ocean Wave -->
+    <path d="M100,270 C160,250 220,290 280,270 C340,250 380,270 410,285 C390,320 330,340 260,330 C190,320 140,300 100,270 Z" fill="#1B5E74"/>
+    <path d="M110,295 C160,335 250,345 320,310 C270,350 170,350 110,295 Z" fill="#DE9E36"/>
+  </g>
+
+  <!-- KliK text -->
+  <text x="256" y="380" font-family="'Georgia', 'Cambria', serif" font-weight="900" font-size="110" fill="#133D4B" text-anchor="middle" letter-spacing="-2">
+    Kl<tspan fill="#C8522C">i</tspan>k
+  </text>
+  
+  <text x="256" y="425" font-family="'Arial', sans-serif" font-weight="700" font-size="20" fill="#6F5B47" text-anchor="middle" letter-spacing="4">
+    KLEINMOND 2026
+  </text>
+</svg>
