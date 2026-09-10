@@ -3,12 +3,56 @@ import "@/styles/globals.css";
 import { TopHeader } from "@/components/Navigation/TopHeader";
 import { BottomNav } from "@/components/Navigation/BottomNav";
 import { InstallPrompt } from "@/components/UI/InstallPrompt";
+import { SimulatedMailboxNotification } from "@/components/Auth/SimulatedMailboxNotification";
 
 export const metadata: Metadata = {
   title: "KliK 2026 - Kleinmond Inniebos Kunstefees",
   description:
-    "Official Progressive Web App for KliK 2026 Kunstefees. Stories, poetry, music, art and community in Kleinmond, Western Cape.",
+    "Official Progressive Web App for KliK 2026 Kunstefees. Stories, poetry, music, art and community in Kleinmond, Western Cape. 27–29 November 2026.",
   manifest: "/manifest.webmanifest",
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_APP_URL || "https://klik2026.netlify.app"
+  ),
+  openGraph: {
+    title: "KliK 2026 | Kleinmond Inniebos Kunstefees",
+    description:
+      "Official PWA for KliK 2026 Kunstefees. Stories, poetry, music, art and community in Kleinmond. 27–29 November 2026.",
+    url: process.env.NEXT_PUBLIC_APP_URL || "https://klik2026.netlify.app",
+    siteName: "KliK 2026 Kunstefees",
+    images: [
+      {
+        url: "/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "KliK 2026 Kleinmond Inniebos Kunstefees Official Artwork",
+      },
+      {
+        url: "/og-square.jpg",
+        width: 600,
+        height: 600,
+        alt: "KliK 2026 Official Logo Square",
+      },
+    ],
+    locale: "en_ZA",
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "KliK 2026 | Kleinmond Inniebos Kunstefees",
+    description:
+      "Official PWA for KliK 2026 Kunstefees. Stories, poetry, music, art and community in Kleinmond.",
+    images: ["/og-image.jpg"],
+  },
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "32x32" },
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/assets/klik-round-logo-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+    ],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -35,7 +79,8 @@ export default function RootLayout({
   return (
     <html lang="en" className="h-full">
       <head>
-        <link rel="icon" href="/icons/icon.svg" type="image/svg+xml" />
+        <link rel="icon" href="/favicon.ico" sizes="32x32" />
+        <link rel="icon" href="/assets/klik-round-logo-128.png" type="image/png" />
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
       </head>
       <body className="min-h-full flex flex-col bg-parchment text-ink-festival selection:bg-terracotta-festival selection:text-white antialiased">
@@ -45,6 +90,7 @@ export default function RootLayout({
           {children}
         </main>
 
+        <SimulatedMailboxNotification />
         <InstallPrompt />
         <BottomNav />
 

@@ -173,3 +173,38 @@ export interface FestivalNotice {
   expiresAt?: string;
   isActive: boolean;
 }
+
+export interface OrganizerUser {
+  id: string;
+  email: string;
+  name: string;
+  passwordHash: string;
+  isEmailVerified: boolean;
+  verificationToken?: string;
+  verificationTokenExpiresAt?: string;
+  resetPasswordToken?: string;
+  resetPasswordExpiresAt?: string;
+  createdAt: string;
+  lastLoginAt?: string;
+}
+
+export interface AuthSession {
+  user: {
+    id: string;
+    email: string;
+    name: string;
+  };
+  token: string;
+  expiresAt: string;
+}
+
+export interface SentEmail {
+  id: string;
+  to: string;
+  subject: string;
+  body: string;
+  actionUrl: string;
+  actionText: string;
+  type: 'activation' | 'password_reset';
+  sentAt: string;
+}

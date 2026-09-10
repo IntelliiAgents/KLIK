@@ -2,6 +2,8 @@
 
 import React, { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import { KliKLogo } from "@/components/Brand/KliKLogo";
 import { repository } from "@/lib/db/repository";
 import {
   getSavedEvents,
@@ -125,13 +127,18 @@ export default function MyFestivalPage() {
   return (
     <div className="space-y-5 pb-6 animate-in fade-in duration-300">
       {/* Header */}
-      <div>
-        <h1 className="font-serif font-black text-2xl sm:text-3xl text-teal-festival">
-          My Festival
-        </h1>
-        <p className="text-xs text-ink-muted mt-0.5">
-          Your personal itinerary, schedule conflict warnings, and check-in history.
-        </p>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h1 className="font-serif font-black text-2xl sm:text-3xl text-teal-festival">
+            My Festival
+          </h1>
+          <p className="text-xs text-ink-muted mt-0.5">
+            Your personal itinerary, schedule conflict warnings, and check-in history.
+          </p>
+        </div>
+        <div className="shrink-0 w-11 h-11 p-1 rounded-2xl bg-parchment-100 border border-parchment-300 shadow-xs flex items-center justify-center">
+          <KliKLogo variant="emblem" className="w-8 h-8" />
+        </div>
       </div>
 
       {/* Anonymous Device Profile Card */}
@@ -164,8 +171,14 @@ export default function MyFestivalPage() {
       {/* Quest Quick Summary */}
       <div className="bg-teal-festival text-parchment-50 p-4 rounded-2xl flex items-center justify-between gap-3 shadow-subtle">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-mustard-light shrink-0">
-            <Award className="w-6 h-6" />
+          <div className="w-11 h-11 rounded-xl bg-white/10 p-1.5 flex items-center justify-center shrink-0 border border-white/15">
+            <Image
+              src="/assets/klik-round-logo-128.png"
+              alt="KliK Emblem"
+              width={36}
+              height={36}
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
             <h3 className="font-serif font-bold text-sm text-parchment-50">
@@ -246,7 +259,15 @@ export default function MyFestivalPage() {
             ))
           ) : (
             <div className="bg-parchment-50 rounded-2xl p-8 text-center border border-dashed border-parchment-300 space-y-3">
-              <Heart className="w-8 h-8 text-terracotta-festival mx-auto opacity-60" />
+              <div className="w-12 h-12 mx-auto">
+                <Image
+                  src="/assets/klik-round-logo-128.png"
+                  alt="KliK Protea Emblem"
+                  width={48}
+                  height={48}
+                  className="w-full h-full object-contain opacity-70"
+                />
+              </div>
               <h3 className="font-serif font-bold text-base text-teal-festival">
                 No saved events yet
               </h3>

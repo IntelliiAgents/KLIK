@@ -2,6 +2,7 @@
 
 import React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { WifiOff, RefreshCw, Heart, Calendar, MapPin } from "lucide-react";
 
 export default function OfflinePage() {
@@ -13,8 +14,14 @@ export default function OfflinePage() {
 
   return (
     <div className="py-12 text-center space-y-6 animate-in fade-in">
-      <div className="w-16 h-16 rounded-3xl bg-terracotta-festival/15 text-terracotta-festival flex items-center justify-center mx-auto shadow-subtle">
-        <WifiOff className="w-8 h-8" />
+      <div className="w-16 h-16 rounded-3xl bg-parchment-200 p-2.5 flex items-center justify-center mx-auto shadow-subtle border border-parchment-300">
+        <Image
+          src="/assets/klik-round-logo-128.png"
+          alt="KliK Emblem"
+          width={52}
+          height={52}
+          className="w-full h-full object-contain"
+        />
       </div>
 
       <div className="space-y-2 max-w-xs mx-auto">

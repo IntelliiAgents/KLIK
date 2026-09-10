@@ -3,6 +3,7 @@
 import React, { useEffect, useState, Suspense } from "react";
 import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { repository } from "@/lib/db/repository";
 import { hasCheckedInLocation, getOrCreateParticipantId } from "@/lib/db/idb";
 import { VenueLocation, CheckIn, CheckInSyncStatus } from "@/lib/types";
@@ -138,9 +139,15 @@ function CheckInContent() {
 
       {/* Main Check-In Card */}
       <div className="bg-parchment-50 rounded-3xl p-6 border border-parchment-300 shadow-card text-center relative overflow-hidden">
-        {/* Top QR Icon */}
-        <div className="w-16 h-16 rounded-2xl bg-teal-festival/10 text-teal-festival flex items-center justify-center mx-auto mb-3">
-          <QrCode className="w-8 h-8" />
+        {/* Top Emblem Checkpoint Stamp */}
+        <div className="w-16 h-16 rounded-2xl bg-parchment-200/90 p-2 flex items-center justify-center mx-auto mb-3 border border-parchment-300 shadow-xs">
+          <Image
+            src="/assets/klik-round-logo-128.png"
+            alt="Official KliK Checkpoint Emblem"
+            width={56}
+            height={56}
+            className="w-full h-full object-contain"
+          />
         </div>
 
         <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-parchment-200 text-terracotta-festival">
@@ -168,7 +175,15 @@ function CheckInContent() {
         {completedCheckIn || alreadyCheckedIn ? (
           <div className="space-y-4 pt-2">
             <div className="p-4 rounded-2xl bg-eucalyptus-festival/15 border border-eucalyptus-festival/30 text-eucalyptus-dark space-y-2">
-              <CheckCircle2 className="w-8 h-8 text-eucalyptus-festival mx-auto" />
+              <div className="w-12 h-12 mx-auto rounded-full bg-eucalyptus-festival/20 p-1 flex items-center justify-center">
+                <Image
+                  src="/assets/klik-round-logo-128.png"
+                  alt="Verified KliK Stamp"
+                  width={40}
+                  height={40}
+                  className="w-full h-full object-contain"
+                />
+              </div>
               <h3 className="font-serif font-bold text-base text-teal-festival">
                 {completedCheckIn ? "Check-In Confirmed!" : "Already Checked In"}
               </h3>

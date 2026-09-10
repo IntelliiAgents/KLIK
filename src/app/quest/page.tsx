@@ -5,6 +5,7 @@ import { repository } from "@/lib/db/repository";
 import { getCheckIns } from "@/lib/db/idb";
 import { Challenge, ChallengeProgress, CheckIn, VenueLocation } from "@/lib/types";
 import { QuestTracker } from "@/components/Quest/QuestTracker";
+import { KliKLogo } from "@/components/Brand/KliKLogo";
 
 export default function QuestPage() {
   const [challenge, setChallenge] = useState<Challenge | null>(null);
@@ -37,13 +38,18 @@ export default function QuestPage() {
 
   return (
     <div className="space-y-4 pb-6 animate-in fade-in duration-300">
-      <div>
-        <h1 className="font-serif font-black text-2xl sm:text-3xl text-teal-festival">
-          KliK Quest
-        </h1>
-        <p className="text-xs text-ink-muted mt-0.5">
-          Follow the Culture Trail across Kleinmond, check in, and qualify for festival rewards.
-        </p>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h1 className="font-serif font-black text-2xl sm:text-3xl text-teal-festival">
+            KliK Quest
+          </h1>
+          <p className="text-xs text-ink-muted mt-0.5">
+            Follow the Culture Trail across Kleinmond, check in, and qualify for festival rewards.
+          </p>
+        </div>
+        <div className="shrink-0 w-11 h-11 p-1 rounded-2xl bg-parchment-100 border border-parchment-300 shadow-xs flex items-center justify-center">
+          <KliKLogo variant="emblem" className="w-8 h-8" />
+        </div>
       </div>
 
       {loading || !challenge || !progress ? (

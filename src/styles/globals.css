@@ -53,13 +53,27 @@
     #133D4B 0,
     #133D4B 8px,
     #FAF6EE 8px,
-    #FAF6EE 16px,
-    #C8522C 16px,
-    #C8522C 24px,
+    #FAF6EE 12px,
+    #C8522C 12px,
+    #C8522C 20px,
+    #FAF6EE 20px,
+    #FAF6EE 24px,
     #DE9E36 24px,
-    #DE9E36 32px
+    #DE9E36 32px,
+    #4B6354 32px,
+    #4B6354 40px
   );
   height: 4px;
+}
+
+/* Tribal chevron divider inspired by festival artwork */
+.tribal-divider {
+  height: 8px;
+  background-image: radial-gradient(#133D4B 15%, transparent 16%),
+    radial-gradient(#C8522C 15%, transparent 16%);
+  background-size: 16px 16px;
+  background-position: 0 0, 8px 8px;
+  opacity: 0.35;
 }
 
 /* Mapbox GL styles override to fit warmth */

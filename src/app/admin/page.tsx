@@ -2,31 +2,53 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { repository } from "@/lib/db/repository";
+import {
+  loginOrganizer,
+  getCurrentSession,
+  logoutOrganizer,
+  resendActivation,
+  initDefaultAdmin,
+} from "@/lib/auth/auth";
 import {
   FestivalEvent,
   VenueLocation,
   FestivalNotice,
   Challenge,
+  AuthSession,
 } from "@/lib/types";
 import {
   Shield,
   Lock,
+  Mail,
   Calendar,
   MapPin,
   Bell,
   Award,
   AlertTriangle,
+  AlertCircle,
   Check,
   Plus,
   ArrowLeft,
   Clock,
+  UserCheck,
+  LogOut,
+  RefreshCw,
 } from "lucide-react";
 
 export default function AdminPage() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [passcode, setPasscode] = useState("");
+  const [authSession, setAuthSession] = useState<AuthSession | null>(null);
+
+  // Email / Password login state
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [authError, setAuthError] = useState("");
+  const [isUnverified, setIsUnverified] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState("");
+  const [resendStatus, setResendStatus] = useState<string | null>(null);
+  const [loginLoading, setLoginLoading] = useState(false);
 
   const [activeTab, setActiveTab] = useState<"events" | "venues" | "notices" | "quest">("events");
   const [events, setEvents] = useState<FestivalEvent[]>([]);
@@ -39,6 +61,19 @@ export default function AdminPage() {
   const [noticeContent, setNoticeContent] = useState("");
   const [noticeLevel, setNoticeLevel] = useState<"info" | "important" | "urgent">("important");
   const [noticeSuccess, setNoticeSuccess] = useState(false);
+
+  // Initialize and check existing session
+  useEffect(() => {
+    const init = async () => {
+      await initDefaultAdmin();
+      const session = getCurrentSession();
+      if (session) {
+        setAuthSession(session);
+        setIsAuthenticated(true);
+      }
+    };
+    init();
+  }, []);
 
   // Load data
   useEffect(() => {
@@ -61,15 +96,52 @@ export default function AdminPage() {
     load();
   }, []);
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Default organizer passcode for local prototype demonstration
-    if (passcode === "klik2026" || passcode === "admin") {
-      setIsAuthenticated(true);
-      setAuthError("");
-    } else {
-      setAuthError("Invalid access code. (Hint for demo: klik2026)");
+    setAuthError("");
+    setIsUnverified(false);
+    setResendStatus(null);
+    setLoginLoading(true);
+
+    try {
+      const res = await loginOrganizer(email, password);
+      if (res.success && res.user) {
+        const session = getCurrentSession();
+        setAuthSession(session);
+        setIsAuthenticated(true);
+      } else {
+        if (res.error === "unverified") {
+          setIsUnverified(true);
+          setUnverifiedEmail(email);
+          setAuthError(res.message || "Your account has not been activated yet.");
+        } else {
+          setAuthError(res.message || "Invalid email or password.");
+        }
+      }
+    } catch (err: any) {
+      setAuthError(err?.message || "An error occurred while signing in.");
+    } finally {
+      setLoginLoading(false);
     }
+  };
+
+  const handleLogout = () => {
+    logoutOrganizer();
+    setAuthSession(null);
+    setIsAuthenticated(false);
+  };
+
+  const handleResendActivation = async () => {
+    if (!unverifiedEmail) return;
+    setResendStatus("Sending fresh activation link...");
+    const res = await resendActivation(unverifiedEmail);
+    setResendStatus(res.message);
+  };
+
+  const handleQuickFillDemo = () => {
+    setEmail("admin@klik2026.co.za");
+    setPassword("Klik2026!");
+    setAuthError("");
   };
 
   const handleUpdateStatus = async (
@@ -103,7 +175,7 @@ export default function AdminPage() {
 
   if (!isAuthenticated) {
     return (
-      <div className="py-12 max-w-sm mx-auto space-y-5 animate-in fade-in">
+      <div className="py-8 max-w-sm mx-auto space-y-5 animate-in fade-in">
         <Link
           href="/"
           className="inline-flex items-center gap-1 text-xs font-semibold text-teal-festival hover:text-teal-light"
@@ -112,9 +184,15 @@ export default function AdminPage() {
           <span>Back to Festival App</span>
         </Link>
 
-        <div className="bg-parchment-50 p-6 rounded-3xl border border-parchment-300 shadow-card text-center space-y-4">
-          <div className="w-12 h-12 rounded-2xl bg-teal-festival text-white flex items-center justify-center mx-auto">
-            <Lock className="w-6 h-6" />
+        <div className="bg-parchment-50 p-6 sm:p-7 rounded-3xl border border-parchment-300 shadow-card text-center space-y-4">
+          <div className="w-14 h-14 mx-auto mb-1">
+            <Image
+              src="/assets/klik-round-logo-128.png"
+              alt="KliK Logo"
+              width={56}
+              height={56}
+              className="w-full h-full object-contain"
+            />
           </div>
 
           <div>
@@ -122,32 +200,125 @@ export default function AdminPage() {
               Organizer Portal
             </h2>
             <p className="text-xs text-ink-muted mt-1">
-              Enter your staff passcode to manage live festival schedules and notices.
+              Sign in with your festival staff account to update schedules, artist statuses, and broadcast notices.
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-3 pt-2">
-            <input
-              type="password"
-              value={passcode}
-              onChange={(e) => setPasscode(e.target.value)}
-              placeholder="Passcode (Demo: klik2026)"
-              className="w-full px-4 py-2.5 rounded-xl bg-parchment-100 border border-parchment-300 text-sm focus:outline-none focus:ring-2 focus:ring-teal-festival"
-              aria-label="Organizer passcode"
-              required
-            />
+          {/* Unverified Account Alert Banner */}
+          {isUnverified && (
+            <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-300 text-left space-y-2 animate-in zoom-in-95">
+              <div className="flex items-start gap-2">
+                <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                <div className="text-xs text-amber-900">
+                  <strong className="block font-bold">Email Confirmation Required</strong>
+                  <span>
+                    Your account has not been activated yet. Please click the confirmation link sent to your email to activate your account.
+                  </span>
+                </div>
+              </div>
 
-            {authError && (
-              <p className="text-xs text-red-600 font-medium">{authError}</p>
+              {resendStatus ? (
+                <div className="text-[11px] text-teal-festival font-semibold pt-1">
+                  {resendStatus}
+                </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={handleResendActivation}
+                  className="w-full mt-1 py-1.5 px-3 rounded-lg bg-amber-200/80 hover:bg-amber-300 text-amber-900 text-xs font-bold transition-colors"
+                >
+                  Resend Confirmation Email
+                </button>
+              )}
+            </div>
+          )}
+
+          <form onSubmit={handleLogin} className="space-y-3.5 pt-1 text-left">
+            {authError && !isUnverified && (
+              <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>{authError}</span>
+              </div>
             )}
+
+            <div>
+              <label className="block text-[11px] font-bold uppercase tracking-wider text-ink-muted mb-1">
+                Organizer Email
+              </label>
+              <div className="relative">
+                <Mail className="w-4 h-4 text-ink-muted absolute left-3 top-3" />
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="organizer@klik2026.co.za"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-parchment-100 border border-parchment-300 text-xs text-ink-festival focus:outline-none focus:ring-2 focus:ring-teal-festival"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-1">
+                <label className="text-[11px] font-bold uppercase tracking-wider text-ink-muted">
+                  Password
+                </label>
+                <Link
+                  href="/admin/forgot-password"
+                  className="text-[11px] font-semibold text-teal-festival hover:underline"
+                >
+                  Forgot Password?
+                </Link>
+              </div>
+              <div className="relative">
+                <Lock className="w-4 h-4 text-ink-muted absolute left-3 top-3" />
+                <input
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Enter your password"
+                  className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-parchment-100 border border-parchment-300 text-xs text-ink-festival focus:outline-none focus:ring-2 focus:ring-teal-festival"
+                  required
+                />
+              </div>
+            </div>
 
             <button
               type="submit"
-              className="w-full py-2.5 px-4 rounded-xl bg-teal-festival text-white text-xs font-bold hover:bg-teal-light transition-colors shadow-sm"
+              disabled={loginLoading}
+              className="w-full py-2.5 px-4 rounded-xl bg-teal-festival text-white text-xs font-bold hover:bg-teal-light transition-colors shadow-sm disabled:opacity-50 flex items-center justify-center gap-2"
             >
-              Sign In as Organizer
+              {loginLoading ? (
+                <>
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  <span>Signing In...</span>
+                </>
+              ) : (
+                <span>Sign In as Organizer</span>
+              )}
             </button>
           </form>
+
+          {/* Quick Demo Access Bar */}
+          <div className="pt-2 border-t border-parchment-200 text-xs space-y-2">
+            <button
+              type="button"
+              onClick={handleQuickFillDemo}
+              className="w-full py-1.5 px-3 rounded-lg bg-mustard-festival/20 hover:bg-mustard-festival/35 text-ink-festival font-semibold text-[11px] transition-colors flex items-center justify-center gap-1.5"
+            >
+              <span>Auto-fill Demo Lead Admin (admin@klik2026.co.za)</span>
+            </button>
+
+            <div className="text-ink-muted text-xs pt-1">
+              Need an organizer account?{" "}
+              <Link
+                href="/admin/register"
+                className="font-bold text-teal-festival hover:underline"
+              >
+                Register here
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -156,21 +327,27 @@ export default function AdminPage() {
   return (
     <div className="space-y-5 pb-6 animate-in fade-in">
       {/* Admin Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-start sm:items-center justify-between gap-3">
         <div>
-          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-terracotta-festival text-white">
-            Staff Portal
-          </span>
+          <div className="flex items-center gap-2">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase bg-terracotta-festival text-white">
+              Staff Portal
+            </span>
+            <span className="text-xs text-ink-muted">
+              {authSession?.user?.name || "Lead Organizer"} ({authSession?.user?.email || "admin@klik2026.co.za"})
+            </span>
+          </div>
           <h1 className="font-serif font-black text-2xl text-teal-festival mt-1">
             Festival Operations
           </h1>
         </div>
 
         <button
-          onClick={() => setIsAuthenticated(false)}
-          className="px-3 py-1.5 rounded-lg bg-parchment-200 text-xs font-semibold text-ink-festival hover:bg-parchment-300 transition-colors"
+          onClick={handleLogout}
+          className="px-3 py-1.5 rounded-lg bg-parchment-200 text-xs font-semibold text-ink-festival hover:bg-parchment-300 transition-colors flex items-center gap-1.5 shrink-0"
         >
-          Sign Out
+          <LogOut className="w-3.5 h-3.5 text-ink-muted" />
+          <span>Sign Out</span>
         </button>
       </div>
 

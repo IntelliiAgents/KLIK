@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
+import { KliKLogo } from "@/components/Brand/KliKLogo";
 import { repository } from "@/lib/db/repository";
 import { getSavedEvents, saveEvent, removeSavedEvent } from "@/lib/db/idb";
 import { FestivalEvent, VenueLocation, EventCategory } from "@/lib/types";
@@ -54,6 +56,15 @@ export default function ProgrammePage() {
   useEffect(() => {
     const init = async () => {
       try {
+        if (typeof window !== "undefined") {
+          const params = new URLSearchParams(window.location.search);
+          const catParam = params.get("category");
+          if (catParam) {
+            setSelectedCategory(catParam);
+            setSelectedDay("all");
+          }
+        }
+
         const [allEvents, allVenues, savedList] = await Promise.all([
           repository.getEvents(),
           repository.getVenues(),
@@ -126,13 +137,18 @@ export default function ProgrammePage() {
   return (
     <div className="space-y-4 pb-6 animate-in fade-in duration-300">
       {/* Page Header */}
-      <div>
-        <h1 className="font-serif font-black text-2xl sm:text-3xl text-teal-festival">
-          Festival Programme
-        </h1>
-        <p className="text-xs text-ink-muted mt-0.5">
-          Explore performances, discussions, workshops and community gatherings.
-        </p>
+      <div className="flex items-center justify-between gap-3">
+        <div>
+          <h1 className="font-serif font-black text-2xl sm:text-3xl text-teal-festival">
+            Festival Programme
+          </h1>
+          <p className="text-xs text-ink-muted mt-0.5">
+            Explore performances, discussions, workshops and community gatherings.
+          </p>
+        </div>
+        <div className="shrink-0 w-11 h-11 p-1 rounded-2xl bg-parchment-100 border border-parchment-300 shadow-xs flex items-center justify-center">
+          <KliKLogo variant="emblem" className="w-8 h-8" />
+        </div>
       </div>
 
       {/* Day Navigation Tabs */}
@@ -211,6 +227,32 @@ export default function ProgrammePage() {
           );
         })}
       </div>
+
+      {/* Youth Festival Artwork Spotlight Banner when filtered */}
+      {selectedCategory === "youth" && (
+        <div className="p-3.5 rounded-2xl bg-parchment-100 border border-parchment-300 flex items-center gap-3.5 shadow-subtle animate-in fade-in duration-200">
+          <div className="relative w-16 h-20 rounded-xl overflow-hidden shrink-0 border border-parchment-300 bg-parchment-200 shadow-xs">
+            <Image
+              src="/assets/youth-poster.jpg"
+              alt="Kleinmond Has Talent Youth Festival Artwork"
+              fill
+              sizes="64px"
+              className="object-cover object-top"
+            />
+          </div>
+          <div className="text-xs space-y-1">
+            <span className="text-[10px] font-bold text-terracotta-festival uppercase tracking-wider block">
+              Youth Arts Spotlight
+            </span>
+            <strong className="font-serif font-bold text-teal-festival text-sm block">
+              Kleinmond Has Talent 2026
+            </strong>
+            <p className="text-ink-muted text-[11px] leading-snug">
+              Workshops (20 Sep – 4 Oct) & Competitions (28 Nov) for young creatives aged 14–25 at Mthimkhulu Village Centre.
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Advanced Filters Toggle (Venue & Free/Ticketed) */}
       <div className="flex items-center justify-between gap-2 pt-1">
@@ -321,8 +363,16 @@ export default function ProgrammePage() {
             />
           ))
         ) : (
-          <div className="bg-parchment-50 rounded-2xl p-8 text-center border border-dashed border-parchment-300 space-y-2">
-            <Calendar className="w-8 h-8 text-ink-muted mx-auto opacity-50" />
+          <div className="bg-parchment-50 rounded-2xl p-8 text-center border border-dashed border-parchment-300 space-y-3">
+            <div className="w-12 h-12 mx-auto">
+              <Image
+                src="/assets/klik-round-logo-128.png"
+                alt="KliK Protea Emblem"
+                width={48}
+                height={48}
+                className="w-full h-full object-contain opacity-60"
+              />
+            </div>
             <h3 className="font-serif font-bold text-base text-teal-festival">
               No matching events found
             </h3>
@@ -337,7 +387,7 @@ export default function ProgrammePage() {
                 setTicketFilter("all");
                 setSearchQuery("");
               }}
-              className="mt-3 px-4 py-2 rounded-xl bg-teal-festival text-white text-xs font-semibold hover:bg-teal-light"
+              className="mt-2 px-4 py-2 rounded-xl bg-teal-festival text-white text-xs font-semibold hover:bg-teal-light transition-colors"
             >
               Show all events
             </button>

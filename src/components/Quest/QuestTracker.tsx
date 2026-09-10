@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Challenge, ChallengeProgress, CheckIn, VenueLocation } from "@/lib/types";
 import {
   Award,
@@ -77,8 +78,14 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
             </p>
           </div>
 
-          <div className="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center text-mustard-light shrink-0">
-            <Award className="w-7 h-7" />
+          <div className="w-14 h-14 rounded-2xl bg-white/10 p-2 flex items-center justify-center shrink-0 border border-white/15 shadow-sm">
+            <Image
+              src="/assets/klik-round-logo-128.png"
+              alt="KliK Culture Trail Medallion"
+              width={56}
+              height={56}
+              className="w-full h-full object-contain drop-shadow-sm"
+            />
           </div>
         </div>
 
@@ -118,15 +125,28 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
 
       {/* Completion Banner if Complete */}
       {progress.isCompleted && (
-        <div className="p-4 rounded-2xl bg-mustard-festival/15 border-2 border-mustard-festival text-ink-festival space-y-2 animate-in zoom-in-95 duration-300">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-terracotta-festival shrink-0" />
-            <h3 className="font-serif font-bold text-base text-teal-festival">
-              Congratulations! Trail Completed!
-            </h3>
+        <div className="p-4 rounded-3xl bg-mustard-festival/15 border-2 border-mustard-festival text-ink-festival space-y-3 animate-in zoom-in-95 duration-300">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-white p-1.5 shadow-sm border border-mustard-festival/40 shrink-0">
+              <Image
+                src="/assets/klik-round-logo-128.png"
+                alt="Culture Explorer Official Medal"
+                width={48}
+                height={48}
+                className="w-full h-full object-contain"
+              />
+            </div>
+            <div>
+              <span className="text-[10px] font-bold uppercase tracking-wider text-terracotta-festival block">
+                Quest Completed
+              </span>
+              <h3 className="font-serif font-bold text-base text-teal-festival leading-tight">
+                Official Culture Explorer Awarded!
+              </h3>
+            </div>
           </div>
           <p className="text-xs text-ink-muted leading-relaxed">
-            You have successfully explored Kleinmond across multiple artistic categories. You are eligible for the KliK 2026 festival lucky draw!
+            You have successfully explored Kleinmond across multiple artistic categories. You are entered into the official KliK 2026 festival prize draw!
           </p>
           {progress.rewardDrawTicketNumber && (
             <div className="p-2.5 rounded-xl bg-parchment-50 border border-parchment-300 flex items-center justify-between">

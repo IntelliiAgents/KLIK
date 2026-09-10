@@ -25,7 +25,14 @@ import {
   ExternalLink,
   Info,
   ChevronRight,
+  Maximize2,
+  X,
+  Palette,
+  Music,
+  Users,
+  Share2,
 } from "lucide-react";
+import { ShareModal } from "@/components/UI/ShareModal";
 
 export default function HomePage() {
   const [events, setEvents] = useState<FestivalEvent[]>([]);
@@ -35,6 +42,13 @@ export default function HomePage() {
   const [selectedEvent, setSelectedEvent] = useState<FestivalEvent | null>(null);
   const [questProgress, setQuestProgress] = useState<ChallengeProgress | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isShareOpen, setIsShareOpen] = useState(false);
+  const [activeArtTab, setActiveArtTab] = useState<"programme" | "youth">("programme");
+  const [artworkModal, setArtworkModal] = useState<{
+    src: string;
+    title: string;
+    subtitle: string;
+  } | null>(null);
 
   useEffect(() => {
     const loadData = async () => {
@@ -84,12 +98,17 @@ export default function HomePage() {
 
   return (
     <div className="space-y-6 pb-6 animate-in fade-in duration-300">
-      {/* Hero Header with Logo */}
+      {/* Hero Header with Authentic Artwork Logo */}
       <section className="bg-parchment-50 rounded-3xl p-5 border border-parchment-300 shadow-subtle text-center relative overflow-hidden">
-        <KliKLogo variant="full" className="my-2" />
+        {/* Subtle decorative background ring */}
+        <div className="absolute -top-12 -right-12 w-40 h-40 rounded-full bg-mustard-festival/10 pointer-events-none blur-2xl" />
+        <div className="absolute -bottom-12 -left-12 w-40 h-40 rounded-full bg-teal-festival/10 pointer-events-none blur-2xl" />
+
+        {/* Official KliK Artwork Logo */}
+        <KliKLogo variant="full" priority className="my-1.5" />
 
         {/* Date & Location Pill */}
-        <div className="mt-4 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-parchment-200 border border-parchment-300 text-xs font-semibold text-teal-festival">
+        <div className="mt-3.5 inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-parchment-200 border border-parchment-300 text-xs font-semibold text-teal-festival">
           <Calendar className="w-3.5 h-3.5 text-terracotta-festival" />
           <span>27–29 November 2026</span>
           <span className="text-parchment-400">•</span>
@@ -97,8 +116,41 @@ export default function HomePage() {
           <span>Kleinmond, Western Cape</span>
         </div>
 
+        {/* Panoramic Coastal Artwork Banner */}
+        <div className="relative mt-4 w-full h-24 sm:h-28 rounded-2xl overflow-hidden border border-parchment-300 shadow-sm group cursor-pointer"
+          onClick={() =>
+            setArtworkModal({
+              src: "/assets/poster.jpg",
+              title: "KliK 2026 Festival Poster & Coastal Artwork",
+              subtitle: "Panoramic Kleinmond coastal mountains, sea, and protea fynbos",
+            })
+          }
+          title="Tap to view full festival poster and artwork"
+        >
+          <Image
+            src="/assets/kleinmond-landscape.jpg"
+            alt="Scenic painting of Kleinmond coastal mountains, sea, and blooming protea"
+            fill
+            sizes="(max-width: 640px) 100vw, 450px"
+            className="object-cover object-center group-hover:scale-105 transition-transform duration-500"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-teal-festival/85 via-teal-festival/30 to-transparent flex items-end justify-between p-2.5">
+            <div className="text-left">
+              <span className="text-[11px] sm:text-xs font-serif italic text-parchment-100 drop-shadow-sm flex items-center gap-1.5">
+                <Sparkles className="w-3 h-3 text-mustard-festival" />
+                <span>Celebrate creativity. Connect community.</span>
+              </span>
+            </div>
+            <span className="inline-flex items-center gap-1 text-[10px] font-bold text-white bg-black/40 backdrop-blur-sm px-2 py-0.5 rounded-md border border-white/20">
+              <Maximize2 className="w-2.5 h-2.5" />
+              <span>Artwork</span>
+            </span>
+          </div>
+        </div>
+
         {/* Primary Call to Actions */}
-        <div className="grid grid-cols-2 gap-2.5 mt-5">
+        <div className="grid grid-cols-2 gap-2.5 mt-4">
           <Link
             href="/programme"
             className="py-3 px-3 rounded-2xl bg-teal-festival hover:bg-teal-light text-white text-xs sm:text-sm font-bold flex items-center justify-center gap-1.5 shadow-sm transition-transform active:scale-[0.98]"
@@ -129,6 +181,17 @@ export default function HomePage() {
             <ExternalLink className="w-3.5 h-3.5 opacity-80" />
           </a>
         </div>
+
+        {/* Share App Action */}
+        <div className="mt-2.5">
+          <button
+            onClick={() => setIsShareOpen(true)}
+            className="w-full py-2.5 px-4 rounded-xl bg-parchment-200 hover:bg-parchment-300 text-teal-festival border border-parchment-300 text-xs font-bold flex items-center justify-center gap-2 shadow-xs transition-colors"
+          >
+            <Share2 className="w-4 h-4 text-terracotta-festival" />
+            <span>Share App on WhatsApp & Socials</span>
+          </button>
+        </div>
       </section>
 
       {/* Festival Notice Banner */}
@@ -150,11 +213,19 @@ export default function HomePage() {
         </section>
       )}
 
-      {/* KliK Quest Progress Banner */}
-      <section className="bg-gradient-to-r from-teal-festival to-teal-dark text-parchment-50 p-4 rounded-2xl shadow-subtle">
+      {/* KliK Quest Progress Banner with Authentic Round Logo */}
+      <section className="bg-gradient-to-r from-teal-festival to-teal-dark text-parchment-50 p-4 rounded-2xl shadow-subtle relative overflow-hidden">
         <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <Award className="w-5 h-5 text-mustard-light" />
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-full bg-parchment-100/15 p-0.5 flex items-center justify-center overflow-hidden">
+              <Image
+                src="/assets/klik-round-logo-128.png"
+                alt="Culture Trail Logo"
+                width={32}
+                height={32}
+                className="w-full h-full object-contain"
+              />
+            </div>
             <h3 className="font-serif font-bold text-sm text-parchment-50">
               The KliK Culture Trail
             </h3>
@@ -169,7 +240,7 @@ export default function HomePage() {
         </div>
 
         <p className="text-xs text-parchment-200 mb-3">
-          Check in at 5 festival venues across Kleinmond to earn your culture explorer status.
+          Check in at 5 festival venues across Kleinmond to earn your official Culture Explorer badge.
         </p>
 
         <div className="w-full h-2 rounded-full bg-white/20 overflow-hidden">
@@ -189,6 +260,71 @@ export default function HomePage() {
           <span>
             {questProgress?.isCompleted ? "Goal Completed! 🎉" : "In Progress"}
           </span>
+        </div>
+      </section>
+
+      {/* Youth Festival Spotlight Card */}
+      <section className="bg-parchment-100 rounded-3xl p-4 border border-parchment-300 shadow-subtle overflow-hidden">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <Palette className="w-4 h-4 text-terracotta-festival" />
+            <span className="text-[11px] font-bold uppercase tracking-wider text-terracotta-festival">
+              Youth Arts Spotlight
+            </span>
+          </div>
+          <Link
+            href="/programme?category=youth"
+            className="text-xs font-semibold text-teal-festival hover:underline flex items-center"
+          >
+            <span>Youth Events</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
+        </div>
+
+        <div className="flex flex-col sm:flex-row gap-3.5 items-center">
+          {/* Youth Poster Artwork Thumbnail */}
+          <div
+            className="relative w-full sm:w-32 aspect-[3/4] rounded-2xl overflow-hidden shadow-sm border border-parchment-300 cursor-pointer group shrink-0 bg-parchment-200"
+            onClick={() =>
+              setArtworkModal({
+                src: "/assets/youth-poster.jpg",
+                title: "Kleinmond Has Talent - Youth Festival Artwork",
+                subtitle: "Workshops: 20 Sep - 4 Oct 2026 | Competitions: 28 Nov 2026",
+              })
+            }
+            title="Tap to view full Youth Festival artwork"
+          >
+            <Image
+              src="/assets/youth-poster.jpg"
+              alt="Kleinmond Has Talent Youth Festival Poster artwork with dancers and performers"
+              fill
+              sizes="(max-width: 640px) 100vw, 128px"
+              className="object-cover object-top group-hover:scale-105 transition-transform duration-300"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center p-2">
+              <span className="text-[10px] text-white font-bold flex items-center gap-1">
+                <Maximize2 className="w-3 h-3" /> Zoom
+              </span>
+            </div>
+          </div>
+
+          {/* Details */}
+          <div className="space-y-1.5 text-left flex-1">
+            <h3 className="font-serif font-bold text-base text-teal-festival">
+              Kleinmond Has Talent 2026
+            </h3>
+            <p className="text-xs text-ink-muted leading-relaxed">
+              Workshops & competitions for young creatives aged 14–25. Poetry, Drama, Street Dance, Music, Sketching & Painting at Mthimkhulu Village Centre.
+            </p>
+            <div className="pt-1 flex flex-wrap gap-1.5 text-[11px] font-medium text-teal-festival">
+              <span className="px-2 py-0.5 rounded-md bg-parchment-200 border border-parchment-300">
+                Workshops: 20 Sep – 4 Oct
+              </span>
+              <span className="px-2 py-0.5 rounded-md bg-mustard-festival/20 text-ink-festival border border-mustard-festival/30">
+                Competitions: 28 Nov
+              </span>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -244,30 +380,160 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Festival Artwork Poster Banner */}
-      <section className="rounded-2xl overflow-hidden border border-parchment-300 shadow-subtle relative bg-parchment-100">
-        <div className="p-4 bg-parchment-50 border-b border-parchment-200">
-          <span className="text-[10px] font-bold uppercase tracking-wider text-terracotta-festival">
-            Official Festival Artwork
-          </span>
-          <h3 className="font-serif font-bold text-base text-teal-festival">
-            Celebrate Creativity. Connect Community.
+      {/* Festival Artwork & Posters Gallery Showcase */}
+      <section className="rounded-3xl overflow-hidden border border-parchment-300 shadow-subtle bg-parchment-50">
+        <div className="p-4 border-b border-parchment-200">
+          <div className="flex items-center justify-between">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-terracotta-festival">
+              Festival Artwork & Posters
+            </span>
+            <span className="text-[11px] font-medium text-ink-muted">
+              Tap poster to view in full
+            </span>
+          </div>
+          <h3 className="font-serif font-bold text-lg text-teal-festival mt-0.5">
+            Visual Story of KliK 2026
           </h3>
           <p className="text-xs text-ink-muted mt-0.5">
-            Join 19+ featured South African poets, musicians, artists, and storytellers in Kleinmond.
+            Explore the official posters celebrating Kleinmond&apos;s rich landscape, culture, and performers.
           </p>
+
+          {/* Toggle Tabs */}
+          <div className="flex gap-2 mt-3">
+            <button
+              onClick={() => setActiveArtTab("programme")}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                activeArtTab === "programme"
+                  ? "bg-teal-festival text-white shadow-xs"
+                  : "bg-parchment-200 text-teal-festival hover:bg-parchment-300"
+              }`}
+            >
+              Festival Programme Poster
+            </button>
+            <button
+              onClick={() => setActiveArtTab("youth")}
+              className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-colors ${
+                activeArtTab === "youth"
+                  ? "bg-teal-festival text-white shadow-xs"
+                  : "bg-parchment-200 text-teal-festival hover:bg-parchment-300"
+              }`}
+            >
+              Youth Festival Poster
+            </button>
+          </div>
         </div>
-        <div className="relative aspect-[16/9] w-full bg-parchment-200">
+
+        {/* Artwork Display Container */}
+        <div
+          className="relative aspect-[3/4] sm:aspect-[4/3] w-full bg-parchment-200 cursor-pointer group overflow-hidden"
+          onClick={() =>
+            setArtworkModal(
+              activeArtTab === "programme"
+                ? {
+                    src: "/assets/poster.jpg",
+                    title: "KliK 2026 Main Festival Programme Poster",
+                    subtitle: "Featuring 19+ artists, festival events, and Kleinmond coastal landscape",
+                  }
+                : {
+                    src: "/assets/youth-poster.jpg",
+                    title: "Kleinmond Has Talent - Youth Festival Poster",
+                    subtitle: "Workshops and competitions for young creatives aged 14–25",
+                  }
+            )
+          }
+        >
           <Image
-            src="/assets/poster.jpg"
-            alt="KliK 2026 Kleinmond Inniebos Kunstefees Poster with featured artists and festival events"
+            src={activeArtTab === "programme" ? "/assets/poster.jpg" : "/assets/youth-poster.jpg"}
+            alt={
+              activeArtTab === "programme"
+                ? "KliK 2026 Kleinmond Inniebos Kunstefees Poster with featured artists and festival events"
+                : "Kleinmond Has Talent Youth Festival poster with African patterns and youth performers"
+            }
             fill
-            sizes="(max-width: 600px) 100vw, 450px"
-            className="object-cover object-top"
+            sizes="(max-width: 640px) 100vw, 500px"
+            className="object-contain object-center group-hover:scale-[1.02] transition-transform duration-300"
             loading="lazy"
           />
+          <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center pointer-events-none">
+            <span className="opacity-0 group-hover:opacity-100 transition-opacity bg-black/70 text-white text-xs font-bold px-3 py-1.5 rounded-full flex items-center gap-1.5 shadow-md">
+              <Maximize2 className="w-3.5 h-3.5" />
+              <span>Tap to inspect full poster</span>
+            </span>
+          </div>
+        </div>
+
+        {/* Caption footer */}
+        <div className="p-3 bg-parchment-100 border-t border-parchment-200 flex items-center justify-between text-xs text-ink-muted">
+          <span>
+            {activeArtTab === "programme"
+              ? "Official 2026 Festival Lineup & Coastal Motif"
+              : "Youth Performing Arts & Workshops Programme"}
+          </span>
+          <span className="text-[10px] font-bold text-terracotta-festival uppercase tracking-wider">
+            Official Media
+          </span>
         </div>
       </section>
+
+      {/* Artwork Modal Lightbox */}
+      {artworkModal && (
+        <div
+          className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex flex-col items-center justify-center p-4 animate-in fade-in duration-200"
+          onClick={() => setArtworkModal(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label={artworkModal.title}
+        >
+          <div
+            className="relative max-w-lg w-full max-h-[92vh] flex flex-col bg-parchment-50 rounded-2xl overflow-hidden shadow-2xl border border-parchment-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="p-3.5 border-b border-parchment-200 flex items-center justify-between bg-parchment-100 shrink-0">
+              <div className="pr-4">
+                <h4 className="font-serif font-bold text-sm text-teal-festival line-clamp-1">
+                  {artworkModal.title}
+                </h4>
+                <p className="text-[11px] text-ink-muted line-clamp-1">
+                  {artworkModal.subtitle}
+                </p>
+              </div>
+              <button
+                onClick={() => setArtworkModal(null)}
+                className="p-1.5 rounded-full hover:bg-parchment-300 text-ink-muted hover:text-ink-festival transition-colors"
+                aria-label="Close artwork preview"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Modal Image View */}
+            <div className="relative flex-1 overflow-auto max-h-[75vh] p-2 bg-parchment-200 flex items-center justify-center">
+              <Image
+                src={artworkModal.src}
+                alt={artworkModal.title}
+                width={800}
+                height={1200}
+                className="w-auto h-auto max-h-[72vh] max-w-full object-contain rounded-lg shadow-sm"
+              />
+            </div>
+
+            {/* Modal Footer */}
+            <div className="p-3 bg-parchment-100 border-t border-parchment-200 flex items-center justify-between text-xs">
+              <span className="text-ink-muted">Pinch or scroll to examine details</span>
+              <button
+                onClick={() => setArtworkModal(null)}
+                className="px-3 py-1 bg-teal-festival text-white rounded-lg font-bold text-xs"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Share Modal */}
+      <ShareModal isOpen={isShareOpen} onClose={() => setIsShareOpen(false)} />
 
       {/* Event Details Modal */}
       <EventDetailsModal
