@@ -100,3 +100,18 @@
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+
+/* Suppress Netlify Drawer / Feedback badge from overlapping bottom navigation */
+#netlify-drawer,
+[id*="netlify-drawer"],
+[class*="netlify-drawer"],
+[data-netlify-drawer],
+netlify-drawer,
+div:has(> iframe[src*="netlify"]),
+iframe[src*="netlify"],
+div:has(> iframe[title*="Netlify"]) {
+  display: none !important;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  opacity: 0 !important;
+}

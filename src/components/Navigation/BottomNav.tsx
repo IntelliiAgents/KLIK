@@ -44,7 +44,7 @@ export const BottomNav: React.FC = () => {
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 bg-parchment-50/95 backdrop-blur-md border-t border-parchment-300 shadow-raised pb-[env(safe-area-inset-bottom,0px)]"
+      className="fixed bottom-0 left-0 right-0 z-[9999] bg-parchment-50/95 backdrop-blur-md border-t border-parchment-300 shadow-raised pb-[env(safe-area-inset-bottom,0px)]"
       role="navigation"
       aria-label="Main festival navigation"
     >
