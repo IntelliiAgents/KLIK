@@ -7,6 +7,7 @@ import { KliKLogo } from "@/components/Brand/KliKLogo";
 import { EventCard } from "@/components/Events/EventCard";
 import { EventDetailsModal } from "@/components/Events/EventDetailsModal";
 import { repository } from "@/lib/db/repository";
+import { SEED_PARTNERS } from "@/lib/data/seed";
 import { isEventSaved, saveEvent, removeSavedEvent, getSavedEvents } from "@/lib/db/idb";
 import {
   FestivalEvent,
@@ -472,6 +473,35 @@ export default function HomePage() {
           <span className="text-[10px] font-bold text-terracotta-festival uppercase tracking-wider">
             Official Media
           </span>
+        </div>
+      </section>
+
+      {/* Official Festival Partners */}
+      <section className="bg-parchment-50 rounded-3xl p-5 border border-parchment-300 shadow-card space-y-3">
+        <div className="flex items-center gap-2">
+          <Sparkles className="w-4 h-4 text-mustard-dark" />
+          <h2 className="font-serif font-bold text-base text-teal-festival">
+            Official Festival Partners
+          </h2>
+        </div>
+        <p className="text-xs text-ink-muted">
+          KliK 2026 is proudly presented in collaboration with our dedicated community and cultural partners:
+        </p>
+
+        <div className="grid grid-cols-2 gap-2 pt-1">
+          {SEED_PARTNERS.map((partner) => (
+            <div
+              key={partner.name}
+              className="p-2.5 rounded-xl bg-parchment-100/90 border border-parchment-200 flex flex-col justify-center"
+            >
+              <span className="font-semibold text-xs text-teal-festival line-clamp-1">
+                {partner.name}
+              </span>
+              <span className="text-[10px] text-ink-muted line-clamp-1">
+                {partner.role}
+              </span>
+            </div>
+          ))}
         </div>
       </section>
 

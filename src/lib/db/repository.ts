@@ -60,6 +60,8 @@ export interface FestivalRepository {
   publishNotice(notice: Omit<FestivalNotice, "id" | "createdAt">): Promise<FestivalNotice>;
 }
 
+const CURRENT_PROGRAM_VERSION = "3.5";
+
 // In-Memory & Local Storage implementation of FestivalRepository
 class LocalSeedRepository implements FestivalRepository {
   private events: FestivalEvent[] = [...SEED_EVENTS];
@@ -70,9 +72,18 @@ class LocalSeedRepository implements FestivalRepository {
     // Attempt to hydrate custom admin modifications from localStorage if on browser
     if (typeof window !== "undefined") {
       try {
-        const storedEvents = localStorage.getItem("klik_admin_events");
-        if (storedEvents) {
-          this.events = JSON.parse(storedEvents);
+        const storedVersion = localStorage.getItem("klik_program_version");
+        if (storedVersion !== CURRENT_PROGRAM_VERSION) {
+          // Flush older cached versions so new Draft 3.5 programme is loaded
+          localStorage.removeItem("klik_admin_events");
+          localStorage.setItem("klik_program_version", CURRENT_PROGRAM_VERSION);
+          this.events = [...SEED_EVENTS];
+          this.venues = [...SEED_VENUES];
+        } else {
+          const storedEvents = localStorage.getItem("klik_admin_events");
+          if (storedEvents) {
+            this.events = JSON.parse(storedEvents);
+          }
         }
         const storedNotices = localStorage.getItem("klik_admin_notices");
         if (storedNotices) {

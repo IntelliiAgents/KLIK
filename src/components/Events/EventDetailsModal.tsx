@@ -89,8 +89,8 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
                   {event.ticketPrice || "Ticketed"}
                 </span>
               ) : (
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-eucalyptus-festival/15 text-eucalyptus-dark">
-                  Free Event
+                <span className="px-2.5 py-0.5 rounded-full text-[11px] font-black tracking-wide bg-[#009A44] text-white shadow-xs">
+                  FREE ZONE
                 </span>
               )}
             </div>

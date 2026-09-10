@@ -81,8 +81,8 @@ export const EventCard: React.FC<EventCardProps> = ({
               <span>{event.ticketPrice || "Ticketed"}</span>
             </span>
           ) : (
-            <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-eucalyptus-festival/15 text-eucalyptus-dark">
-              Free Access
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-black tracking-wide bg-[#009A44] text-white shadow-xs">
+              FREE ZONE
             </span>
           )}
 
