@@ -15,7 +15,7 @@ const DESTINATION_OPTIONS = [
   { id: "central_cafe", label: "Central Café" },
   { id: "mthimkhulu", label: "Mthimkhulu" },
   { id: "the_grail", label: "The Grail" },
-  { id: "tides", label: "Tides" },
+  { id: "dixies", label: "Dixie's Restaurant" },
   { id: "other", label: "Other" },
 ];
 
