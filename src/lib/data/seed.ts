@@ -43,14 +43,39 @@ export const SEED_PARTNERS: FestivalPartner[] = [
     logoUrl: "/assets/partners/the-grail-centre.jpg",
   },
   {
+    name: "Mthimkhulu Community Development",
+    role: "Community & Youth Development Partner",
+    logoUrl: "/assets/partners/mthimkhulu.jpg",
+  },
+  {
+    name: "Kleinmond Central Café",
+    role: "Venue & Hospitality Partner",
+    logoUrl: "/assets/partners/central-cafe.jpg",
+  },
+  {
     name: "Catalyst Press",
     role: "Literary & Publishing Partner",
     logoUrl: "/assets/partners/catalyst-press.jpg",
   },
   {
+    name: "Modjadji Books",
+    role: "Literary & Publishing Partner",
+    logoUrl: "/assets/partners/modjadji-books.jpg",
+  },
+  {
     name: "Cape Cultural Collective",
     role: "Cultural & Arts Partner",
     logoUrl: "/assets/partners/cape-cultural-collective.jpg",
+  },
+  {
+    name: "Hangklip-Kleinmond Business Forum",
+    role: "Business & Community Partner",
+    logoUrl: "/assets/partners/hangklip-kleinmond-business-forum.jpg",
+  },
+  {
+    name: "Overstrand Herald",
+    role: "Official Media Partner",
+    logoUrl: "/assets/partners/overstrand-herald.jpg",
   },
   {
     name: "African Gypsy",
@@ -63,28 +88,8 @@ export const SEED_PARTNERS: FestivalPartner[] = [
     logoUrl: "/assets/partners/cape-winelands-hip-hop.jpg",
   },
   {
-    name: "Mthimkhulu Community Development",
-    role: "Community & Youth Development Partner",
-  },
-  {
-    name: "Kleinmond Central Café",
-    role: "Venue & Hospitality Partner",
-  },
-  {
     name: "Dixie's Restaurant",
     role: "Harbour Waterfront Partner",
-  },
-  {
-    name: "Hangklip-Kleinmond Business Forum",
-    role: "Business & Community Partner",
-  },
-  {
-    name: "Modjadji Books",
-    role: "Literary & Publishing Partner",
-  },
-  {
-    name: "Overstrand Herald",
-    role: "Official Media Partner",
   },
   {
     name: "PostLink Kleinmond",
