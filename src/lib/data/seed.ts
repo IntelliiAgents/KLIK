@@ -38,6 +38,11 @@ export const SEED_EDITION: FestivalEdition = {
 
 export const SEED_PARTNERS: FestivalPartner[] = [
   {
+    name: "Overstrand Municipality",
+    role: "Civic & Municipal Partner",
+    logoUrl: "/assets/partners/overstrand-municipality.jpg",
+  },
+  {
     name: "The Grail Centre",
     role: "Venue & Cultural Partner",
     logoUrl: "/assets/partners/the-grail-centre.jpg",
@@ -51,6 +56,16 @@ export const SEED_PARTNERS: FestivalPartner[] = [
     name: "Kleinmond Central Café",
     role: "Venue & Hospitality Partner",
     logoUrl: "/assets/partners/central-cafe.jpg",
+  },
+  {
+    name: "Tides Restaurant & Beach Bar",
+    role: "Harbour Venue & Hospitality Partner",
+    logoUrl: "/assets/partners/tides.jpg",
+  },
+  {
+    name: "CACNET",
+    role: "Community Arts Centres Network Western Cape",
+    logoUrl: "/assets/partners/cacnet.jpg",
   },
   {
     name: "Catalyst Press",
@@ -78,6 +93,11 @@ export const SEED_PARTNERS: FestivalPartner[] = [
     logoUrl: "/assets/partners/overstrand-herald.jpg",
   },
   {
+    name: "PostLink Kleinmond",
+    role: "Official Print Partner",
+    logoUrl: "/assets/partners/postlink.jpg",
+  },
+  {
     name: "African Gypsy",
     role: "Artisanal & Craft Partner",
     logoUrl: "/assets/partners/african-gypsy.jpg",
@@ -86,14 +106,6 @@ export const SEED_PARTNERS: FestivalPartner[] = [
     name: "Cape Winelands Hip Hop Dance Academy",
     role: "Youth Performance & Dance Partner",
     logoUrl: "/assets/partners/cape-winelands-hip-hop.jpg",
-  },
-  {
-    name: "Dixie's Restaurant",
-    role: "Harbour Waterfront Partner",
-  },
-  {
-    name: "PostLink Kleinmond",
-    role: "Official Print Partner",
   },
 ];
 
