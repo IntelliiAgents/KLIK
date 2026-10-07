@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   Car,
   Award,
@@ -227,14 +228,38 @@ export default function MorePage() {
               <p className="text-ink-muted">
                 KLiK 2026 is brought to life with the generous collaboration of our community partners:
               </p>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
                 {SEED_PARTNERS.map((p) => (
                   <div
                     key={p.name}
-                    className="p-3 rounded-xl bg-parchment-50 border border-parchment-300 space-y-0.5"
+                    className="p-3 rounded-2xl bg-white border border-parchment-200 shadow-subtle flex flex-col items-center justify-between text-center gap-2"
                   >
-                    <span className="font-bold text-teal-festival block">{p.name}</span>
-                    <span className="text-[11px] text-ink-muted">{p.role}</span>
+                    {p.logoUrl ? (
+                      <div className="w-full h-16 relative flex items-center justify-center p-1 bg-white rounded-lg">
+                        <Image
+                          src={p.logoUrl}
+                          alt={`${p.name} Logo`}
+                          fill
+                          sizes="(max-width: 640px) 50vw, 33vw"
+                          className="object-contain p-0.5"
+                        />
+                      </div>
+                    ) : (
+                      <div className="w-full h-16 rounded-lg bg-parchment-100 flex items-center justify-center p-1 text-center border border-parchment-200">
+                        <span className="font-serif font-bold text-[11px] text-teal-festival leading-tight">
+                          {p.name}
+                        </span>
+                      </div>
+                    )}
+
+                    <div className="w-full min-w-0 pt-1 border-t border-parchment-200/50">
+                      <strong className="font-serif font-bold text-[11px] text-teal-festival block truncate">
+                        {p.name}
+                      </strong>
+                      <span className="text-[10px] text-ink-muted block line-clamp-1">
+                        {p.role}
+                      </span>
+                    </div>
                   </div>
                 ))}
               </div>

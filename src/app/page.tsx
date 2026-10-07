@@ -106,35 +106,26 @@ export default function HomePage() {
 
   return (
     <div className="space-y-6 pb-8 animate-in fade-in duration-300">
-      {/* 2. Small Festival Identity Section */}
-      <section className="bg-parchment-50 rounded-3xl p-5 border border-parchment-300/80 shadow-subtle text-center">
-        <div className="flex items-center justify-center gap-3 mb-2">
-          <div className="relative w-12 h-12 rounded-full overflow-hidden shrink-0">
-            <Image
-              src="/assets/klik-round-logo-128.png"
-              alt="KLiK 2026 Logo"
-              width={48}
-              height={48}
-              className="w-full h-full object-contain"
-              priority
-            />
-          </div>
-          <div className="text-left">
-            <span className="font-serif font-black text-xl sm:text-2xl text-teal-festival leading-tight block">
-              KLiK
-            </span>
-            <span className="text-xs sm:text-sm font-bold text-ink-festival block">
-              Kleinmond Inniebos Kunstefees
-            </span>
-          </div>
+      {/* 2. Main Hero Section with Big Official KLiK Logo */}
+      <section className="text-center pt-2 pb-4 space-y-2.5">
+        <div className="w-full max-w-[280px] sm:max-w-[340px] md:max-w-[380px] mx-auto">
+          <Image
+            src="/assets/klik-logo-transparent-2x.png"
+            alt="KLiK - Kleinmond Inniebos Kunstefees"
+            width={480}
+            height={280}
+            className="w-full h-auto object-contain mx-auto"
+            priority
+          />
         </div>
 
-        <p className="text-xs font-semibold text-terracotta-festival">
-          27–29 November 2026 • Kleinmond
-        </p>
-
-        <div className="max-w-[140px] mx-auto mt-2.5">
-          <FestivalStripe height="h-0.5" />
+        <div className="space-y-0.5">
+          <p className="font-serif font-black text-sm sm:text-base tracking-wider text-terracotta-festival">
+            27–29 November 2026 • Kleinmond
+          </p>
+          <p className="text-[11px] sm:text-xs text-ink-muted">
+            Stories • Poetry • Music • Art • Community
+          </p>
         </div>
       </section>
 
@@ -462,22 +453,58 @@ export default function HomePage() {
         </p>
       </section>
 
-      {/* 9. Partners Near the Bottom */}
-      <footer className="pt-3 border-t border-parchment-300/80 text-center space-y-3">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-ink-muted block">
-          Festival &amp; Media Partners
-        </span>
-        <div className="flex items-center justify-center flex-wrap gap-2 text-xs text-ink-muted">
-          {SEED_PARTNERS.slice(0, 5).map((p) => (
-            <span
-              key={p.name}
-              className="px-2.5 py-1 rounded-lg bg-parchment-50 border border-parchment-200 text-[11px]"
+      {/* 9. Festival Partners & Supporters Section */}
+      <section className="space-y-4 pt-4 border-t border-parchment-300/80">
+        <div className="text-center space-y-1">
+          <h2 className="font-serif font-bold text-base sm:text-lg text-teal-festival">
+            Festival Partners &amp; Supporters
+          </h2>
+          <p className="text-xs text-ink-muted">
+            Meet the cultural organizations, venues, and community partners making KLiK 2026 possible.
+          </p>
+        </div>
+
+        {/* Partners Grid */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {SEED_PARTNERS.map((partner) => (
+            <div
+              key={partner.name}
+              className="bg-white rounded-2xl p-3.5 border border-parchment-200 shadow-subtle flex flex-col items-center justify-between text-center gap-2.5 transition-all hover:shadow-card hover:border-parchment-300"
             >
-              {p.name}
-            </span>
+              {partner.logoUrl ? (
+                <div className="w-full h-20 sm:h-24 relative flex items-center justify-center p-1 bg-white rounded-xl">
+                  <Image
+                    src={partner.logoUrl}
+                    alt={`${partner.name} Logo`}
+                    fill
+                    sizes="(max-width: 640px) 50vw, 33vw"
+                    className="object-contain p-1"
+                  />
+                </div>
+              ) : (
+                <div className="w-full h-20 sm:h-24 rounded-xl bg-parchment-100 flex items-center justify-center p-2 text-center border border-parchment-200">
+                  <span className="font-serif font-bold text-xs text-teal-festival leading-snug">
+                    {partner.name}
+                  </span>
+                </div>
+              )}
+
+              <div className="min-w-0 w-full pt-1 border-t border-parchment-200/60">
+                <strong className="block font-serif font-bold text-xs text-teal-festival truncate">
+                  {partner.name}
+                </strong>
+                <span className="text-[10px] text-ink-muted block mt-0.5 leading-tight line-clamp-2">
+                  {partner.role}
+                </span>
+              </div>
+            </div>
           ))}
         </div>
-      </footer>
+
+        <p className="text-center text-[11px] text-ink-muted pt-2 pb-1">
+          Official KLiK 2026 Cultural Festival • Kleinmond Inniebos Kunstefees
+        </p>
+      </section>
 
       {/* Event Details Modal */}
       <EventDetailsModal
