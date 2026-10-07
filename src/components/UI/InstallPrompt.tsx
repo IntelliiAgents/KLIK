@@ -54,11 +54,22 @@ export const InstallPrompt: React.FC = () => {
       }
     };
 
+    const handleManualTrigger = () => {
+      setShowBanner(true);
+      if (deferredPrompt) {
+        deferredPrompt.prompt();
+      } else if (isAppleDevice) {
+        setShowIOSGuide(true);
+      }
+    };
+
     window.addEventListener("klik_user_engaged", handleEngagement);
+    window.addEventListener("klik_trigger_install_prompt", handleManualTrigger);
 
     return () => {
       window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
       window.removeEventListener("klik_user_engaged", handleEngagement);
+      window.removeEventListener("klik_trigger_install_prompt", handleManualTrigger);
     };
   }, []);
 

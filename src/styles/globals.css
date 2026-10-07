@@ -4,24 +4,26 @@
 
 @layer base {
   :root {
-    --bg-parchment: #FAF6EE;
-    --text-ink: #1A2228;
-    --brand-teal: #133D4B;
-    --brand-terracotta: #C8522C;
-    --brand-mustard: #DE9E36;
-    --brand-eucalyptus: #4B6354;
+    --bg-parchment: #F7F4EC;
+    --text-ink: #263E47;
+    --brand-teal: #263E47;
+    --brand-teal-accent: #1997A3;
+    --brand-terracotta: #D75A35;
+    --brand-mustard: #D9A13E;
+    --brand-olive: #747A57;
   }
 
   html {
-    background-color: #FAF6EE;
-    color: #1A2228;
+    background-color: #F7F4EC;
+    color: #263E47;
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     -webkit-tap-highlight-color: transparent;
     scroll-behavior: smooth;
   }
 
   body {
-    background-color: #FAF6EE;
+    background-color: #F7F4EC;
+    color: #263E47;
     min-height: 100vh;
     padding-bottom: env(safe-area-inset-bottom, 24px);
     overflow-x: hidden;
@@ -29,7 +31,7 @@
 
   /* Accessible focus indicators */
   :focus-visible {
-    outline: 2px solid #C8522C;
+    outline: 2px solid #D75A35;
     outline-offset: 2px;
   }
 

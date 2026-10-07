@@ -64,7 +64,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#133D4B",
+  themeColor: "#263E47",
   width: "device-width",
   initialScale: 1,
   maximumScale: 5,
@@ -85,8 +85,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col bg-parchment text-ink-festival selection:bg-terracotta-festival selection:text-white antialiased">
         <TopHeader />
-
-        <main className="flex-1 max-w-md w-full mx-auto px-4 pt-3 pb-24 sm:pb-28">
+        <main className="flex-1 max-w-3xl lg:max-w-4xl w-full mx-auto px-4 sm:px-6 pt-3 pb-24 sm:pb-28">
           {children}
         </main>
 

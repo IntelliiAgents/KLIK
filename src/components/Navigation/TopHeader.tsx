@@ -1,127 +1,149 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import { KliKLogo } from "../Brand/KliKLogo";
-import { Wifi, WifiOff, RefreshCw, Bell, Shield, Share2 } from "lucide-react";
+import { FestivalStripe } from "../Brand/FestivalStripe";
+import { Share2, WifiOff, CheckCircle2, AlertCircle } from "lucide-react";
 import { ShareModal } from "../UI/ShareModal";
-import { getOfflineQueueCount, flushOfflineQueue } from "@/lib/db/idb";
+import { flushOfflineQueue } from "@/lib/db/idb";
+import { repository } from "@/lib/db/repository";
+import { FestivalNotice } from "@/lib/types";
+
+import { usePathname } from "next/navigation";
 
 export const TopHeader: React.FC = () => {
+  const pathname = usePathname();
   const [isOnline, setIsOnline] = useState<boolean>(true);
-  const [pendingSyncCount, setPendingSyncCount] = useState<number>(0);
-  const [isSyncing, setIsSyncing] = useState<boolean>(false);
+  const [showReconnectedBanner, setShowReconnectedBanner] = useState<boolean>(false);
+  const [isShareOpen, setIsShareOpen] = useState<boolean>(false);
+  const [activeNotice, setActiveNotice] = useState<FestivalNotice | null>(null);
 
   useEffect(() => {
     setIsOnline(navigator.onLine);
 
-    const updateSyncCount = async () => {
-      const count = await getOfflineQueueCount();
-      setPendingSyncCount(count);
+    // Fetch active notice for top banner if available
+    const checkNotices = async () => {
+      try {
+        const notices = await repository.getNotices();
+        if (notices.length > 0) {
+          // Only show important or urgent notices
+          const imp = notices.find((n) => n.level === "urgent" || n.level === "important");
+          if (imp) setActiveNotice(imp);
+        }
+      } catch {
+        // Fail silently
+      }
     };
-
-    updateSyncCount();
+    checkNotices();
 
     const handleOnline = async () => {
       setIsOnline(true);
-      setIsSyncing(true);
-      await flushOfflineQueue();
-      await updateSyncCount();
-      setIsSyncing(false);
+      setShowReconnectedBanner(true);
+      try {
+        await flushOfflineQueue();
+      } catch {
+        // silent
+      }
+      setTimeout(() => {
+        setShowReconnectedBanner(false);
+      }, 3000);
     };
 
     const handleOffline = () => {
       setIsOnline(false);
+      setShowReconnectedBanner(false);
     };
 
     window.addEventListener("online", handleOnline);
     window.addEventListener("offline", handleOffline);
-    const interval = setInterval(updateSyncCount, 10000);
 
     return () => {
       window.removeEventListener("online", handleOnline);
       window.removeEventListener("offline", handleOffline);
-      clearInterval(interval);
     };
   }, []);
 
-  const [isShareOpen, setIsShareOpen] = useState<boolean>(false);
+  // Do not render top attendee header inside admin dashboard
+  if (pathname.startsWith("/admin")) {
+    return null;
+  }
 
-  const handleManualSync = async () => {
-    if (!isOnline || isSyncing) return;
-    setIsSyncing(true);
-    await flushOfflineQueue();
-    const count = await getOfflineQueueCount();
-    setPendingSyncCount(count);
-    setIsSyncing(false);
+  const handleShareClick = async () => {
+    const shareUrl = typeof window !== "undefined" ? window.location.origin : "https://klik2026.netlify.app";
+    const shareData = {
+      title: "KLiK 2026 - Kleinmond Inniebos Kunstefees",
+      text: "Explore the official KLiK 2026 Kunstefees programme. 27–29 November 2026 in Kleinmond.",
+      url: shareUrl,
+    };
+
+    if (typeof navigator !== "undefined" && navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch (err: unknown) {
+        if ((err as Error)?.name === "AbortError") return;
+      }
+    }
+
+    setIsShareOpen(true);
   };
 
   return (
     <>
-      <header className="sticky top-0 z-40 bg-parchment/95 backdrop-blur-md border-b border-parchment-200 transition-colors">
-        <div className="max-w-md mx-auto px-4 h-14 flex items-center justify-between">
-          {/* Left Brand */}
+      <header className="sticky top-0 z-40 bg-parchment-100/95 backdrop-blur-md border-b border-parchment-300">
+        <div className="max-w-3xl lg:max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+          {/* Left: Small, clean KLiK logo */}
           <KliKLogo variant="compact" />
 
-          {/* Right Status Badges & Controls */}
-          <div className="flex items-center gap-1.5">
-            {/* Share App Button */}
+          {/* Right: Optional native share icon */}
+          <div className="flex items-center">
             <button
-              onClick={() => setIsShareOpen(true)}
-              className="p-2 rounded-full text-ink-muted hover:text-teal-festival hover:bg-parchment-200 focus-visible:ring-2 focus-visible:ring-terracotta-festival transition-colors"
-              title="Share KliK 2026 Festival App"
+              onClick={handleShareClick}
+              className="min-w-[44px] min-h-[44px] p-2.5 rounded-full text-ink-muted hover:text-teal-festival hover:bg-parchment-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta-festival transition-colors flex items-center justify-center"
+              title="Share KLiK 2026 Festival App"
               aria-label="Share Festival App"
             >
-              <Share2 className="w-4 h-4 text-terracotta-festival" aria-hidden="true" />
+              <Share2 className="w-5 h-5 text-teal-festival" aria-hidden="true" />
             </button>
-
-            {/* Offline / Online indicator */}
-            {!isOnline ? (
-              <span
-                className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-terracotta-festival text-white shadow-sm"
-                title="You are currently offline. Changes are saved locally on your device."
-                role="status"
-                aria-live="polite"
-              >
-                <WifiOff className="w-3.5 h-3.5" aria-hidden="true" />
-                <span>Offline</span>
-              </span>
-            ) : pendingSyncCount > 0 ? (
-              <button
-                onClick={handleManualSync}
-                disabled={isSyncing}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-medium bg-mustard-festival text-ink-festival hover:bg-mustard-light transition-colors"
-                title={`${pendingSyncCount} check-in(s) waiting to sync. Tap to sync now.`}
-                aria-label={`Sync ${pendingSyncCount} pending items`}
-              >
-                <RefreshCw
-                  className={`w-3.5 h-3.5 ${isSyncing ? "animate-spin" : ""}`}
-                  aria-hidden="true"
-                />
-                <span>Sync ({pendingSyncCount})</span>
-              </button>
-            ) : (
-              <span
-                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[11px] font-medium text-eucalyptus-festival bg-eucalyptus-festival/10"
-                title="Connected to network"
-              >
-                <span className="w-1.5 h-1.5 rounded-full bg-eucalyptus-festival animate-pulse" />
-                <span>Live</span>
-              </span>
-            )}
-
-            {/* Organiser Portal Link (Demonstration) */}
-            <Link
-              href="/admin"
-              className="p-2 rounded-full text-ink-muted hover:text-teal-festival hover:bg-parchment-200 focus-visible:ring-2 focus-visible:ring-terracotta-festival transition-colors"
-              title="Organizer Portal"
-              aria-label="Organizer Portal"
-            >
-              <Shield className="w-4 h-4" aria-hidden="true" />
-            </Link>
           </div>
         </div>
-        <div className="border-pattern-klik w-full" aria-hidden="true" />
+
+        <FestivalStripe height="h-[2px]" />
+
+        {/* Connectivity Status Notification */}
+        {!isOnline && (
+          <div
+            className="bg-amber-100/95 border-b border-amber-300 px-4 py-2 text-center text-xs font-medium text-amber-900 flex items-center justify-center gap-2 animate-in fade-in"
+            role="status"
+          >
+            <WifiOff className="w-3.5 h-3.5 text-amber-700 shrink-0" aria-hidden="true" />
+            <span>You&apos;re offline. Your saved programme is still available.</span>
+          </div>
+        )}
+
+        {isOnline && showReconnectedBanner && (
+          <div
+            className="bg-olive-festival/15 border-b border-olive-festival/30 px-4 py-2 text-center text-xs font-semibold text-teal-festival flex items-center justify-center gap-2 animate-in fade-in"
+            role="status"
+          >
+            <CheckCircle2 className="w-3.5 h-3.5 text-olive-festival shrink-0" aria-hidden="true" />
+            <span>Back online.</span>
+          </div>
+        )}
+
+        {/* Important Festival Alert Banner */}
+        {activeNotice && (
+          <div
+            className="bg-terracotta-festival text-white px-4 py-2.5 text-xs font-medium flex items-center justify-center gap-2 text-center shadow-xs"
+            role="alert"
+          >
+            <AlertCircle className="w-4 h-4 shrink-0 text-white" aria-hidden="true" />
+            <div className="leading-tight">
+              <strong className="font-bold mr-1 uppercase tracking-wide">{activeNotice.title}:</strong>
+              <span>{activeNotice.content}</span>
+            </div>
+          </div>
+        )}
       </header>
 
       <ShareModal

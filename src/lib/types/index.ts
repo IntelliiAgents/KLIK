@@ -75,6 +75,15 @@ export interface Artist {
   imageUrl?: string;
 }
 
+export interface EventSubSession {
+  time: string;
+  title: string;
+  artists?: string[];
+  notes?: string;
+}
+
+export type FestivalHub = 'start_your_day' | 'around_kleinmond' | 'the_grail' | 'sunday_grail';
+
 export interface FestivalEvent {
   id: string;
   title: string;
@@ -95,6 +104,9 @@ export interface FestivalEvent {
   statusNotice?: string;
   checkInAvailable: boolean;
   isFeatured?: boolean;
+  venueHub?: FestivalHub;
+  subSessions?: EventSubSession[];
+  capacityNote?: string;
 }
 
 export interface Participant {

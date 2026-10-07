@@ -19,6 +19,32 @@ Derived from the official festival artwork:
 
 ---
 
+## 🧭 Simplified Attendee UX Architecture
+
+Designed specifically for older residents, visitors, tourists, and first-time smartphone users attending the festival:
+
+1. **Answers the 4 Core Questions Immediately**:
+   - **What is happening now?** Dedicated prominent cards on the Home screen.
+   - **What is happening next?** Chronological upcoming shows directly below.
+   - **What would I like to attend?** Clean time-dominated Programme with 3 large day tabs (**FRI 27**, **SAT 28**, **SUN 29**) and one simple **Filter** button.
+   - **How do I get there?** One-tap **Directions** on every card, accessible venue directory, and official **Get a Ride** shuttle requests via WhatsApp.
+
+2. **5-Item Primary Navigation**:
+   - **Home** (`/`)
+   - **Programme** (`/programme`)
+   - **Map** (`/map`)
+   - **My Festival** (`/my-festival`)
+   - **More** (`/more` - Transport, Culture Trail, Tickets, Partners, About, Help)
+
+3. **Zero Jargon in Attendee UI**:
+   - No device IDs, sync counters, Supabase/IDB notices, or Mapbox token warnings are shown to attendees.
+   - Friendly offline notifications: *"You're offline. Your saved programme is still available."* and *"Back online."*
+
+4. **"Get a Ride" Shuttle Feature**:
+   - Allows attendees to share their live GPS location via WhatsApp to request the festival shuttle, with a manual venue pickup point fallback.
+
+---
+
 ## 🚀 Quick Start
 
 ### 1. Prerequisites
@@ -53,36 +79,11 @@ cp .env.example .env.local
 
 | Variable | Description | Default / Fallback |
 |---|---|---|
-| `NEXT_PUBLIC_MAPBOX_TOKEN` | Public Mapbox GL token for satellite/streets rendering | If empty, automatically displays the accessible venue directory fallback with Google/Apple navigation |
+| `NEXT_PUBLIC_MAPBOX_TOKEN` | Public Mapbox GL token for interactive map | If empty, automatically displays the accessible venue directory fallback with Google/Apple navigation |
 | `NEXT_PUBLIC_SUPABASE_URL` | Supabase project URL | If empty, uses local seed repository with IndexedDB |
 | `NEXT_PUBLIC_SUPABASE_ANON_KEY` | Supabase public anonymous API key | Optional for local demo |
 | `NEXT_PUBLIC_APP_URL` | Base URL for QR deep-links and social shares | `http://localhost:3000` |
-
----
-
-## 🗺️ How to Configure Mapbox GL
-
-1. Create a free account at [https://account.mapbox.com/](https://account.mapbox.com/).
-2. Create a public token with default scopes.
-3. Add it to `.env.local`:
-   ```env
-   NEXT_PUBLIC_MAPBOX_TOKEN=pk.eyJ1IjoieW91ci11c2VyIiwiYSI6InlvdXItdG9rZW4ifQ...
-   ```
-4. Restart your development server. The map page (`/map`) will load the dynamic 3D/outdoors terrain map. If left blank, the app runs without errors using the accessible directory view.
-
----
-
-## 🗄️ How to Connect Supabase
-
-1. Create a new Supabase project at [https://supabase.com](https://supabase.com).
-2. Open the **SQL Editor** in your Supabase dashboard.
-3. Paste the contents of `supabase/migrations/20260101000000_klik_initial_schema.sql` and run it.
-4. Copy your project URL and `anon` key from **Project Settings > API**.
-5. Add them to `.env.local`:
-   ```env
-   NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-   NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
-   ```
+| `NEXT_PUBLIC_SHUTTLE_PHONE` | Festival shuttle WhatsApp contact number | `+27821234567` |
 
 ---
 
@@ -90,7 +91,7 @@ cp .env.example .env.local
 
 ### Chrome / Edge (Desktop & Android):
 1. Navigate to `http://localhost:3000` or production deployment.
-2. An install icon appears in the browser URL bar, or interact with the app (e.g. save an event to My Festival) to trigger the floating install banner.
+2. Tap the floating install banner or use **More > Install KliK App**.
 3. Tap **Install** to add KliK 2026 as a standalone application.
 
 ### Safari (iOS iPhone / iPad):
@@ -103,21 +104,19 @@ cp .env.example .env.local
 
 ## 📴 How to Test Offline Behavior
 
-1. Open DevTools in Chrome or Edge (`F12` or right-click -> Inspect).
-2. Open the **Network** tab.
-3. Toggle the network dropdown from "No throttling" to **"Offline"**.
-4. Notice the header status changes from "Live" to an **Offline** badge.
-5. Navigate to `/programme`, view event details, save sessions, and open `/my-festival`—all cached data loads immediately.
-6. Check in at any venue (e.g. `/check-in/loc-writers-cafe?token=seed-token-writers-cafe-2026`). Notice the status is safely saved as **Captured Offline**.
-7. Toggle the network back to **"No throttling"**. The header displays the pending sync counter and automatically flushes the queue, confirming your check-ins!
+1. Open DevTools in Chrome or Edge (`F12`).
+2. Open the **Network** tab and toggle network to **"Offline"**.
+3. Notice the header displays a friendly banner: *"You're offline. Your saved programme is still available."*
+4. Navigate to `/programme`, view event details, save sessions, and open `/my-festival`—all data loads immediately from IndexedDB.
+5. Toggle network back to **"No throttling"**. The banner updates to *"Back online."* and automatically synchronizes queued items in the background.
 
 ---
 
 ## 🛡️ Organizer Admin Portal
 
-Organizers can access the operations console at `/admin`:
+Organizers can access the operations console at `/admin` (or via the discreet link in **More**):
 - **Demo Passcode**: `klik2026`
-- **Features**: Live event status updates (Happening Now, Moved, Cancelled), venue inspection, instant emergency notice broadcasts, and quest configuration review.
+- **Features**: Live event status overrides (Happening Now, Moved, Cancelled), instant emergency notice broadcasts, venue inspection, and quest configuration review.
 
 ---
 
@@ -129,19 +128,19 @@ Organizers can access the operations console at `/admin`:
 │   ├── icons/               # PWA icons (192, 512, maskable, svg)
 │   └── sw.js                # Custom Service Worker
 ├── src/
-│   ├── app/                 # Next.js App Router (Home, Programme, Map, Quest, My Festival, Admin)
-│   ├── components/          # Reusable UI, Navigation, Events, Map, Brand
+│   ├── app/                 # Next.js App Router (Home, Programme, Map, My Festival, More, Ride, Quest, Admin)
+│   ├── components/          # Reusable UI, Navigation, Events, Map, Brand, Quest
 │   ├── lib/
+│   │   ├── analytics.ts     # Anonymous attendee interaction tracking hooks
+│   │   ├── config.ts        # Festival info & shuttle WhatsApp integration
 │   │   ├── data/seed.ts     # Authentic seed data matching poster artists
 │   │   ├── db/idb.ts        # IndexedDB device storage & offline queue
 │   │   ├── db/repository.ts # Local & Supabase repository adapters
 │   │   └── types/index.ts   # Domain models
 │   └── styles/globals.css   # Tailwind styles & brand tokens
-├── supabase/migrations/     # Production SQL schema & RLS policies
 ├── ARCHITECTURE.md
 ├── DATA_MODEL.md
 ├── DECISIONS.md
 ├── IMPLEMENTATION_PLAN.md
-├── PWA.md
-└── CONTENT_NEEDED.md
+└── README.md
 ```

@@ -1,6 +1,6 @@
 # Decisions and Assumptions Log
 
-This document records the design assumptions, temporary defaults, and unresolved decisions for the **KliK 2026 Mobile-First PWA**.
+This document records the design assumptions, temporary defaults, unresolved decisions, and attendee UX principles for the **KliK 2026 Mobile-First PWA**.
 
 ---
 
@@ -22,15 +22,15 @@ This document records the design assumptions, temporary defaults, and unresolved
 
 ### D. Anonymous Participant Identity
 - **Assumption**: Users are not forced to create an account or provide an email/phone number to use the app, save events, or participate in the KliK Quest.
-- **Implementation**: On first launch, a random UUID (`klik_anon_xxx`) is generated and persisted in IndexedDB and localStorage. An export/backup key abstraction is provided so users can back up or restore progress across devices.
+- **Implementation**: On first launch, a random UUID (`klik_anon_xxx`) is generated and persisted in IndexedDB and localStorage.
 
 ### E. Supabase & Mapbox Fallback Architecture
 - **Assumption**: Supabase and Mapbox credentials are not immediately provided in the development environment.
 - **Implementation**: The application implements an abstract repository pattern (`FestivalRepository`). When `NEXT_PUBLIC_SUPABASE_URL` is unset, it automatically operates in local seed-adapter mode with IndexedDB caching. When `NEXT_PUBLIC_MAPBOX_TOKEN` is unset, Mapbox GL is bypassed and the app renders an accessible, searchable, filterable Venue List with direct Google/Apple Maps external links.
 
-### F. KliK Quest Rules
-- **Assumption**: "The KliK Culture Trail" requires 5 venue check-ins across at least 3 distinct activity categories (e.g., Poetry, Music, Art, Workshop, Community).
-- **Implementation**: Challenge evaluation is handled by an isolated rules engine (`evaluateQuestCompletion()`), enabling dynamic configuration and future multi-quest definitions without UI refactoring.
+### F. KliK Culture Trail (Quest) Rules
+- **Assumption**: "The KliK Culture Trail" requires 5 venue check-ins across at least 3 distinct activity categories.
+- **Implementation**: Challenge evaluation is handled by an isolated rules engine (`evaluateQuestCompletion()`), with attendee-facing progress clearly shown as "X of 5 places visited".
 
 ---
 
@@ -42,4 +42,27 @@ This document records the design assumptions, temporary defaults, and unresolved
 | **DEC-02** | Official Quicket per-event deep links | Defaulting to the main festival Quicket landing page | Individual Quicket ticket tier URLs for paid sessions |
 | **DEC-03** | Quest Prize & Sponsor Integration | Generic celebratory modal and lucky-draw verification token | Sponsor name, prize redemption booth location, and physical prize rules |
 | **DEC-04** | QR Token Security / Signing Algorithm | HMAC-SHA256 placeholder with salt for seed tokens | Supabase Edge Function secret for verifying QR tokens |
-| **DEC-05** | Offline sync window | Instant retry on reconnection + manual "Try Again" trigger | Desired server sync retry policy and retry backoff limits |
+| **DEC-05** | Offline sync window | Instant retry on reconnection + background flush | Desired server sync retry policy and retry backoff limits |
+
+---
+
+## 3. Simplified Attendee UX Architecture
+
+Following user-centric design principles for older residents, tourists, and first-time festival visitors:
+
+1. **Four Core Questions Answered in 5 Seconds**:
+   - *What is happening now?* (Dedicated top live cards)
+   - *What is happening next?* (Chronological upcoming cards)
+   - *What would I like to attend?* (Clean time-dominated Programme with 3 large day tabs: FRI 27, SAT 28, SUN 29)
+   - *How do I get there?* (One-tap Directions on every card, Venue directory, and "Get a Ride" shuttle request)
+
+2. **Streamlined Primary Navigation**:
+   - Bottom navigation reduced to: **Home**, **Programme**, **Map**, **My Festival**, **More**.
+   - Gamified "Culture Trail" moved into More as an optional activity.
+
+3. **Zero Developer / Technical Jargon in Attendee UI**:
+   - Removed device UUIDs, backup codes, sync queue counters, manual sync buttons, and environment configuration alerts from all attendee views.
+   - Offline banner is friendly and unobtrusive: *"You're offline. Your saved programme is still available."* and *"Back online."* upon reconnection.
+
+4. **"Get a Ride" WhatsApp Shuttle Integration**:
+   - Provides a friendly WhatsApp dispatch flow connecting users to the festival shuttle driver with GPS location sharing and manual venue pickup fallback. Configurable via `FESTIVAL_CONFIG.shuttlePhoneNumber`.

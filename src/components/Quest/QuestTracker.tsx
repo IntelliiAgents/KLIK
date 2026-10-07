@@ -5,16 +5,12 @@ import Link from "next/link";
 import Image from "next/image";
 import { Challenge, ChallengeProgress, CheckIn, VenueLocation } from "@/lib/types";
 import {
-  Award,
   CheckCircle2,
   Circle,
-  Sparkles,
-  QrCode,
-  Layers,
-  ChevronRight,
+  Award,
+  MapPin,
   Gift,
-  HelpCircle,
-  Share2,
+  X,
 } from "lucide-react";
 import confetti from "canvas-confetti";
 
@@ -35,11 +31,8 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
   const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
 
   const completedCount = progress.totalCheckInsCount;
-  const targetCount = challenge.requiredCheckInCount;
+  const targetCount = challenge.requiredCheckInCount || 5;
   const percentComplete = Math.min(100, Math.round((completedCount / targetCount) * 100));
-
-  const categoriesMetCount = progress.distinctCategoriesMet.length;
-  const targetCategoriesCount = challenge.requiredDistinctCategoriesCount;
 
   useEffect(() => {
     if (progress.isCompleted && !hasTriggeredConfetti) {
@@ -47,60 +40,48 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
       setShowCelebration(true);
       try {
         confetti({
-          particleCount: 80,
-          spread: 70,
+          particleCount: 60,
+          spread: 60,
           origin: { y: 0.6 },
-          colors: ["#133D4B", "#C8522C", "#DE9E36", "#4B6354"],
+          colors: ["#263E47", "#D75A35", "#D9A13E", "#747A57"],
         });
       } catch {
-        // fallback if canvas not available
+        // fallback
       }
     }
   }, [progress.isCompleted, hasTriggeredConfetti]);
 
+  const checkedVenueIds = new Set(checkIns.map((c) => c.locationId));
+
   return (
     <div className="space-y-6">
-      {/* Hero Quest Card */}
-      <div className="bg-gradient-to-br from-teal-festival to-teal-dark text-parchment-50 p-5 rounded-3xl shadow-raised relative overflow-hidden">
-        {/* Subtle decorative motif */}
-        <div className="absolute top-0 right-0 -mr-6 -mt-6 w-32 h-32 rounded-full bg-white/5 pointer-events-none" />
-
-        <div className="flex items-start justify-between gap-3 mb-3">
-          <div>
-            <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-widest bg-mustard-festival text-ink-festival">
-              Official Festival Quest
+      {/* Culture Trail Progress Card */}
+      <div className="bg-parchment-50 rounded-3xl p-6 border border-parchment-300 shadow-subtle space-y-4">
+        <div className="flex items-start justify-between gap-3">
+          <div className="space-y-1">
+            <span className="text-[10px] font-bold uppercase tracking-wider text-terracotta-festival">
+              Culture Trail
             </span>
-            <h2 className="font-serif font-black text-2xl mt-1 text-parchment-50">
-              {challenge.title}
+            <h2 className="font-serif font-black text-xl sm:text-2xl text-teal-festival leading-tight">
+              {completedCount >= targetCount
+                ? "Culture Trail Completed!"
+                : `${completedCount} of ${targetCount} locations visited`}
             </h2>
-            <p className="text-xs text-parchment-200 mt-0.5">
-              {challenge.subtitle}
+            <p className="text-xs text-ink-muted">
+              Visit participating venues across Kleinmond and scan their checkpoint signs.
             </p>
           </div>
 
-          <div className="w-14 h-14 rounded-2xl bg-white/10 p-2 flex items-center justify-center shrink-0 border border-white/15 shadow-sm">
-            <Image
-              src="/assets/klik-round-logo-128.png"
-              alt="KliK Culture Trail Medallion"
-              width={56}
-              height={56}
-              className="w-full h-full object-contain drop-shadow-sm"
-            />
+          <div className="w-12 h-12 rounded-2xl bg-olive-festival/10 p-2 flex items-center justify-center shrink-0">
+            <Award className="w-7 h-7 text-olive-festival" />
           </div>
         </div>
 
-        {/* Progress Bar */}
-        <div className="space-y-2 mt-4 pt-3 border-t border-white/10">
-          <div className="flex items-center justify-between text-xs font-semibold">
-            <span>
-              {completedCount} of {targetCount} Venues Visited
-            </span>
-            <span>{percentComplete}%</span>
-          </div>
-
-          <div className="w-full h-3 rounded-full bg-white/15 overflow-hidden p-0.5">
+        {/* Restrained Progress Bar */}
+        <div className="space-y-1.5 pt-1">
+          <div className="w-full h-2.5 rounded-full bg-parchment-200 overflow-hidden">
             <div
-              className="h-full rounded-full bg-gradient-to-r from-mustard-festival to-terracotta-festival transition-all duration-500"
+              className="h-full rounded-full bg-terracotta-festival transition-all duration-500"
               style={{ width: `${percentComplete}%` }}
               role="progressbar"
               aria-valuenow={percentComplete}
@@ -109,155 +90,134 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
             />
           </div>
 
-          <div className="flex items-center justify-between text-[11px] text-parchment-300">
-            <span className="flex items-center gap-1">
-              <Layers className="w-3.5 h-3.5 text-mustard-light" />
-              <span>
-                Categories explored: <strong>{categoriesMetCount}</strong>/{targetCategoriesCount}
-              </span>
-            </span>
-            <span>
-              {progress.isCompleted ? "🎉 Goal Achieved!" : `${targetCount - completedCount} more to go`}
+          <div className="flex items-center justify-between text-xs text-ink-muted">
+            <span>{completedCount} of {targetCount} checkpoints</span>
+            <span className="font-medium text-teal-festival">
+              {progress.isCompleted ? "Completed" : `${targetCount - completedCount} remaining`}
             </span>
           </div>
         </div>
-      </div>
 
-      {/* Completion Banner if Complete */}
-      {progress.isCompleted && (
-        <div className="p-4 rounded-3xl bg-mustard-festival/15 border-2 border-mustard-festival text-ink-festival space-y-3 animate-in zoom-in-95 duration-300">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-2xl bg-white p-1.5 shadow-sm border border-mustard-festival/40 shrink-0">
-              <Image
-                src="/assets/klik-round-logo-128.png"
-                alt="Culture Explorer Official Medal"
-                width={48}
-                height={48}
-                className="w-full h-full object-contain"
-              />
+        {progress.isCompleted && (
+          <div className="p-3.5 rounded-2xl bg-olive-festival/10 border border-olive-festival/20 text-olive-dark flex items-center justify-between">
+            <div className="flex items-center gap-2 text-xs font-bold">
+              <Gift className="w-4 h-4 text-terracotta-festival" />
+              <span>You&apos;ve completed the trail!</span>
             </div>
-            <div>
-              <span className="text-[10px] font-bold uppercase tracking-wider text-terracotta-festival block">
-                Quest Completed
-              </span>
-              <h3 className="font-serif font-bold text-base text-teal-festival leading-tight">
-                Official Culture Explorer Awarded!
-              </h3>
-            </div>
+            <button
+              onClick={() => setShowCelebration(true)}
+              className="text-xs font-bold text-teal-festival underline"
+            >
+              View Ticket
+            </button>
           </div>
-          <p className="text-xs text-ink-muted leading-relaxed">
-            You have successfully explored Kleinmond across multiple artistic categories. You are entered into the official KliK 2026 festival prize draw!
-          </p>
-          {progress.rewardDrawTicketNumber && (
-            <div className="p-2.5 rounded-xl bg-parchment-50 border border-parchment-300 flex items-center justify-between">
-              <span className="text-xs text-ink-muted">Lucky Draw Entry ID:</span>
-              <span className="font-mono font-bold text-sm text-teal-festival">
-                {progress.rewardDrawTicketNumber}
-              </span>
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Quest Rules Summary */}
-      <div className="p-4 rounded-2xl bg-parchment-100 border border-parchment-200 text-xs text-ink-festival space-y-2">
-        <h4 className="font-bold flex items-center gap-1.5 text-teal-festival">
-          <HelpCircle className="w-4 h-4 text-terracotta-festival" />
-          <span>How The KliK Culture Trail Works</span>
-        </h4>
-        <p className="text-ink-muted leading-relaxed">
-          {challenge.rulesDescription}
-        </p>
+        )}
       </div>
 
-      {/* Steps List */}
-      <div className="space-y-3">
-        <h3 className="font-serif font-bold text-base text-teal-festival flex items-center justify-between">
-          <span>Trail Waypoints</span>
-          <span className="text-xs font-normal text-ink-muted">
-            {checkIns.length} recorded
-          </span>
+      {/* Venues Checkpoint List */}
+      <section className="space-y-3">
+        <h3 className="font-serif font-bold text-base text-teal-festival">
+          Trail Locations
         </h3>
 
-        {challenge.steps.map((step, idx) => {
-          // Check if any check-in matches this step's category or location
-          const isDone = checkIns.length > idx;
-          const matchingCheckIn = checkIns[idx];
+        <div className="space-y-2">
+          {venues.map((venue) => {
+            const isVisited = checkedVenueIds.has(venue.id);
 
-          return (
-            <div
-              key={step.id}
-              className={`p-4 rounded-2xl border transition-all ${
-                isDone
-                  ? "bg-parchment-50 border-eucalyptus-festival/40 shadow-subtle"
-                  : "bg-parchment-100/60 border-parchment-200"
-              }`}
-            >
-              <div className="flex items-start gap-3">
-                <div className="mt-0.5 shrink-0">
-                  {isDone ? (
-                    <CheckCircle2 className="w-5 h-5 text-eucalyptus-festival" />
-                  ) : (
-                    <Circle className="w-5 h-5 text-parchment-400" />
-                  )}
-                </div>
-
-                <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 mb-0.5">
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-terracotta-festival">
-                      Waypoint {idx + 1}
-                    </span>
-                    {step.isRequired && (
-                      <span className="text-[9px] font-semibold text-ink-muted bg-parchment-200 px-1.5 py-0.2 rounded">
-                        Required
-                      </span>
+            return (
+              <div
+                key={venue.id}
+                className={`p-4 rounded-2xl border transition-all flex items-center justify-between gap-3 ${
+                  isVisited
+                    ? "bg-olive-festival/5 border-olive-festival/20"
+                    : "bg-parchment-50 border-parchment-300"
+                }`}
+              >
+                <div className="flex items-center gap-3 min-w-0">
+                  <div
+                    className={`w-7 h-7 rounded-full flex items-center justify-center shrink-0 ${
+                      isVisited
+                        ? "bg-olive-festival text-white"
+                        : "bg-parchment-200 text-ink-muted"
+                    }`}
+                  >
+                    {isVisited ? (
+                      <CheckCircle2 className="w-4 h-4" />
+                    ) : (
+                      <Circle className="w-4 h-4 stroke-[1.5]" />
                     )}
                   </div>
 
-                  <h4 className="font-serif font-bold text-sm text-teal-festival">
-                    {step.title}
-                  </h4>
-                  <p className="text-xs text-ink-muted mt-0.5">
-                    {step.description}
-                  </p>
+                  <div className="min-w-0">
+                    <h4 className="font-serif font-bold text-sm text-teal-festival leading-tight truncate">
+                      {venue.name}
+                    </h4>
+                    <p className="text-[11px] text-ink-muted truncate">{venue.address}</p>
+                  </div>
+                </div>
 
-                  {isDone && matchingCheckIn && (
-                    <div className="mt-2 text-[11px] font-medium text-eucalyptus-dark bg-eucalyptus-festival/10 px-2 py-1 rounded-md inline-flex items-center gap-1">
-                      <span>Checked in at: {matchingCheckIn.locationName}</span>
-                    </div>
+                <div className="shrink-0 text-right">
+                  {isVisited ? (
+                    <span className="text-[11px] font-bold text-olive-festival">
+                      Visited
+                    </span>
+                  ) : (
+                    <Link
+                      href={`/check-in/${venue.id}?token=${venue.qrCodeToken}`}
+                      className="px-3 py-1.5 rounded-xl bg-parchment-100 hover:bg-parchment-200 text-teal-festival text-xs font-bold border border-parchment-300 transition-colors"
+                    >
+                      Check In
+                    </Link>
                   )}
                 </div>
               </div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Completion Modal */}
+      {showCelebration && (
+        <div
+          className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-center justify-center p-4 animate-in fade-in"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div className="bg-parchment-50 w-full max-w-sm rounded-3xl p-6 border border-parchment-300 shadow-2xl text-center space-y-4 animate-in zoom-in-95">
+            <div className="w-14 h-14 rounded-2xl bg-olive-festival/15 text-olive-dark mx-auto flex items-center justify-center">
+              <Award className="w-8 h-8 text-olive-festival" />
             </div>
-          );
-        })}
-      </div>
 
-      {/* Direct QR Scanner trigger / deep-link test helper */}
-      <div className="p-4 rounded-2xl bg-parchment-50 border border-parchment-300 space-y-3 shadow-subtle">
-        <div className="flex items-center gap-2">
-          <QrCode className="w-5 h-5 text-teal-festival" />
-          <h4 className="font-serif font-bold text-sm text-teal-festival">
-            Scan a Festival QR Code
-          </h4>
-        </div>
-        <p className="text-xs text-ink-muted">
-          Physical QR signs are posted at each official festival tent and entrance. You can also test a sample checkpoint below:
-        </p>
+            <div className="space-y-1">
+              <h3 className="font-serif font-black text-xl text-teal-festival">
+                Congratulations!
+              </h3>
+              <p className="text-xs text-ink-muted leading-relaxed">
+                You have visited 5 festival checkpoints and completed the KLiK Culture Trail.
+              </p>
+            </div>
 
-        <div className="grid grid-cols-2 gap-2 pt-1">
-          {venues.slice(0, 4).map((v) => (
-            <Link
-              key={v.id}
-              href={`/check-in/${v.id}?token=${v.qrCodeToken}`}
-              className="p-2.5 rounded-xl bg-parchment-200 hover:bg-parchment-300 text-teal-festival text-xs font-semibold flex items-center justify-between gap-1 transition-colors"
+            <div className="bg-parchment-100 p-4 rounded-2xl border border-parchment-300 text-xs text-ink-festival space-y-1">
+              <span className="text-ink-muted block text-[10px] uppercase font-bold tracking-wider">
+                Festival Lucky Draw Number
+              </span>
+              <span className="font-mono font-black text-xl text-teal-festival block">
+                {progress.rewardDrawTicketNumber || "KLIK-2026-WIN"}
+              </span>
+              <p className="text-[11px] text-ink-muted pt-1">
+                Show this ticket number at the Festival Info Desk to enter the community prize draw.
+              </p>
+            </div>
+
+            <button
+              onClick={() => setShowCelebration(false)}
+              className="w-full py-3 px-4 rounded-xl bg-teal-festival hover:bg-teal-light text-white font-bold text-xs shadow-xs transition-colors"
             >
-              <span className="truncate">{v.shortName}</span>
-              <ChevronRight className="w-3.5 h-3.5 shrink-0 opacity-60" />
-            </Link>
-          ))}
+              Close
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

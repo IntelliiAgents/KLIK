@@ -3,7 +3,7 @@ import Link from "next/link";
 import Image from "next/image";
 
 interface KliKLogoProps {
-  variant?: "full" | "compact" | "badge" | "emblem";
+  variant?: "full" | "compact" | "badge" | "emblem" | "hero";
   className?: string;
   priority?: boolean;
 }
@@ -13,6 +13,23 @@ export const KliKLogo: React.FC<KliKLogoProps> = ({
   className = "",
   priority = false,
 }) => {
+  if (variant === "hero") {
+    return (
+      <div className={`relative inline-flex items-center justify-center ${className}`}>
+        <div className="relative w-28 h-28 sm:w-32 sm:h-32 mx-auto drop-shadow-sm transition-transform hover:scale-[1.02]">
+          <Image
+            src="/assets/klik-round-logo-256.png"
+            alt="KliK Kunstefees 2026 Official Logo"
+            width={128}
+            height={128}
+            className="w-full h-full object-contain"
+            priority={priority}
+          />
+        </div>
+      </div>
+    );
+  }
+
   if (variant === "compact") {
     return (
       <Link
@@ -20,12 +37,12 @@ export const KliKLogo: React.FC<KliKLogoProps> = ({
         className={`group inline-flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta-festival rounded-full transition-transform active:scale-95 ${className}`}
         aria-label="KliK Kunstefees 2026 Home"
       >
-        <div className="relative w-11 h-11 shrink-0 drop-shadow-xs transition-transform group-hover:scale-105">
+        <div className="relative w-12 h-12 shrink-0 drop-shadow-xs transition-transform group-hover:scale-105">
           <Image
             src="/assets/klik-round-logo-128.png"
             alt="KliK Kunstefees 2026 Official Logo"
-            width={44}
-            height={44}
+            width={48}
+            height={48}
             className="w-full h-full object-contain"
             priority={priority}
           />

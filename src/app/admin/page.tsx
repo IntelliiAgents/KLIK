@@ -35,6 +35,11 @@ import {
   UserCheck,
   LogOut,
   RefreshCw,
+  QrCode,
+  Printer,
+  Download,
+  Eye,
+  ExternalLink,
 } from "lucide-react";
 
 export default function AdminPage() {
@@ -55,6 +60,7 @@ export default function AdminPage() {
   const [venues, setVenues] = useState<VenueLocation[]>([]);
   const [notices, setNotices] = useState<FestivalNotice[]>([]);
   const [challenge, setChallenge] = useState<Challenge | null>(null);
+  const [posterVenue, setPosterVenue] = useState<VenueLocation | null>(null);
 
   // New Notice form state
   const [noticeTitle, setNoticeTitle] = useState("");
@@ -171,6 +177,39 @@ export default function AdminPage() {
     setNoticeContent("");
     setNoticeSuccess(true);
     setTimeout(() => setNoticeSuccess(false), 3000);
+  };
+
+  const getCheckInUrl = (v: VenueLocation) => {
+    const origin =
+      typeof window !== "undefined" && window.location.origin
+        ? window.location.origin
+        : "https://klikfees.co.za";
+    return `${origin}/check-in/${v.id}?token=${v.qrCodeToken}`;
+  };
+
+  const getQrImageUrl = (v: VenueLocation, size = 400) => {
+    const url = getCheckInUrl(v);
+    return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&margin=10&data=${encodeURIComponent(
+      url
+    )}`;
+  };
+
+  const handleDownloadQr = async (venue: VenueLocation) => {
+    const qrUrl = getQrImageUrl(venue, 600);
+    try {
+      const res = await fetch(qrUrl);
+      const blob = await res.blob();
+      const blobUrl = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.href = blobUrl;
+      link.download = `klik-qr-${venue.id}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(blobUrl);
+    } catch {
+      window.open(qrUrl, "_blank");
+    }
   };
 
   if (!isAuthenticated) {
@@ -386,7 +425,7 @@ export default function AdminPage() {
             activeTab === "quest" ? "bg-teal-festival text-white shadow-sm" : "text-ink-muted"
           }`}
         >
-          Quest
+          Culture Trail
         </button>
       </div>
 
@@ -466,30 +505,93 @@ export default function AdminPage() {
 
       {/* Tab: Venues Management */}
       {activeTab === "venues" && (
-        <div className="space-y-3">
-          <p className="text-xs text-ink-muted">
-            All registered festival venues and active physical QR check-in tokens.
-          </p>
-
-          {venues.map((v) => (
-            <div
-              key={v.id}
-              className="bg-parchment-50 p-4 rounded-2xl border border-parchment-200 shadow-subtle space-y-1.5"
-            >
-              <div className="flex items-center justify-between">
-                <h3 className="font-serif font-bold text-sm text-teal-festival">
-                  {v.name}
-                </h3>
-                <span className="text-[10px] uppercase font-bold text-ink-muted bg-parchment-200 px-2 py-0.5 rounded-full">
-                  {v.category}
-                </span>
-              </div>
-              <p className="text-xs text-ink-muted">{v.address}</p>
-              <div className="text-[11px] font-mono text-teal-festival bg-parchment-100 p-2 rounded-lg break-all">
-                QR Token: {v.qrCodeToken}
-              </div>
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 bg-parchment-50 p-4 rounded-2xl border border-parchment-200">
+            <div>
+              <h2 className="font-serif font-bold text-sm text-teal-festival">
+                Culture Trail Venues & Physical Signage
+              </h2>
+              <p className="text-xs text-ink-muted">
+                {venues.length} registered festival venues. Print official A4 signage with QR codes for attendees to scan.
+              </p>
             </div>
-          ))}
+            {venues.length > 0 && (
+              <button
+                type="button"
+                onClick={() => setPosterVenue(venues[0])}
+                className="px-3.5 py-2 rounded-xl bg-teal-festival hover:bg-teal-light text-white text-xs font-bold flex items-center gap-1.5 shrink-0 transition-colors shadow-sm"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                <span>Print Signs</span>
+              </button>
+            )}
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {venues.map((v) => (
+              <div
+                key={v.id}
+                className="bg-parchment-50 p-4 rounded-2xl border border-parchment-200 shadow-subtle flex flex-col justify-between gap-3"
+              >
+                <div className="space-y-2">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h3 className="font-serif font-bold text-sm text-teal-festival">
+                        {v.name}
+                      </h3>
+                      <p className="text-xs text-ink-muted mt-0.5">{v.address}</p>
+                    </div>
+                    <span className="text-[10px] uppercase font-bold text-ink-muted bg-parchment-200 px-2 py-0.5 rounded-full shrink-0">
+                      {v.category}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-3 bg-parchment-100 p-2.5 rounded-xl">
+                    <img
+                      src={getQrImageUrl(v, 120)}
+                      alt={`QR code for ${v.name}`}
+                      className="w-12 h-12 object-contain bg-white rounded-lg p-0.5 shrink-0 border border-parchment-200"
+                    />
+                    <div className="min-w-0 text-[11px] font-mono text-teal-festival break-all">
+                      <span className="text-[10px] block font-sans font-semibold uppercase text-ink-muted">Token</span>
+                      {v.qrCodeToken}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 pt-1 border-t border-parchment-200/80">
+                  <button
+                    type="button"
+                    onClick={() => setPosterVenue(v)}
+                    className="flex-1 py-1.5 px-2.5 rounded-xl bg-terracotta-festival hover:bg-terracotta-festival/90 text-white text-[11px] font-bold flex items-center justify-center gap-1.5 transition-colors shadow-sm"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    <span>Print Sign</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => handleDownloadQr(v)}
+                    className="py-1.5 px-2.5 rounded-xl bg-parchment-200 hover:bg-parchment-300 text-ink-festival text-[11px] font-semibold flex items-center justify-center gap-1 transition-colors"
+                    title="Download PNG QR Code"
+                  >
+                    <Download className="w-3.5 h-3.5" />
+                    <span className="hidden sm:inline">QR</span>
+                  </button>
+
+                  <a
+                    href={getCheckInUrl(v)}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="py-1.5 px-2.5 rounded-xl bg-parchment-200 hover:bg-parchment-300 text-ink-festival text-[11px] font-semibold flex items-center justify-center gap-1 transition-colors"
+                    title="Test Check-In Page"
+                  >
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
@@ -580,26 +682,232 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Tab: Quest Overview */}
+      {/* Tab: Culture Trail Overview */}
       {activeTab === "quest" && challenge && (
-        <div className="bg-parchment-50 p-4 rounded-2xl border border-parchment-200 space-y-3">
-          <h3 className="font-serif font-bold text-sm text-teal-festival">
-            {challenge.title} Configuration
-          </h3>
-          <p className="text-xs text-ink-muted">{challenge.description}</p>
-          <div className="grid grid-cols-2 gap-2 text-xs">
-            <div className="p-3 rounded-xl bg-parchment-100">
-              <span className="text-ink-muted block text-[10px]">Required Stops:</span>
-              <span className="font-bold text-base text-teal-festival">
-                {challenge.requiredCheckInCount} Locations
-              </span>
+        <div className="space-y-4">
+          <div className="bg-parchment-50 p-4 rounded-2xl border border-parchment-200 space-y-3">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <h3 className="font-serif font-bold text-base text-teal-festival">
+                  {challenge.title}
+                </h3>
+                <p className="text-xs text-ink-muted mt-0.5">{challenge.description}</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab("venues")}
+                className="px-3 py-1.5 rounded-xl bg-teal-festival text-white text-xs font-bold hover:bg-teal-light flex items-center gap-1.5 shrink-0 transition-colors shadow-sm"
+              >
+                <Printer className="w-3.5 h-3.5" />
+                <span>Print All Signs</span>
+              </button>
             </div>
-            <div className="p-3 rounded-xl bg-parchment-100">
-              <span className="text-ink-muted block text-[10px]">Required Categories:</span>
-              <span className="font-bold text-base text-terracotta-festival">
-                {challenge.requiredDistinctCategoriesCount} Distinct Categories
-              </span>
+
+            <div className="grid grid-cols-2 gap-2 text-xs pt-1">
+              <div className="p-3 rounded-xl bg-parchment-100">
+                <span className="text-ink-muted block text-[10px]">Required Stops:</span>
+                <span className="font-bold text-base text-teal-festival">
+                  {challenge.requiredCheckInCount} Locations
+                </span>
+              </div>
+              <div className="p-3 rounded-xl bg-parchment-100">
+                <span className="text-ink-muted block text-[10px]">Required Categories:</span>
+                <span className="font-bold text-base text-terracotta-festival">
+                  {challenge.requiredDistinctCategoriesCount} Distinct Categories
+                </span>
+              </div>
             </div>
+          </div>
+
+          <div className="bg-parchment-50 p-4 rounded-2xl border border-parchment-200 space-y-3">
+            <h4 className="font-serif font-bold text-xs uppercase tracking-wider text-teal-festival">
+              Check-In Stations ({venues.length})
+            </h4>
+            <div className="space-y-2">
+              {venues.map((v) => (
+                <div
+                  key={v.id}
+                  className="flex items-center justify-between p-3 rounded-xl bg-parchment-100 text-xs"
+                >
+                  <div className="min-w-0 pr-2">
+                    <strong className="block font-serif font-bold text-teal-festival truncate">
+                      {v.name}
+                    </strong>
+                    <span className="text-[10px] text-ink-muted">{v.address}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setPosterVenue(v)}
+                    className="px-3 py-1.5 rounded-lg bg-terracotta-festival hover:bg-terracotta-festival/90 text-white text-xs font-bold flex items-center gap-1.5 shrink-0 transition-colors shadow-sm"
+                  >
+                    <Printer className="w-3.5 h-3.5" />
+                    <span>Print Sign</span>
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Official A4 Printable Poster Modal */}
+      {posterVenue && (
+        <div className="fixed inset-0 z-50 bg-black/75 flex items-start justify-center p-4 sm:p-6 overflow-y-auto">
+          <style>{`
+            @media print {
+              body * {
+                visibility: hidden !important;
+              }
+              #printable-a4-sign, #printable-a4-sign * {
+                visibility: visible !important;
+              }
+              #printable-a4-sign {
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100vw !important;
+                height: 100vh !important;
+                max-width: none !important;
+                margin: 0 !important;
+                padding: 3.5rem 3rem !important;
+                box-shadow: none !important;
+                border: 4px solid #263E47 !important;
+                border-radius: 0 !important;
+                background: #F7F4EC !important;
+                -webkit-print-color-adjust: exact !important;
+                print-color-adjust: exact !important;
+                display: flex !important;
+                flex-direction: column !important;
+                justify-content: space-between !important;
+                align-items: center !important;
+                z-index: 99999 !important;
+              }
+              .no-print {
+                display: none !important;
+              }
+            }
+          `}</style>
+
+          <div className="bg-white rounded-3xl w-full max-w-xl shadow-2xl p-4 sm:p-6 my-auto space-y-4">
+            {/* Modal Controls Bar */}
+            <div className="no-print flex items-center justify-between gap-2 pb-3 border-b border-parchment-200">
+              <div>
+                <h3 className="font-serif font-bold text-base text-teal-festival">
+                  Official A4 Trail Sign Preview
+                </h3>
+                <p className="text-[11px] text-ink-muted">
+                  Ready to print or save as PDF for physical venue display.
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => handleDownloadQr(posterVenue)}
+                  className="px-3 py-1.5 rounded-xl bg-parchment-200 hover:bg-parchment-300 text-ink-festival text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                  title="Download PNG QR Code"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span className="hidden sm:inline">Download QR</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-3.5 py-1.5 rounded-xl bg-terracotta-festival hover:bg-terracotta-festival/90 text-white text-xs font-bold flex items-center gap-1.5 transition-colors shadow-sm"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Print A4 Sign</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setPosterVenue(null)}
+                  className="px-2.5 py-1.5 rounded-xl text-ink-muted hover:text-ink-festival hover:bg-parchment-200 text-xs font-bold transition-colors"
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+
+            {/* Poster Preview */}
+            <div className="overflow-x-auto p-1 bg-parchment-200/50 rounded-2xl">
+              <div
+                id="printable-a4-sign"
+                className="w-full max-w-md mx-auto aspect-[1/1.414] bg-[#F7F4EC] border-4 border-[#263E47] p-6 sm:p-8 text-center flex flex-col justify-between items-center shadow-md rounded-2xl relative"
+              >
+                {/* Decorative border inset */}
+                <div className="absolute inset-2 border border-[#D75A35]/40 rounded-xl pointer-events-none" />
+
+                {/* Festival Identity Header */}
+                <div className="space-y-1 w-full pt-2">
+                  <div className="text-3xl font-serif font-black tracking-wider text-[#263E47]">
+                    KLiK
+                  </div>
+                  <div className="text-[10px] sm:text-xs font-sans uppercase font-bold tracking-widest text-[#747A57]">
+                    Kleinmond Inniebos Kunstefees
+                  </div>
+                  <div className="text-[9px] sm:text-[10px] text-[#263E47]/70 font-medium">
+                    27–29 November 2026 • Kleinmond
+                  </div>
+                  <div className="w-16 h-0.5 bg-[#D75A35] mx-auto mt-2" />
+                </div>
+
+                {/* Culture Trail Title & Tagline */}
+                <div className="space-y-1.5 my-2">
+                  <div className="text-xs sm:text-sm font-sans uppercase font-extrabold tracking-widest text-[#263E47] bg-[#263E47]/10 px-3 py-1 rounded-full inline-block">
+                    KLiK CULTURE TRAIL
+                  </div>
+                  <h2 className="text-3xl sm:text-4xl font-serif font-black text-[#D75A35]">
+                    You&apos;re here!
+                  </h2>
+                  <p className="text-xs sm:text-sm font-sans font-bold tracking-wide uppercase text-[#263E47]">
+                    Scan to check in
+                  </p>
+                  <p className="text-[10px] sm:text-[11px] text-[#263E47]/80 max-w-xs mx-auto">
+                    Point your phone camera at this QR code to log this stop in your festival digital guide.
+                  </p>
+                </div>
+
+                {/* High Resolution QR Code */}
+                <div className="my-2 p-3 bg-white rounded-2xl shadow-sm border-2 border-[#263E47]/15 inline-block">
+                  <img
+                    src={getQrImageUrl(posterVenue, 360)}
+                    alt={`QR Code for ${posterVenue.name}`}
+                    className="w-44 h-44 sm:w-52 sm:h-52 object-contain mx-auto"
+                    crossOrigin="anonymous"
+                  />
+                </div>
+
+                {/* Venue Details */}
+                <div className="space-y-1">
+                  <h3 className="text-xl sm:text-2xl font-serif font-black text-[#263E47]">
+                    {posterVenue.name}
+                  </h3>
+                  <p className="text-xs text-[#263E47]/80 font-medium">
+                    {posterVenue.address}
+                  </p>
+                </div>
+
+                {/* Footer Message */}
+                <div className="space-y-1 w-full pt-2 pb-1 border-t border-[#263E47]/20">
+                  <div className="text-xs sm:text-sm font-serif font-bold text-[#263E47]">
+                    Continue exploring Kleinmond
+                  </div>
+                  <p className="text-[9px] sm:text-[10px] text-[#263E47]/70 max-w-xs mx-auto">
+                    Visit festival venues, collect your check-ins, and claim your exclusive reward at the Information Kiosk.
+                  </p>
+                  <div className="text-[8px] sm:text-[9px] uppercase tracking-wider text-[#747A57] font-semibold pt-0.5">
+                    Official Festival Guide • klikfees.co.za
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Hint */}
+            <p className="no-print text-center text-[11px] text-ink-muted">
+              Tip: Click &quot;Print A4 Sign&quot; and select &quot;Save as PDF&quot; or print directly onto card stock for physical display at {posterVenue.name}.
+            </p>
           </div>
         </div>
       )}

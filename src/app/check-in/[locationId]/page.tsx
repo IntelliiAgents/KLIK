@@ -130,11 +130,11 @@ function CheckInContent() {
     <div className="space-y-5 pb-6 max-w-sm mx-auto animate-in fade-in duration-300">
       {/* Back button */}
       <Link
-        href="/quest"
+        href="/culture-trail"
         className="inline-flex items-center gap-1 text-xs font-semibold text-teal-festival hover:text-teal-light"
       >
         <ArrowLeft className="w-4 h-4" />
-        <span>Back to KliK Quest</span>
+        <span>Back to Culture Trail</span>
       </Link>
 
       {/* Main Check-In Card */}
@@ -189,25 +189,25 @@ function CheckInContent() {
               </h3>
               <p className="text-xs text-ink-muted">
                 {completedCheckIn?.syncStatus === "captured_offline"
-                  ? "Captured offline on this device. It will automatically synchronize when connectivity returns."
-                  : "Your presence at this venue has been verified and recorded toward The KliK Culture Trail."}
+                  ? "Saved on your device. Added to your Culture Trail!"
+                  : "Your visit has been recorded toward the KliK Culture Trail."}
               </p>
             </div>
 
             <div className="flex flex-col gap-2 pt-2">
               <Link
-                href="/quest"
+                href="/culture-trail"
                 className="w-full py-3 px-4 rounded-xl bg-teal-festival hover:bg-teal-light text-white font-bold text-xs flex items-center justify-center gap-2 shadow-sm transition-colors"
               >
                 <Award className="w-4 h-4 text-mustard-light" />
-                <span>View KliK Quest Progress</span>
+                <span>View Culture Trail</span>
               </Link>
 
               <Link
                 href="/programme"
                 className="w-full py-2.5 px-4 rounded-xl bg-parchment-200 hover:bg-parchment-300 text-teal-festival font-semibold text-xs transition-colors"
               >
-                Explore More Programme Sessions
+                View Programme
               </Link>
             </div>
           </div>
