@@ -60,7 +60,7 @@ export interface FestivalRepository {
   publishNotice(notice: Omit<FestivalNotice, "id" | "createdAt">): Promise<FestivalNotice>;
 }
 
-const CURRENT_PROGRAM_VERSION = "8.0-complete-partner-roster";
+const CURRENT_PROGRAM_VERSION = "8.3-cafe-heeger-boswell-swap";
 
 // In-Memory & Local Storage implementation of FestivalRepository
 class LocalSeedRepository implements FestivalRepository {

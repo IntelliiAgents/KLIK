@@ -214,7 +214,7 @@ export default function MorePage() {
             <div className="flex items-center gap-3.5">
               <HeartHandshake className="w-5 h-5 text-terracotta-festival" />
               <span className="font-semibold text-sm sm:text-base text-teal-festival">
-                Festival Partners
+                Festival Partners &amp; Supporters
               </span>
             </div>
             <ChevronRight
