@@ -60,7 +60,7 @@ export interface FestivalRepository {
   publishNotice(notice: Omit<FestivalNotice, "id" | "createdAt">): Promise<FestivalNotice>;
 }
 
-const CURRENT_PROGRAM_VERSION = "9.1-bulletproof-partner-grid-and-css-fix";
+const CURRENT_PROGRAM_VERSION = "9.2-happy-landings-transport-partner";
 
 // In-Memory & Local Storage implementation of FestivalRepository
 class LocalSeedRepository implements FestivalRepository {

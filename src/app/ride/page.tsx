@@ -248,7 +248,7 @@ export default function RidePage() {
           Festival Shuttle Information:
         </strong>
         <p className="text-ink-muted">
-          Shuttle service operates between official festival venues throughout operating hours. Drivers accept ride requests directly via WhatsApp ({FESTIVAL_CONFIG.displayShuttlePhone}).
+          Shuttle service operates between official festival venues throughout operating hours in partnership with official transport partner <strong className="text-ink-festival">Happy Landings</strong> (Executive Chauffeurs &amp; Tours). Drivers accept ride requests directly via WhatsApp ({FESTIVAL_CONFIG.displayShuttlePhone}).
         </p>
       </div>
     </div>

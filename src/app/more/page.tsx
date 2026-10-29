@@ -294,7 +294,7 @@ export default function MorePage() {
                 </ul>
 
                 <p className="pt-2 text-ink-muted">
-                  <strong className="text-teal-festival">Festival Shuttle:</strong> A dedicated shuttle runs between venues. Use the <strong>Get a Ride</strong> section or message the driver on WhatsApp (+27 72 315 0382).
+                  <strong className="text-teal-festival">Festival Shuttle:</strong> Operated in partnership with official transport partner <strong className="text-ink-festival">Happy Landings</strong> (Executive Chauffeurs &amp; Tours). A dedicated shuttle runs between venues. Use the <strong>Get a Ride</strong> section or message the driver on WhatsApp (+27 72 315 0382).
                 </p>
               </div>
             </div>

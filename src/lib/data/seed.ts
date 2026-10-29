@@ -123,6 +123,11 @@ export const SEED_PARTNERS: FestivalPartner[] = [
     logoUrl: "/assets/partners/hangklip-kleinmond-tourism.png",
   },
   {
+    name: "Happy Landings",
+    role: "Official Transport Partner",
+    logoUrl: "/assets/partners/happy-landings.jpg",
+  },
+  {
     name: "The Grail Centre",
     role: "Venue & Cultural Partner",
     logoUrl: "/assets/partners/the-grail-centre.jpg",
