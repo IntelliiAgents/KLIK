@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { KliKLogo } from "../Brand/KliKLogo";
 import { FestivalStripe } from "../Brand/FestivalStripe";
 import { Share2, WifiOff, CheckCircle2, AlertCircle } from "lucide-react";
@@ -9,7 +11,12 @@ import { flushOfflineQueue } from "@/lib/db/idb";
 import { repository } from "@/lib/db/repository";
 import { FestivalNotice } from "@/lib/types";
 
-import { usePathname } from "next/navigation";
+const DESKTOP_QUICK_LINKS = [
+  { label: "Programme", href: "/programme" },
+  { label: "Children & Youth", href: "/youth" },
+  { label: "Artists", href: "/artists" },
+  { label: "Map", href: "/map" },
+];
 
 export const TopHeader: React.FC = () => {
   const pathname = usePathname();
@@ -69,10 +76,11 @@ export const TopHeader: React.FC = () => {
   }
 
   const handleShareClick = async () => {
-    const shareUrl = typeof window !== "undefined" ? window.location.origin : "https://klik2026.netlify.app";
+    const shareUrl =
+      typeof window !== "undefined" ? window.location.origin : "https://klik2026.netlify.app";
     const shareData = {
-      title: "KLiK 2026 - Kleinmond Inniebos Kunstefees",
-      text: "Explore the official KLiK 2026 Kunstefees programme. 27–29 November 2026 in Kleinmond.",
+      title: "KliK 2026 — Kleinmond inniebos Kunstefees",
+      text: "Explore the official KliK 2026 Kunstefees programme. 27–29 November 2026 in Kleinmond.",
       url: shareUrl,
     };
 
@@ -91,16 +99,38 @@ export const TopHeader: React.FC = () => {
   return (
     <>
       <header className="sticky top-0 z-40 bg-parchment-100/95 backdrop-blur-md border-b border-parchment-300">
-        <div className="max-w-3xl lg:max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
-          {/* Left: Small, clean KLiK logo */}
+        <div className="max-w-3xl lg:max-w-4xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between gap-4">
+          {/* Left: Clean KliK logo */}
           <KliKLogo variant="compact" />
 
-          {/* Right: Optional native share icon */}
-          <div className="flex items-center">
+          {/* Center-Right: Subtle editorial quick links on larger viewports */}
+          <div className="flex items-center gap-1 sm:gap-2">
+            <nav
+              aria-label="Quick festival sections"
+              className="hidden md:flex items-center gap-1 mr-2"
+            >
+              {DESKTOP_QUICK_LINKS.map((link) => {
+                const isActive = pathname.startsWith(link.href);
+                return (
+                  <Link
+                    key={link.href}
+                    href={link.href}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+                      isActive
+                        ? "bg-teal-festival/10 text-teal-festival"
+                        : "text-ink-muted hover:text-teal-festival hover:bg-parchment-200/70"
+                    }`}
+                  >
+                    {link.label}
+                  </Link>
+                );
+              })}
+            </nav>
+
             <button
               onClick={handleShareClick}
               className="min-w-[44px] min-h-[44px] p-2.5 rounded-full text-ink-muted hover:text-teal-festival hover:bg-parchment-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta-festival transition-colors flex items-center justify-center"
-              title="Share KLiK 2026 Festival App"
+              title="Share KliK 2026 Festival App"
               aria-label="Share Festival App"
             >
               <Share2 className="w-5 h-5 text-teal-festival" aria-hidden="true" />

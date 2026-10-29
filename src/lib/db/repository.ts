@@ -60,7 +60,7 @@ export interface FestivalRepository {
   publishNotice(notice: Omit<FestivalNotice, "id" | "createdAt">): Promise<FestivalNotice>;
 }
 
-const CURRENT_PROGRAM_VERSION = "8.3-cafe-heeger-boswell-swap";
+const CURRENT_PROGRAM_VERSION = "9.1-bulletproof-partner-grid-and-css-fix";
 
 // In-Memory & Local Storage implementation of FestivalRepository
 class LocalSeedRepository implements FestivalRepository {
@@ -139,6 +139,9 @@ class LocalSeedRepository implements FestivalRepository {
           e.title.toLowerCase().includes(q) ||
           e.description.toLowerCase().includes(q) ||
           (e.venueName && e.venueName.toLowerCase().includes(q)) ||
+          (e.subVenue && e.subVenue.toLowerCase().includes(q)) ||
+          (e.facilitatorDisplay && e.facilitatorDisplay.toLowerCase().includes(q)) ||
+          (e.hosts && e.hosts.some((h) => h.toLowerCase().includes(q))) ||
           e.artists.some((a) => a.name.toLowerCase().includes(q))
       );
     }

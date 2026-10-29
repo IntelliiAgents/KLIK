@@ -6,6 +6,7 @@ import { repository } from "@/lib/db/repository";
 import { getSavedEvents, removeSavedEvent } from "@/lib/db/idb";
 import { FestivalEvent, SavedEvent, VenueLocation } from "@/lib/types";
 import { EventDetailsModal } from "@/components/Events/EventDetailsModal";
+import { BackToTopButton } from "@/components/UI/BackToTopButton";
 import { trackEvent } from "@/lib/analytics";
 import {
   Heart,
@@ -73,12 +74,7 @@ export default function MyFestivalPage() {
         const b = savedFestivalEvents[j];
 
         if (a.date === b.date) {
-          const aStart = a.startTime;
-          const aEnd = a.endTime;
-          const bStart = b.startTime;
-          const bEnd = b.endTime;
-
-          const isOverlapping = aStart < bEnd && bStart < aEnd;
+          const isOverlapping = a.startTime < b.endTime && b.startTime < a.endTime;
           if (isOverlapping) {
             conflicts.add(a.id);
             conflicts.add(b.id);
@@ -91,16 +87,16 @@ export default function MyFestivalPage() {
 
   // Group saved events by Friday, Saturday, Sunday
   const groupedByDay = useMemo(() => {
-    const daysMap = new Map<string, { label: string; events: FestivalEvent[] }>();
-    daysMap.set("2026-11-27", { label: "FRIDAY", events: [] });
-    daysMap.set("2026-11-28", { label: "SATURDAY", events: [] });
-    daysMap.set("2026-11-29", { label: "SUNDAY", events: [] });
+    const daysMap = new Map<string, { label: string; subtitle: string; events: FestivalEvent[] }>();
+    daysMap.set("2026-11-27", { label: "FRIDAY", subtitle: "27 November", events: [] });
+    daysMap.set("2026-11-28", { label: "SATURDAY", subtitle: "28 November", events: [] });
+    daysMap.set("2026-11-29", { label: "SUNDAY", subtitle: "29 November", events: [] });
 
     for (const evt of savedFestivalEvents) {
       if (daysMap.has(evt.date)) {
         daysMap.get(evt.date)!.events.push(evt);
       } else {
-        daysMap.set(evt.date, { label: evt.date, events: [evt] });
+        daysMap.set(evt.date, { label: evt.date, subtitle: "", events: [evt] });
       }
     }
 
@@ -120,7 +116,7 @@ export default function MyFestivalPage() {
       "PRODID:-//KliK 2026//Festival Schedule//EN",
       "BEGIN:VEVENT",
       `SUMMARY:KliK 2026: ${event.title}`,
-      `DESCRIPTION:${event.description || "Kleinmond Inniebos Kunstefees 2026"}`,
+      `DESCRIPTION:${event.description || "Kleinmond inniebos Kunstefees 2026"}`,
       `LOCATION:${event.venueName || "Kleinmond"}, Western Cape`,
       `DTSTART:${cleanDate}T${startTimeClean}`,
       `DTEND:${cleanDate}T${endTimeClean}`,
@@ -143,40 +139,41 @@ export default function MyFestivalPage() {
     : null;
 
   return (
-    <div className="space-y-5 pb-8 animate-in fade-in duration-300">
+    <div className="space-y-5 pb-10 animate-in fade-in duration-300">
       {/* Header */}
       <div>
-        <h1 className="font-serif font-black text-2xl sm:text-3xl text-teal-festival">
+        <span className="editorial-kicker">Personal Itinerary • Saved Offline</span>
+        <h1 className="font-serif font-bold text-2xl sm:text-3xl text-teal-festival mt-0.5">
           My Festival
         </h1>
-        <p className="text-xs sm:text-sm text-ink-muted mt-0.5">
-          Your saved events.
+        <p className="text-xs sm:text-sm text-ink-muted mt-1">
+          Your personal schedule of saved sessions across Kleinmond.
         </p>
       </div>
 
       {loading ? (
         <div className="py-16 text-center space-y-3">
           <div className="w-8 h-8 rounded-full border-3 border-teal-festival border-t-transparent animate-spin mx-auto" />
-          <p className="text-xs text-ink-muted">Loading your saved events...</p>
+          <p className="text-xs text-ink-muted">Loading your saved sessions...</p>
         </div>
       ) : savedFestivalEvents.length === 0 ? (
         /* Empty State */
-        <div className="bg-parchment-50 rounded-3xl p-8 border border-parchment-300 text-center space-y-4 shadow-subtle">
-          <div className="w-14 h-14 rounded-2xl bg-parchment-200 text-terracotta-festival mx-auto flex items-center justify-center">
+        <div className="editorial-surface p-8 text-center space-y-4">
+          <div className="w-14 h-14 rounded-2xl bg-parchment-200/80 text-terracotta-festival mx-auto flex items-center justify-center">
             <Heart className="w-7 h-7" />
           </div>
           <div className="space-y-1">
             <h2 className="font-serif font-bold text-lg text-teal-festival">
-              No saved events yet.
+              No saved sessions yet
             </h2>
-            <p className="text-xs sm:text-sm text-ink-muted max-w-xs mx-auto">
-              Tap the heart beside an event to add it to your festival.
+            <p className="text-xs sm:text-sm text-ink-muted max-w-xs mx-auto leading-relaxed">
+              Tap the heart icon beside any programme session or youth activity to build your personal festival itinerary.
             </p>
           </div>
 
           <Link
             href="/programme"
-            className="inline-flex min-h-[48px] items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-teal-festival hover:bg-teal-light text-white font-bold text-sm shadow-card active:scale-[0.98] transition-all"
+            className="inline-flex min-h-[46px] items-center justify-center gap-2 px-6 py-3 rounded-xl bg-teal-festival hover:bg-teal-light text-white font-bold text-sm shadow-card active:scale-[0.98] transition-all"
           >
             <span>Browse Programme</span>
             <ArrowRight className="w-4 h-4" />
@@ -187,16 +184,21 @@ export default function MyFestivalPage() {
         <div className="space-y-6">
           {groupedByDay.map((group) => (
             <section key={group.label} className="space-y-3">
-              <div className="flex items-center gap-2 border-b border-parchment-300 pb-1.5">
-                <h2 className="font-serif font-black text-base text-teal-festival tracking-wider">
-                  {group.label}
-                </h2>
-                <span className="text-xs text-ink-muted">
-                  ({group.events.length})
+              <div className="flex items-baseline justify-between border-b border-parchment-300 pb-1.5">
+                <div className="flex items-baseline gap-2">
+                  <h2 className="font-serif font-bold text-base sm:text-lg text-teal-festival tracking-wide">
+                    {group.label}
+                  </h2>
+                  {group.subtitle && (
+                    <span className="text-xs text-ink-muted">{group.subtitle}</span>
+                  )}
+                </div>
+                <span className="text-xs font-semibold text-ink-muted">
+                  {group.events.length} {group.events.length === 1 ? "session" : "sessions"}
                 </span>
               </div>
 
-              <div className="space-y-2.5">
+              <div className="space-y-3">
                 {group.events.map((evt) => {
                   const hasConflict = conflictingEventIds.has(evt.id);
                   const venue = venues.find((v) => v.id === evt.venueId);
@@ -206,31 +208,46 @@ export default function MyFestivalPage() {
                     <article
                       key={evt.id}
                       onClick={() => setSelectedEvent(evt)}
-                      className="bg-parchment-50 rounded-2xl border border-parchment-300 p-4 shadow-subtle hover:shadow-card transition-all cursor-pointer space-y-3"
+                      className="editorial-surface p-4 hover:shadow-card transition-all cursor-pointer space-y-3"
                     >
                       {/* Conflict Warning */}
                       {hasConflict && (
                         <div className="p-2.5 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs font-semibold flex items-center gap-2">
                           <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0" />
-                          <span>These events overlap.</span>
+                          <span>Overlaps with another saved session.</span>
                         </div>
                       )}
 
                       {/* Time, Event, Venue */}
                       <div className="space-y-1">
-                        <div className="flex items-center gap-1.5 text-xs font-bold text-teal-festival">
-                          <Clock className="w-3.5 h-3.5 text-teal-festival/70 shrink-0" />
-                          <span>{evt.startTime} – {evt.endTime}</span>
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+                          <div className="flex items-center gap-1.5 text-xs font-bold text-teal-festival tabular-time">
+                            <Clock className="w-3.5 h-3.5 text-terracotta-festival shrink-0" />
+                            <span>
+                              {evt.startTime} – {evt.endTime}
+                            </span>
+                          </div>
+                          {evt.isTicketed ? (
+                            <span className="badge-ticket">
+                              {evt.ticketPrice || "Quicket"}
+                            </span>
+                          ) : (
+                            <span className="badge-free-zone">Free Zone</span>
+                          )}
                         </div>
 
                         <h3 className="font-serif font-bold text-base sm:text-lg text-teal-festival leading-snug">
                           {evt.title}
                         </h3>
 
-                        {evt.venueName && (
+                        {(evt.venueName || evt.subVenue) && (
                           <p className="text-xs text-ink-muted flex items-center gap-1">
                             <MapPin className="w-3.5 h-3.5 text-teal-festival/60 shrink-0" />
-                            <span>{evt.venueName}</span>
+                            <span>
+                              {evt.subVenue
+                                ? `${evt.subVenue} • ${evt.venueName}`
+                                : evt.venueName}
+                            </span>
                           </p>
                         )}
                       </div>
@@ -245,7 +262,7 @@ export default function MyFestivalPage() {
                             e.stopPropagation();
                             trackEvent("directions_click", { eventId: evt.id });
                           }}
-                          className="min-h-[44px] py-2 px-3 rounded-xl bg-parchment-100 hover:bg-parchment-200 text-teal-festival text-xs font-bold flex items-center justify-center gap-1.5 border border-parchment-300 transition-colors"
+                          className="min-h-[42px] py-2 px-3 rounded-xl bg-parchment-100 hover:bg-parchment-200 text-teal-festival text-xs font-bold flex items-center justify-center gap-1.5 border border-parchment-300 transition-colors"
                         >
                           <Navigation className="w-3.5 h-3.5 text-teal-festival" />
                           <span>Directions</span>
@@ -256,7 +273,7 @@ export default function MyFestivalPage() {
                             e.stopPropagation();
                             handleRemove(evt.id, evt.title);
                           }}
-                          className="min-h-[44px] py-2 px-3 rounded-xl bg-parchment-100 hover:bg-red-50 text-red-700 text-xs font-semibold flex items-center justify-center gap-1.5 border border-parchment-300 hover:border-red-200 transition-colors"
+                          className="min-h-[42px] py-2 px-3 rounded-xl bg-parchment-100 hover:bg-red-50 text-red-700 text-xs font-semibold flex items-center justify-center gap-1.5 border border-parchment-300 hover:border-red-200 transition-colors"
                           aria-label={`Remove ${evt.title}`}
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -264,7 +281,7 @@ export default function MyFestivalPage() {
                         </button>
                       </div>
 
-                      {/* Optional: Add to Calendar */}
+                      {/* Add to Calendar */}
                       <div className="text-right pt-0.5">
                         <button
                           onClick={(e) => {
@@ -274,7 +291,7 @@ export default function MyFestivalPage() {
                           className="text-[11px] font-medium text-ink-muted hover:text-teal-festival inline-flex items-center gap-1 hover:underline"
                         >
                           <Download className="w-3 h-3" />
-                          <span>Add to Calendar</span>
+                          <span>Export to Calendar (.ics)</span>
                         </button>
                       </div>
                     </article>
@@ -293,7 +310,11 @@ export default function MyFestivalPage() {
         isSaved={selectedEvent ? true : false}
         onClose={() => setSelectedEvent(null)}
         onToggleSave={(id) => handleRemove(id)}
+        allEvents={allEvents}
+        onSelectEvent={(evt) => setSelectedEvent(evt)}
       />
+
+      <BackToTopButton />
     </div>
   );
 }

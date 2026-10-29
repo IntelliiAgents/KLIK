@@ -160,7 +160,10 @@ export const ShareModal: React.FC<ShareModalProps> = ({
         <div className="p-4 space-y-4">
           {/* Card Preview with Square Artwork */}
           <div className="flex items-center gap-3 p-3 rounded-2xl bg-parchment-100 border border-parchment-300">
-            <div className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-parchment-300 bg-white shadow-xs">
+            <div
+              className="relative w-14 h-14 rounded-xl overflow-hidden shrink-0 border border-parchment-300 bg-white shadow-xs"
+              style={{ position: "relative", overflow: "hidden" }}
+            >
               <Image
                 src="/assets/klik-share-square.jpg"
                 alt="KliK 2026 Official Festival Artwork"

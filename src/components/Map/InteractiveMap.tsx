@@ -18,6 +18,7 @@ import { trackEvent } from "@/lib/analytics";
 interface InteractiveMapProps {
   venues: VenueLocation[];
   checkedInVenueIds?: string[];
+  initialVenueId?: string | null;
 }
 
 // High-resolution Esri Satellite Tiles (covers Kleinmond with high clarity, no API key required)
@@ -35,13 +36,14 @@ const STREET_ATTRIBUTION =
 export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   venues,
   checkedInVenueIds = [],
+  initialVenueId = null,
 }) => {
   const mapContainerRef = useRef<HTMLDivElement>(null);
   // Default to satellite view as requested
   const [mapViewMode, setMapViewMode] = useState<"satellite" | "street">("satellite");
   const [mapLoaded, setMapLoaded] = useState(false);
   const [selectedVenue, setSelectedVenue] = useState<VenueLocation | null>(null);
-  const [userLocation, setUserLocation] = useState<[number, number] | null>(null);
+  const [, setUserLocation] = useState<[number, number] | null>(null);
   const [isLocating, setIsLocating] = useState(false);
 
   // References to Leaflet objects
@@ -98,10 +100,16 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
         currentTileLayerRef.current = tileLayer;
 
+        // Determine if an initial deep-linked venue was requested
+        const targetInitialVenue = initialVenueId
+          ? venues.find((v) => v.id === initialVenueId) || null
+          : null;
+
         // Add custom markers for all venues
-        const markerGroup: any[] = [];
         venues.forEach((venue) => {
-          const isSelected = selectedVenue?.id === venue.id;
+          const isSelected = targetInitialVenue
+            ? targetInitialVenue.id === venue.id
+            : selectedVenue?.id === venue.id;
 
           const customIcon = L.divIcon({
             className: "klik-leaflet-marker",
@@ -115,7 +123,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                   height: 38px;
                   border-radius: 50% 50% 50% 0;
                   background: ${isSelected ? "#D75A35" : "#263E47"};
-                  transform: rotate(-45deg);
+                  transform: rotate(-45deg) ${isSelected ? "scale(1.15)" : "scale(1)"};
                   border: 2.5px solid #FFFFFF;
                   box-shadow: 0 4px 10px rgba(0,0,0,0.4);
                   display: flex;
@@ -147,11 +155,17 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           });
 
           markersRef.current[venue.id] = marker;
-          markerGroup.push(marker);
         });
 
-        // Fit map bounds to show all venues with padding
-        if (venues.length > 0) {
+        if (targetInitialVenue) {
+          setSelectedVenue(targetInitialVenue);
+          map.setView([targetInitialVenue.latitude, targetInitialVenue.longitude], 16);
+          trackEvent("venue_view", {
+            venueId: targetInitialVenue.id,
+            venueName: targetInitialVenue.name,
+          });
+        } else if (venues.length > 0) {
+          // Fit map bounds to show all venues with padding
           const latLngs = venues.map((v) => [v.latitude, v.longitude] as [number, number]);
           const bounds = L.latLngBounds(latLngs);
           map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
@@ -172,7 +186,8 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         mapInstanceRef.current = null;
       }
     };
-  }, [venues]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [venues, initialVenueId]);
 
   // Handle Layer Toggle (Satellite vs Street View)
   const handleToggleMapMode = (mode: "satellite" | "street") => {
@@ -256,6 +271,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
     const L = leafletModuleRef.current;
     if (!map || !L || venues.length === 0) return;
 
+    setSelectedVenue(null);
     const latLngs = venues.map((v) => [v.latitude, v.longitude] as [number, number]);
     const bounds = L.latLngBounds(latLngs);
     map.fitBounds(bounds, { padding: [40, 40], maxZoom: 15 });
@@ -341,11 +357,11 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   return (
     <div className="space-y-6">
       {/* Interactive Map Container */}
-      <div className="relative rounded-3xl overflow-hidden border border-parchment-300 shadow-card bg-parchment-200">
+      <div className="relative rounded-2xl overflow-hidden border border-parchment-300 shadow-card bg-parchment-200">
         {/* Leaflet Map DOM Node */}
         <div
           ref={mapContainerRef}
-          className="w-full h-[360px] sm:h-[420px] z-0"
+          className="w-full h-[370px] sm:h-[440px] z-0"
           aria-label="Map of Kleinmond festival venues"
         />
 
@@ -353,19 +369,19 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         {!mapLoaded && (
           <div className="absolute inset-0 bg-parchment-100/90 flex flex-col items-center justify-center p-4 z-20">
             <div className="w-8 h-8 rounded-full border-3 border-teal-festival border-t-transparent animate-spin mb-2" />
-            <p className="text-xs font-medium text-ink-muted">Loading satellite map...</p>
+            <p className="text-xs font-medium text-ink-muted">Loading festival map...</p>
           </div>
         )}
 
         {/* Street / Satellite Toggle Control (Top-Right) */}
-        <div className="absolute top-3 right-3 z-10 flex items-center bg-white/95 backdrop-blur-sm p-1 rounded-2xl shadow-md border border-parchment-300">
+        <div className="absolute top-3 right-3 z-10 flex items-center bg-parchment-50/95 backdrop-blur-sm p-1 rounded-xl shadow-card border border-parchment-300">
           <button
             type="button"
             onClick={() => handleToggleMapMode("street")}
-            className={`min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
+            className={`min-h-[36px] px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
               mapViewMode === "street"
-                ? "bg-teal-festival text-white shadow-sm"
-                : "text-ink-muted hover:text-ink-festival hover:bg-parchment-100"
+                ? "bg-teal-festival text-white shadow-xs"
+                : "text-ink-muted hover:text-ink-festival hover:bg-parchment-200/70"
             }`}
             title="Switch to Street View"
           >
@@ -376,10 +392,10 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           <button
             type="button"
             onClick={() => handleToggleMapMode("satellite")}
-            className={`min-h-[36px] px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 transition-all ${
+            className={`min-h-[36px] px-3 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all ${
               mapViewMode === "satellite"
-                ? "bg-terracotta-festival text-white shadow-sm"
-                : "text-ink-muted hover:text-ink-festival hover:bg-parchment-100"
+                ? "bg-terracotta-festival text-white shadow-xs"
+                : "text-ink-muted hover:text-ink-festival hover:bg-parchment-200/70"
             }`}
             title="Switch to Satellite View"
           >
@@ -393,7 +409,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           <button
             type="button"
             onClick={handleFitAllVenues}
-            className="w-9 h-9 rounded-xl bg-white/95 backdrop-blur-sm shadow-md border border-parchment-300 flex items-center justify-center text-teal-festival hover:text-terracotta-festival hover:bg-parchment-100 transition-colors"
+            className="w-10 h-10 rounded-xl bg-parchment-50/95 backdrop-blur-sm shadow-card border border-parchment-300 flex items-center justify-center text-teal-festival hover:text-terracotta-festival hover:bg-parchment-100 transition-colors"
             title="Fit All Venues"
             aria-label="Fit all festival venues"
           >
@@ -403,7 +419,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           <button
             type="button"
             onClick={handleLocateUser}
-            className={`w-9 h-9 rounded-xl bg-white/95 backdrop-blur-sm shadow-md border border-parchment-300 flex items-center justify-center transition-colors ${
+            className={`w-10 h-10 rounded-xl bg-parchment-50/95 backdrop-blur-sm shadow-card border border-parchment-300 flex items-center justify-center transition-colors ${
               isLocating
                 ? "text-teal-accent animate-pulse"
                 : "text-teal-festival hover:text-teal-accent hover:bg-parchment-100"
@@ -416,39 +432,43 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
         </div>
 
         {/* Map Mode Badge (Bottom-Left) */}
-        <div className="absolute bottom-3 left-3 z-10 pointer-events-none">
-          <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-black/60 text-white backdrop-blur-xs">
-            {mapViewMode === "satellite" ? "🛰️ Satellite View" : "🗺️ Street View"}
-          </span>
-        </div>
+        {!selectedVenue && (
+          <div className="absolute bottom-3 left-3 z-10 pointer-events-none">
+            <span className="px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider bg-teal-dark/80 text-white backdrop-blur-xs">
+              {mapViewMode === "satellite" ? "Satellite View" : "Street View"}
+            </span>
+          </div>
+        )}
 
         {/* Selected Venue Bottom Card Overlay */}
         {selectedVenue && (
-          <div className="absolute bottom-3 left-3 right-3 sm:left-auto sm:right-3 sm:max-w-sm z-20 bg-parchment-50 p-4 rounded-2xl shadow-raised border border-parchment-300 animate-in slide-in-from-bottom-2 space-y-2.5">
+          <div className="absolute bottom-3 left-3 right-3 sm:left-3 sm:right-auto sm:max-w-md z-20 bg-parchment-50/98 backdrop-blur-sm p-4 rounded-2xl shadow-raised border border-parchment-300 animate-in slide-in-from-bottom-2 space-y-2.5">
             <div className="flex items-start justify-between gap-2">
-              <div>
-                <span className="text-[10px] uppercase font-bold text-terracotta-festival">
+              <div className="min-w-0">
+                <span className="editorial-kicker">
                   {selectedVenue.category.replace("_", " ")}
                 </span>
-                <h4 className="font-serif font-bold text-base text-teal-festival leading-tight">
+                <h4 className="font-serif font-bold text-base text-teal-festival leading-snug mt-0.5">
                   {selectedVenue.name}
                 </h4>
                 <p className="text-xs text-ink-muted mt-0.5">{selectedVenue.address}</p>
-                <p className="text-[10px] font-mono text-ink-muted/80 mt-0.5">
-                  GPS: {selectedVenue.latitude.toFixed(6)}, {selectedVenue.longitude.toFixed(6)}
-                </p>
+                {selectedVenue.accessibilityNotes && (
+                  <p className="text-[11px] text-ink-light mt-1 line-clamp-2">
+                    {selectedVenue.accessibilityNotes}
+                  </p>
+                )}
               </div>
               <button
                 type="button"
                 onClick={() => setSelectedVenue(null)}
-                className="min-w-[32px] min-h-[32px] text-ink-muted hover:text-ink-festival p-1 text-sm font-bold flex items-center justify-center shrink-0 rounded-lg hover:bg-parchment-200"
-                aria-label="Close"
+                className="min-w-[32px] min-h-[32px] text-ink-muted hover:text-ink-festival p-1 text-sm font-bold flex items-center justify-center shrink-0 rounded-lg hover:bg-parchment-200 transition-colors"
+                aria-label="Close venue details"
               >
                 ✕
               </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-1.5 pt-1 border-t border-parchment-200 text-xs">
+            <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-parchment-200 text-xs">
               <a
                 href={`https://www.google.com/maps/dir/?api=1&destination=${selectedVenue.latitude},${selectedVenue.longitude}`}
                 target="_blank"
@@ -459,7 +479,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                     venueName: selectedVenue.name,
                   })
                 }
-                className="min-h-[40px] py-1.5 px-2 rounded-xl bg-teal-festival text-white font-bold flex items-center justify-center gap-1 shadow-sm hover:bg-teal-light transition-colors text-center"
+                className="min-h-[40px] py-1.5 px-2 rounded-xl bg-teal-festival text-white font-bold flex items-center justify-center gap-1 shadow-xs hover:bg-teal-light transition-colors text-center"
               >
                 <Navigation className="w-3.5 h-3.5 shrink-0" />
                 <span>Directions</span>
@@ -467,7 +487,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
               <Link
                 href={`/programme?venue=${selectedVenue.id}`}
-                className="min-h-[40px] py-1.5 px-2 rounded-xl bg-parchment-200 text-teal-festival font-bold flex items-center justify-center gap-1 border border-parchment-300 hover:bg-parchment-300 transition-colors text-center"
+                className="min-h-[40px] py-1.5 px-2 rounded-xl bg-parchment-200/80 text-teal-festival font-bold flex items-center justify-center gap-1 border border-parchment-300 hover:bg-parchment-300 transition-colors text-center"
               >
                 <Calendar className="w-3.5 h-3.5 text-terracotta-festival shrink-0" />
                 <span>What&apos;s On</span>
@@ -475,7 +495,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
               <Link
                 href={`/ride?destination=${encodeURIComponent(selectedVenue.name)}`}
-                className="min-h-[40px] py-1.5 px-2 rounded-xl bg-parchment-200 text-teal-festival font-bold flex items-center justify-center gap-1 border border-parchment-300 hover:bg-parchment-300 transition-colors text-center"
+                className="min-h-[40px] py-1.5 px-2 rounded-xl bg-parchment-200/80 text-teal-festival font-bold flex items-center justify-center gap-1 border border-parchment-300 hover:bg-parchment-300 transition-colors text-center"
               >
                 <Car className="w-3.5 h-3.5 text-teal-accent shrink-0" />
                 <span>Get a Ride</span>
@@ -487,18 +507,22 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
       {/* Festival Venues Directory List */}
       <section className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="font-serif font-bold text-lg text-teal-festival">
-            Festival Venues ({venues.length})
-          </h2>
+        <div className="flex items-end justify-between gap-2">
+          <div>
+            <span className="editorial-kicker">Venue Directory</span>
+            <h2 className="font-serif font-bold text-lg sm:text-xl text-teal-festival mt-0.5">
+              Festival Venues ({venues.length})
+            </h2>
+          </div>
           <span className="text-xs text-ink-muted">
-            Tap a venue to locate on map
+            Tap any venue to locate on map
           </span>
         </div>
 
         <VenueListView
           venues={venues}
           checkedInVenueIds={checkedInVenueIds}
+          selectedVenueId={selectedVenue?.id || null}
           onSelectVenue={handleSelectVenueFromList}
         />
       </section>

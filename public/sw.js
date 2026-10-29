@@ -1,12 +1,16 @@
 // KliK 2026 Kunstefees Service Worker
-const CACHE_NAME = 'klik-v1.0.0';
+const CACHE_NAME = 'klik-v1.3.0';
 
 const PRECACHE_URLS = [
   '/',
   '/programme',
+  '/youth',
+  '/artists',
   '/map',
+  '/culture-trail',
   '/quest',
   '/my-festival',
+  '/more',
   '/offline',
   '/manifest.webmanifest',
   '/icons/icon.svg',
@@ -49,7 +53,12 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Never cache admin routes, map tiles, or external APIs
-  if (url.pathname.startsWith('/admin') || url.hostname.includes('mapbox.com')) {
+  if (
+    url.pathname.startsWith('/admin') ||
+    url.hostname.includes('mapbox.com') ||
+    url.hostname.includes('arcgisonline.com') ||
+    url.hostname.includes('cartocdn.com')
+  ) {
     return;
   }
 

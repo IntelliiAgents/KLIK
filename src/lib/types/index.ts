@@ -71,6 +71,7 @@ export interface Artist {
   name: string;
   discipline: string;
   bio: string;
+  affiliation?: string;
   websiteUrl?: string;
   imageUrl?: string;
 }
@@ -93,6 +94,7 @@ export interface FestivalEvent {
   endTime: string;   // HH:mm
   venueId: string;
   venueName?: string;
+  subVenue?: string;
   category: EventCategory;
   language: 'af' | 'en' | 'bilingual' | 'multilingual';
   isTicketed: boolean;
@@ -107,6 +109,12 @@ export interface FestivalEvent {
   venueHub?: FestivalHub;
   subSessions?: EventSubSession[];
   capacityNote?: string;
+  ageGroup?: string;
+  facilitatorDisplay?: string;
+  affiliation?: string;
+  hosts?: string[];
+  highlights?: string[];
+  isDraft?: boolean;
 }
 
 export interface Participant {

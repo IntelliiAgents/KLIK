@@ -1,13 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Suspense } from "react";
+import { useSearchParams } from "next/navigation";
 import { repository } from "@/lib/db/repository";
 import { getCheckIns } from "@/lib/db/idb";
 import { VenueLocation } from "@/lib/types";
 import { InteractiveMap } from "@/components/Map/InteractiveMap";
+import { BackToTopButton } from "@/components/UI/BackToTopButton";
 import { trackEvent } from "@/lib/analytics";
 
-export default function MapPage() {
+function MapPageContent() {
+  const searchParams = useSearchParams();
+  const initialVenueId = searchParams.get("venue");
   const [venues, setVenues] = useState<VenueLocation[]>([]);
   const [checkedInVenueIds, setCheckedInVenueIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -34,13 +38,14 @@ export default function MapPage() {
   }, []);
 
   return (
-    <div className="space-y-5 pb-8 animate-in fade-in duration-300">
+    <div className="space-y-5 pb-10 animate-in fade-in duration-300">
       <div>
-        <h1 className="font-serif font-black text-2xl sm:text-3xl text-teal-festival">
-          Festival Map
+        <span className="editorial-kicker">Kleinmond, Overberg Coast</span>
+        <h1 className="font-serif font-bold text-2xl sm:text-3xl text-teal-festival mt-0.5">
+          Festival Map &amp; Venues
         </h1>
-        <p className="text-xs sm:text-sm text-ink-muted mt-0.5">
-          Find venues and get directions around Kleinmond.
+        <p className="text-xs sm:text-sm text-ink-muted mt-1 leading-relaxed">
+          Explore all festival locations across Kleinmond, switch between satellite and street views, or get turn-by-turn directions.
         </p>
       </div>
 
@@ -50,8 +55,29 @@ export default function MapPage() {
           <p className="text-xs text-ink-muted">Loading venues...</p>
         </div>
       ) : (
-        <InteractiveMap venues={venues} checkedInVenueIds={checkedInVenueIds} />
+        <InteractiveMap
+          venues={venues}
+          checkedInVenueIds={checkedInVenueIds}
+          initialVenueId={initialVenueId}
+        />
       )}
+
+      <BackToTopButton />
     </div>
+  );
+}
+
+export default function MapPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="py-16 text-center space-y-3">
+          <div className="w-8 h-8 rounded-full border-3 border-teal-festival border-t-transparent animate-spin mx-auto" />
+          <p className="text-xs text-ink-muted">Loading festival map...</p>
+        </div>
+      }
+    >
+      <MapPageContent />
+    </Suspense>
   );
 }

@@ -1,18 +1,24 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, Suspense } from "react";
+import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { repository } from "@/lib/db/repository";
 import { getSavedEvents, saveEvent, removeSavedEvent } from "@/lib/db/idb";
 import { FestivalEvent, VenueLocation } from "@/lib/types";
 import { EventCard } from "@/components/Events/EventCard";
 import { EventDetailsModal } from "@/components/Events/EventDetailsModal";
+import { PosterGallery } from "@/components/Brand/PosterGallery";
+import { BackToTopButton } from "@/components/UI/BackToTopButton";
 import { trackEvent } from "@/lib/analytics";
 import {
   Search,
   SlidersHorizontal,
   X,
   Check,
+  Sparkles,
+  ChevronRight,
+  Users,
 } from "lucide-react";
 
 const DAYS = [
@@ -28,9 +34,11 @@ const CATEGORIES = [
   { id: "stories", label: "Stories & Talks" },
   { id: "workshop", label: "Workshops" },
   { id: "art", label: "Visual Arts" },
-  { id: "youth", label: "Youth & Children" },
+  { id: "youth", label: "Children & Youth" },
+  { id: "competition", label: "Competitions" },
   { id: "market", label: "Market" },
-  { id: "outdoor", label: "Outdoor Walks" },
+  { id: "outdoor", label: "Coastal Walks" },
+  { id: "community", label: "Community" },
 ];
 
 function ProgrammeContent() {
@@ -124,6 +132,25 @@ function ProgrammeContent() {
     setSearchQuery("");
   };
 
+  // Detect overlapping saved events so timeline cards can flag conflicts
+  const conflictingSavedIds = useMemo(() => {
+    const savedSet = new Set(savedEventIds);
+    const savedList = events.filter((e) => savedSet.has(e.id));
+    const conflicts = new Set<string>();
+
+    for (let i = 0; i < savedList.length; i++) {
+      for (let j = i + 1; j < savedList.length; j++) {
+        const a = savedList[i];
+        const b = savedList[j];
+        if (a.date === b.date && a.startTime < b.endTime && b.startTime < a.endTime) {
+          conflicts.add(a.id);
+          conflicts.add(b.id);
+        }
+      }
+    }
+    return conflicts;
+  }, [events, savedEventIds]);
+
   // Filter events
   const filteredEvents = useMemo(() => {
     const activeDay = DAYS.find((d) => d.id === selectedDayId);
@@ -149,8 +176,19 @@ function ProgrammeContent() {
         const matchesTitle = evt.title.toLowerCase().includes(q);
         const matchesDesc = evt.description?.toLowerCase().includes(q);
         const matchesVenue = evt.venueName?.toLowerCase().includes(q);
+        const matchesSubVenue = evt.subVenue?.toLowerCase().includes(q);
+        const matchesFacilitator = evt.facilitatorDisplay?.toLowerCase().includes(q);
+        const matchesHosts = evt.hosts?.some((h) => h.toLowerCase().includes(q));
         const matchesArtist = evt.artists?.some((a) => a.name.toLowerCase().includes(q));
-        if (!matchesTitle && !matchesDesc && !matchesVenue && !matchesArtist) {
+        if (
+          !matchesTitle &&
+          !matchesDesc &&
+          !matchesVenue &&
+          !matchesSubVenue &&
+          !matchesFacilitator &&
+          !matchesHosts &&
+          !matchesArtist
+        ) {
           return false;
         }
       }
@@ -164,7 +202,11 @@ function ProgrammeContent() {
     const groups: { time: string; events: FestivalEvent[] }[] = [];
     const map = new Map<string, FestivalEvent[]>();
 
-    const sorted = [...filteredEvents].sort((a, b) => a.startTime.localeCompare(b.startTime));
+    const sorted = [...filteredEvents].sort((a, b) => {
+      const cmp = a.startTime.localeCompare(b.startTime);
+      if (cmp !== 0) return cmp;
+      return a.endTime.localeCompare(b.endTime);
+    });
 
     for (const evt of sorted) {
       const slot = evt.startTime || "All Day";
@@ -190,20 +232,33 @@ function ProgrammeContent() {
     : null;
 
   return (
-    <div className="space-y-4 pb-8 animate-in fade-in duration-300">
-      {/* 1. Header & Three Highly Visible Day Tabs: FRI 27, SAT 28, SUN 29 */}
-      <div className="space-y-3">
-        <div className="flex items-center justify-between">
-          <h1 className="font-serif font-black text-2xl sm:text-3xl text-teal-festival">
-            Programme
-          </h1>
-          <span className="text-xs text-ink-muted">
-            {filteredEvents.length} {filteredEvents.length === 1 ? "event" : "events"}
-          </span>
+    <div className="space-y-5 pb-10 animate-in fade-in duration-300">
+      {/* 1. Editorial Header & Three Day Tabs: FRI 27, SAT 28, SUN 29 */}
+      <div className="space-y-3.5">
+        <div className="flex flex-wrap items-end justify-between gap-2">
+          <div>
+            <span className="editorial-kicker">27–29 November 2026 • Kleinmond</span>
+            <h1 className="font-serif font-bold text-2xl sm:text-3xl text-teal-festival mt-0.5">
+              Festival Programme
+            </h1>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <Link
+              href="/artists"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-teal-festival hover:text-terracotta-festival transition-colors py-1"
+            >
+              <Users className="w-3.5 h-3.5 text-terracotta-festival" />
+              <span>Artists &amp; Bios</span>
+            </Link>
+            <span className="text-xs text-ink-muted tabular-time bg-parchment-200/80 px-2.5 py-1 rounded-full border border-parchment-300">
+              {filteredEvents.length} {filteredEvents.length === 1 ? "session" : "sessions"}
+            </span>
+          </div>
         </div>
 
         <div
-          className="grid grid-cols-3 gap-2 p-1.5 bg-parchment-200/80 rounded-2xl border border-parchment-300"
+          className="grid grid-cols-3 gap-1.5 p-1.5 bg-parchment-200/75 rounded-2xl border border-parchment-300"
           role="tablist"
           aria-label="Filter programme by day"
         >
@@ -215,16 +270,20 @@ function ProgrammeContent() {
                 onClick={() => setSelectedDayId(day.id)}
                 role="tab"
                 aria-selected={isSelected}
-                className={`min-h-[50px] py-2 px-3 rounded-xl font-bold text-center transition-all flex flex-col items-center justify-center ${
+                className={`min-h-[52px] py-2 px-3 rounded-xl font-bold text-center transition-all flex flex-col items-center justify-center ${
                   isSelected
-                    ? "bg-teal-festival text-white shadow-card scale-[1.01]"
-                    : "text-ink-muted hover:text-teal-festival hover:bg-parchment-200"
+                    ? "bg-teal-festival text-white shadow-card"
+                    : "text-ink-muted hover:text-teal-festival hover:bg-parchment-100/80"
                 }`}
               >
                 <span className="font-serif text-sm sm:text-base leading-none tracking-wide">
                   {day.label}
                 </span>
-                <span className="text-[10px] opacity-80 mt-1 leading-none">
+                <span
+                  className={`text-[11px] mt-1 leading-none ${
+                    isSelected ? "text-parchment-200" : "text-ink-light"
+                  }`}
+                >
                   {day.subtitle}
                 </span>
               </button>
@@ -233,7 +292,7 @@ function ProgrammeContent() {
         </div>
       </div>
 
-      {/* 2. Search programme... & ONE secondary button: Filters */}
+      {/* 2. Search programme & Filters button */}
       <div className="flex items-center gap-2">
         <div className="relative flex-1">
           <Search
@@ -244,7 +303,7 @@ function ProgrammeContent() {
             type="text"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            placeholder="Search programme..."
+            placeholder="Search events, writers, facilitators, or venues..."
             className="w-full min-h-[44px] pl-10 pr-9 py-2.5 rounded-xl bg-parchment-50 border border-parchment-300 text-sm text-ink-festival placeholder:text-ink-muted focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-festival transition-all"
             aria-label="Search programme"
           />
@@ -259,7 +318,6 @@ function ProgrammeContent() {
           )}
         </div>
 
-        {/* ONE Filter Button */}
         <button
           onClick={() => setIsFilterOpen(true)}
           className={`min-h-[44px] px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 border transition-all shrink-0 ${
@@ -279,10 +337,10 @@ function ProgrammeContent() {
         </button>
       </div>
 
-      {/* Active Filter Chips */}
+      {/* Active Filter Summary */}
       {activeFilterCount > 0 && (
-        <div className="flex items-center justify-between text-xs text-ink-muted px-1">
-          <span className="truncate">
+        <div className="flex items-center justify-between text-xs text-ink-muted px-1 py-1 bg-parchment-50/70 rounded-xl border border-parchment-200">
+          <span className="truncate pl-2">
             Filtering by:{" "}
             <strong className="text-teal-festival font-semibold">
               {[
@@ -292,19 +350,49 @@ function ProgrammeContent() {
                 filterVenue !== "all"
                   ? venues.find((v) => v.id === filterVenue)?.shortName || "Venue"
                   : null,
-                filterTicket !== "all" ? (filterTicket === "free" ? "Free Only" : "Ticketed Only") : null,
+                filterTicket !== "all"
+                  ? filterTicket === "free"
+                    ? "Free Zone Only"
+                    : "Ticketed Only"
+                  : null,
               ]
                 .filter(Boolean)
-                .join(", ")}
+                .join(" • ")}
             </strong>
           </span>
           <button
             onClick={clearAllFilters}
-            className="text-xs font-bold text-terracotta-festival hover:underline shrink-0 ml-2"
+            className="text-xs font-bold text-terracotta-festival hover:underline shrink-0 px-2.5 py-1"
           >
             Clear all
           </button>
         </div>
+      )}
+
+      {/* Contextual Saturday / Children & Youth Dedicated Guide Callout */}
+      {(selectedDayId === "sat" || filterCategory === "youth") && (
+        <Link
+          href="/youth"
+          className="flex items-center justify-between gap-3 p-3.5 sm:p-4 rounded-2xl bg-parchment-50 border border-terracotta-festival/30 hover:border-terracotta-festival/60 shadow-subtle hover:shadow-card transition-all group"
+        >
+          <div className="flex items-start sm:items-center gap-3 min-w-0">
+            <div className="w-9 h-9 rounded-xl bg-terracotta-festival/12 text-terracotta-festival flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
+              <Sparkles className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className="font-serif font-bold text-sm text-teal-festival group-hover:text-terracotta-festival transition-colors">
+                  Children &amp; Youth Programme (10:00–14:00)
+                </span>
+                <span className="badge-free-zone">Free Zone</span>
+              </div>
+              <p className="text-xs text-ink-muted mt-0.5 line-clamp-2">
+                Mthimkhulu Village Centre — view the dedicated room-by-room schedule, age groups &amp; 12:00–12:45 lunch break.
+              </p>
+            </div>
+          </div>
+          <ChevronRight className="w-4 h-4 text-ink-light group-hover:text-terracotta-festival group-hover:translate-x-0.5 transition-all shrink-0" />
+        </Link>
       )}
 
       {/* 3. Chronological Editorial Timeline */}
@@ -316,32 +404,34 @@ function ProgrammeContent() {
       ) : timeGroupedEvents.length === 0 ? (
         <div className="bg-parchment-50 rounded-2xl p-8 text-center border border-parchment-300 space-y-3">
           <p className="text-sm font-medium text-ink-festival">
-            No events match your search or filter on this day.
+            No sessions match your search or filter on this day.
           </p>
           <button
             onClick={clearAllFilters}
-            className="px-4 py-2 rounded-xl bg-teal-festival text-white text-xs font-bold hover:bg-teal-light"
+            className="px-4 py-2.5 rounded-xl bg-teal-festival text-white text-xs font-bold hover:bg-teal-light transition-colors"
           >
             Reset Filters
           </button>
         </div>
       ) : (
-        <div className="space-y-6 pt-2">
+        <div className="space-y-6 pt-1">
           {timeGroupedEvents.map((group) => (
-            <section key={group.time} className="space-y-1">
-              {/* Time Dominates Header */}
+            <section key={group.time} className="space-y-2">
+              {/* Sticky Time Slot Header */}
               <div className="sticky top-14 z-20 bg-parchment/95 backdrop-blur-xs py-2 flex items-center gap-3">
-                <span className="font-serif font-black text-xl sm:text-2xl text-teal-festival tracking-tight">
+                <span className="font-serif font-bold text-xl sm:text-2xl text-teal-festival tabular-time tracking-tight">
                   {group.time}
                 </span>
                 <div className="flex-1 h-px bg-parchment-300" />
                 <span className="text-[11px] font-semibold text-ink-muted">
-                  {group.events.length} {group.events.length === 1 ? "event" : "events"}
+                  {group.events.length === 1
+                    ? "1 session"
+                    : `${group.events.length} concurrent sessions`}
                 </span>
               </div>
 
-              {/* Grouped events visually under the same time region */}
-              <div className="bg-parchment-50 rounded-2xl border border-parchment-300/80 px-4 py-1 divide-y divide-parchment-200 shadow-subtle">
+              {/* Grouped events under this start time */}
+              <div className="editorial-surface px-4 py-1 divide-y divide-parchment-200">
                 {group.events.map((evt) => (
                   <EventCard
                     key={evt.id}
@@ -349,6 +439,7 @@ function ProgrammeContent() {
                     isSaved={savedEventIds.includes(evt.id)}
                     onToggleSave={handleToggleSave}
                     onOpenDetails={(e) => setSelectedEvent(e)}
+                    showConflictWarning={conflictingSavedIds.has(evt.id)}
                     variant="timeline"
                   />
                 ))}
@@ -358,13 +449,27 @@ function ProgrammeContent() {
         </div>
       )}
 
+      {/* Printable Official Posters Reference */}
+      <section className="pt-4 border-t border-parchment-300/70 space-y-3">
+        <div>
+          <span className="editorial-kicker">Print Reference</span>
+          <h2 className="font-serif font-bold text-lg text-teal-festival mt-0.5">
+            Official Programme Posters
+          </h2>
+          <p className="text-xs text-ink-muted mt-0.5">
+            Tap either poster to view full-screen, zoom in, share, or download. Note: Children &amp; Youth (10:00–14:00) and Talent Competition (16:00–18:30) reflect the latest committee updates above.
+          </p>
+        </div>
+        <PosterGallery compact />
+      </section>
+
       {/* Programme Editorial Footer */}
-      <footer className="pt-6 text-center text-xs text-ink-muted space-y-1 border-t border-parchment-300/60 mt-6">
+      <footer className="pt-4 text-center text-xs text-ink-muted space-y-1 border-t border-parchment-300/60">
         <p className="font-semibold text-teal-festival">
-          Official KLiK 2026 Festival Programme
+          Official KliK 2026 Festival Programme
         </p>
         <p className="text-[11px] text-ink-light">
-          Programme subject to change. All sessions held in Kleinmond, Western Cape.
+          Some sessions run concurrently across venues — tap the heart icon to build your personal schedule. Programme subject to change.
         </p>
       </footer>
 
@@ -374,6 +479,7 @@ function ProgrammeContent() {
           className="fixed inset-0 z-50 bg-black/60 backdrop-blur-xs flex items-end sm:items-center justify-center p-0 sm:p-4 animate-in fade-in"
           role="dialog"
           aria-modal="true"
+          aria-label="Filter Programme"
         >
           <div
             className="fixed inset-0"
@@ -423,10 +529,14 @@ function ProgrammeContent() {
 
             {/* Venue Filter */}
             <div className="space-y-1.5">
-              <label className="block text-xs font-bold uppercase tracking-wider text-teal-festival">
+              <label
+                htmlFor="programme-venue-filter"
+                className="block text-xs font-bold uppercase tracking-wider text-teal-festival"
+              >
                 Venue
               </label>
               <select
+                id="programme-venue-filter"
                 value={filterVenue}
                 onChange={(e) => setFilterVenue(e.target.value)}
                 className="w-full min-h-[44px] py-2 px-3 rounded-xl bg-parchment-100 border border-parchment-300 text-sm text-ink-festival focus:outline-none focus:ring-2 focus:ring-teal-festival"
@@ -449,17 +559,17 @@ function ProgrammeContent() {
                 {(
                   [
                     { id: "all", label: "All" },
-                    { id: "free", label: "Free Only" },
+                    { id: "free", label: "Free Zone" },
                     { id: "ticketed", label: "Ticketed" },
                   ] as const
                 ).map((opt) => (
                   <button
                     key={opt.id}
                     onClick={() => setFilterTicket(opt.id)}
-                    className={`min-h-[40px] py-2 px-2 rounded-xl text-xs font-bold text-center border ${
+                    className={`min-h-[40px] py-2 px-2 rounded-xl text-xs font-bold text-center border transition-colors ${
                       filterTicket === opt.id
                         ? "bg-teal-festival text-white border-teal-festival"
-                        : "bg-parchment-100 text-ink-festival border-parchment-300"
+                        : "bg-parchment-100 text-ink-festival border-parchment-300 hover:bg-parchment-200"
                     }`}
                   >
                     {opt.label}
@@ -480,7 +590,7 @@ function ProgrammeContent() {
                 onClick={() => setIsFilterOpen(false)}
                 className="min-h-[44px] flex-1 py-2.5 px-3 rounded-xl bg-teal-festival text-white font-bold text-xs hover:bg-teal-light transition-colors"
               >
-                Show Events ({filteredEvents.length})
+                Show Sessions ({filteredEvents.length})
               </button>
             </div>
           </div>
@@ -494,7 +604,12 @@ function ProgrammeContent() {
         isSaved={selectedEvent ? savedEventIds.includes(selectedEvent.id) : false}
         onClose={() => setSelectedEvent(null)}
         onToggleSave={handleToggleSave}
+        allEvents={events}
+        onSelectEvent={(evt) => setSelectedEvent(evt)}
       />
+
+      {/* Floating Back to Top Button */}
+      <BackToTopButton />
     </div>
   );
 }

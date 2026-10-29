@@ -1,12 +1,15 @@
+@import "leaflet/dist/leaflet.css";
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import "leaflet/dist/leaflet.css";
 
 @layer base {
   :root {
     --bg-parchment: #F7F4EC;
+    --surface-ivory: #FCFBF7;
+    --border-stone: #E3DDD0;
     --text-ink: #263E47;
+    --text-muted: #5A6D75;
     --brand-teal: #263E47;
     --brand-teal-accent: #1997A3;
     --brand-terracotta: #D75A35;
@@ -15,19 +18,27 @@
   }
 
   html {
-    background-color: #F7F4EC;
-    color: #263E47;
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background-color: var(--bg-parchment);
+    color: var(--text-ink);
+    font-family: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     -webkit-tap-highlight-color: transparent;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
     scroll-behavior: smooth;
   }
 
   body {
-    background-color: #F7F4EC;
-    color: #263E47;
+    background-color: var(--bg-parchment);
+    color: var(--text-ink);
     min-height: 100vh;
     padding-bottom: env(safe-area-inset-bottom, 24px);
     overflow-x: hidden;
+    line-height: 1.55;
+  }
+
+  h1, h2, h3, h4 {
+    letter-spacing: -0.015em;
   }
 
   /* Accessible focus indicators */
@@ -38,6 +49,9 @@
 
   /* Respect reduced motion */
   @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
     *,
     ::before,
     ::after {
@@ -49,22 +63,46 @@
   }
 }
 
+@layer components {
+  .editorial-kicker {
+    @apply text-[11px] font-semibold uppercase tracking-[0.14em] text-terracotta-festival;
+  }
+
+  .editorial-surface {
+    background-color: #FCFBF7;
+    border: 1px solid #E3DDD0;
+    box-shadow: 0 1px 2px 0 rgba(38, 62, 71, 0.04), 0 1px 3px 0 rgba(38, 62, 71, 0.03);
+  }
+
+  .tabular-time {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .badge-free-zone {
+    @apply inline-flex items-center px-2 py-0.5 rounded-md text-[10px] font-bold uppercase tracking-wider bg-olive-festival text-white;
+  }
+
+  .badge-ticket {
+    @apply inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-terracotta-festival/10 text-terracotta-dark border border-terracotta-festival/20;
+  }
+}
+
 /* African-inspired geometric subtle border pattern */
 .border-pattern-klik {
   background-image: repeating-linear-gradient(
     45deg,
-    #133D4B 0,
-    #133D4B 8px,
-    #FAF6EE 8px,
-    #FAF6EE 12px,
-    #C8522C 12px,
-    #C8522C 20px,
-    #FAF6EE 20px,
-    #FAF6EE 24px,
-    #DE9E36 24px,
-    #DE9E36 32px,
-    #4B6354 32px,
-    #4B6354 40px
+    #263E47 0,
+    #263E47 8px,
+    #FAF7F0 8px,
+    #FAF7F0 12px,
+    #D75A35 12px,
+    #D75A35 20px,
+    #FAF7F0 20px,
+    #FAF7F0 24px,
+    #D9A13E 24px,
+    #D9A13E 32px,
+    #747A57 32px,
+    #747A57 40px
   );
   height: 4px;
 }
@@ -72,30 +110,56 @@
 /* Tribal chevron divider inspired by festival artwork */
 .tribal-divider {
   height: 8px;
-  background-image: radial-gradient(#133D4B 15%, transparent 16%),
-    radial-gradient(#C8522C 15%, transparent 16%);
+  background-image: radial-gradient(#263E47 15%, transparent 16%),
+    radial-gradient(#D75A35 15%, transparent 16%);
   background-size: 16px 16px;
   background-position: 0 0, 8px 8px;
-  opacity: 0.35;
+  opacity: 0.3;
 }
 
-/* Mapbox GL styles override to fit warmth */
-.mapboxgl-popup-content {
+/* Leaflet & Mapbox GL styles refined to match KliK editorial aesthetic */
+.leaflet-bar {
+  border: 1px solid #E2DCCF !important;
+  box-shadow: 0 4px 12px rgba(38, 62, 71, 0.14) !important;
   border-radius: 12px !important;
+  overflow: hidden;
+}
+
+.leaflet-bar a {
+  background-color: rgba(252, 251, 247, 0.96) !important;
+  color: #263E47 !important;
+  border-bottom: 1px solid #E2DCCF !important;
+  width: 36px !important;
+  height: 36px !important;
+  line-height: 36px !important;
+  font-weight: 700 !important;
+}
+
+.leaflet-bar a:last-child {
+  border-bottom: none !important;
+}
+
+.leaflet-bar a:hover {
+  background-color: #EFEBE0 !important;
+  color: #D75A35 !important;
+}
+
+.mapboxgl-popup-content {
+  border-radius: 14px !important;
   padding: 14px !important;
-  box-shadow: 0 4px 16px rgba(19, 61, 75, 0.15) !important;
+  box-shadow: 0 6px 20px rgba(38, 62, 71, 0.14) !important;
   font-family: inherit !important;
-  background-color: #FAF6EE !important;
-  border: 1px solid #E5DCCD !important;
+  background-color: #FCFBF7 !important;
+  border: 1px solid #E3DDD0 !important;
 }
 
 .mapboxgl-popup-close-button {
   font-size: 18px !important;
   padding: 4px 8px !important;
-  color: #133D4B !important;
+  color: #263E47 !important;
 }
 
-/* Hide scrollbar for category pills while maintaining scrollability */
+/* Hide scrollbar for horizontal pills while maintaining scrollability */
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }

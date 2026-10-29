@@ -12,17 +12,21 @@ import {
   Car,
   Utensils,
   X,
+  CheckCircle2,
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 
 interface VenueListViewProps {
   venues: VenueLocation[];
   checkedInVenueIds?: string[];
+  selectedVenueId?: string | null;
   onSelectVenue?: (venue: VenueLocation) => void;
 }
 
 export const VenueListView: React.FC<VenueListViewProps> = ({
   venues,
+  checkedInVenueIds = [],
+  selectedVenueId = null,
   onSelectVenue,
 }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -32,6 +36,7 @@ export const VenueListView: React.FC<VenueListViewProps> = ({
     const q = searchQuery.toLowerCase();
     return (
       venue.name.toLowerCase().includes(q) ||
+      venue.shortName.toLowerCase().includes(q) ||
       venue.address.toLowerCase().includes(q)
     );
   });
@@ -48,7 +53,7 @@ export const VenueListView: React.FC<VenueListViewProps> = ({
           type="text"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          placeholder="Search venue or street..."
+          placeholder="Search venue or street address..."
           className="w-full min-h-[44px] pl-10 pr-9 py-2.5 rounded-xl bg-parchment-50 border border-parchment-300 text-sm text-ink-festival placeholder:text-ink-muted focus:bg-white focus:outline-none focus:ring-2 focus:ring-teal-festival transition-all"
           aria-label="Search venues"
         />
@@ -67,27 +72,48 @@ export const VenueListView: React.FC<VenueListViewProps> = ({
       <div className="space-y-2.5">
         {filteredVenues.map((venue) => {
           const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${venue.latitude},${venue.longitude}`;
+          const isCheckedIn = checkedInVenueIds.includes(venue.id);
+          const isSelected = selectedVenueId === venue.id;
 
           return (
             <article
               key={venue.id}
               onClick={() => onSelectVenue?.(venue)}
-              className="bg-parchment-50 p-4 rounded-2xl border border-parchment-300 shadow-subtle hover:shadow-card transition-all space-y-2.5 cursor-pointer"
+              className={`bg-parchment-50 p-4 rounded-2xl border transition-all space-y-2.5 cursor-pointer ${
+                isSelected
+                  ? "border-terracotta-festival ring-1 ring-terracotta-festival/30 shadow-card"
+                  : "border-parchment-300 shadow-subtle hover:shadow-card hover:border-parchment-400"
+              }`}
             >
               {/* Venue Name & Address */}
-              <div>
-                <h3 className="font-serif font-bold text-base sm:text-lg text-teal-festival leading-snug">
-                  {venue.name}
-                </h3>
-                <p className="text-xs text-ink-muted mt-0.5 flex items-center gap-1.5">
-                  <MapPin className="w-3.5 h-3.5 text-terracotta-festival shrink-0" />
-                  <span>{venue.address}</span>
-                </p>
+              <div className="flex items-start justify-between gap-2">
+                <div>
+                  <h3 className="font-serif font-bold text-base sm:text-lg text-teal-festival leading-snug">
+                    {venue.name}
+                  </h3>
+                  <p className="text-xs text-ink-muted mt-0.5 flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 text-terracotta-festival shrink-0" />
+                    <span>{venue.address}</span>
+                  </p>
+                </div>
+
+                {isCheckedIn && (
+                  <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-olive-festival/15 text-olive-dark text-[10px] font-bold shrink-0">
+                    <CheckCircle2 className="w-3 h-3" />
+                    <span>Visited</span>
+                  </span>
+                )}
               </div>
+
+              {venue.accessibilityNotes && (
+                <p className="text-xs text-ink-muted leading-relaxed">
+                  {venue.accessibilityNotes}
+                </p>
+              )}
 
               {/* Confirmed Facilities */}
               {(venue.isWheelchairAccessible || venue.hasParking || venue.hasFoodNearby) && (
-                <div className="flex items-center gap-3.5 py-1 text-xs text-ink-muted border-t border-parchment-200">
+                <div className="flex flex-wrap items-center gap-3.5 py-1.5 text-xs text-ink-muted border-t border-parchment-200">
                   {venue.isWheelchairAccessible && (
                     <span className="flex items-center gap-1 text-[11px]" title="Wheelchair accessible">
                       <Accessibility className="w-3.5 h-3.5 text-teal-festival" />
@@ -110,9 +136,9 @@ export const VenueListView: React.FC<VenueListViewProps> = ({
               )}
 
               {/* Actions: What's On Here & Directions */}
-              <div className="grid grid-cols-2 gap-2 pt-1 border-t border-parchment-200">
+              <div className="grid grid-cols-2 gap-2 pt-1.5 border-t border-parchment-200">
                 <Link
-                  href={`/programme?venue=${venue.id}`}
+                  href={venue.id === "loc-mthimkhulu" ? "/youth" : `/programme?venue=${venue.id}`}
                   onClick={(e) => {
                     e.stopPropagation();
                     trackEvent("venue_view", { venueId: venue.id, venueName: venue.name });

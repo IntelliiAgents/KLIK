@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Calendar, MapPin, Heart, Menu, WifiOff, CheckCircle2 } from "lucide-react";
-import { getSavedEvents, flushOfflineQueue } from "@/lib/db/idb";
+import { Home, Calendar, MapPin, Heart, Menu } from "lucide-react";
+import { getSavedEvents } from "@/lib/db/idb";
 
 interface NavItem {
   name: string;
@@ -16,12 +16,8 @@ interface NavItem {
 export const BottomNav: React.FC = () => {
   const pathname = usePathname();
   const [savedCount, setSavedCount] = useState<number>(0);
-  const [isOnline, setIsOnline] = useState<boolean>(true);
-  const [showReconnectedBanner, setShowReconnectedBanner] = useState<boolean>(false);
 
   useEffect(() => {
-    setIsOnline(navigator.onLine);
-
     const updateCount = async () => {
       try {
         const items = await getSavedEvents();
@@ -35,32 +31,9 @@ export const BottomNav: React.FC = () => {
     const interval = setInterval(updateCount, 2500);
     window.addEventListener("storage", updateCount);
 
-    const handleOnline = async () => {
-      setIsOnline(true);
-      setShowReconnectedBanner(true);
-      try {
-        await flushOfflineQueue();
-      } catch {
-        // silent
-      }
-      setTimeout(() => {
-        setShowReconnectedBanner(false);
-      }, 3500);
-    };
-
-    const handleOffline = () => {
-      setIsOnline(false);
-      setShowReconnectedBanner(false);
-    };
-
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
-
     return () => {
       clearInterval(interval);
       window.removeEventListener("storage", updateCount);
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
     };
   }, [pathname]);
 
@@ -88,7 +61,13 @@ export const BottomNav: React.FC = () => {
           const isActive =
             item.href === "/"
               ? pathname === "/"
-              : pathname.startsWith(item.href);
+              : item.href === "/more"
+                ? pathname.startsWith("/more") ||
+                  pathname.startsWith("/artists") ||
+                  pathname.startsWith("/youth") ||
+                  pathname.startsWith("/ride") ||
+                  pathname.startsWith("/culture-trail")
+                : pathname.startsWith(item.href);
 
           const IconComponent = item.icon;
 
@@ -101,18 +80,18 @@ export const BottomNav: React.FC = () => {
                   ? "text-terracotta-festival font-bold"
                   : "text-ink-muted hover:text-teal-festival font-medium"
               }`}
-              aria-current={isActive ? "page" : undefined}
+              aria-current={pathname === item.href ? "page" : undefined}
             >
               <div className="relative">
                 <IconComponent
-                  className={`w-6 h-6 transition-transform ${
+                  className={`w-5 h-5 sm:w-6 sm:h-6 transition-transform ${
                     isActive ? "scale-105 stroke-[2.2]" : "stroke-[1.8]"
                   }`}
                   aria-hidden="true"
                 />
                 {item.badgeCount && item.badgeCount > 0 ? (
                   <span
-                    className="absolute -top-1 -right-2 min-w-[17px] h-[17px] px-1 rounded-full bg-terracotta-festival text-white text-[10px] font-bold flex items-center justify-center leading-none shadow-xs"
+                    className="absolute -top-1 -right-2.5 min-w-[17px] h-[17px] px-1 rounded-full bg-terracotta-festival text-white text-[10px] font-bold flex items-center justify-center leading-none shadow-xs"
                     aria-label={`${item.badgeCount} saved events`}
                   >
                     {item.badgeCount > 99 ? "99+" : item.badgeCount}
