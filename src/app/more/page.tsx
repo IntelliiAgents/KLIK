@@ -352,11 +352,11 @@ export default function MorePage() {
                       </div>
                     )}
 
-                    <div className="w-full min-w-0 pt-1 border-t border-parchment-200/50">
-                      <strong className="font-serif font-bold text-[11px] text-teal-festival block truncate">
+                    <div className="w-full min-w-0 pt-1 border-t border-parchment-200/50 flex flex-col justify-center">
+                      <strong className="font-serif font-bold text-[11px] text-teal-festival block leading-tight line-clamp-2 min-h-[1.75rem] flex items-center justify-center">
                         {p.name}
                       </strong>
-                      <span className="text-[10px] text-ink-muted block line-clamp-1">
+                      <span className="text-[10px] text-ink-muted block mt-0.5 leading-tight line-clamp-2 min-h-[1.5rem] flex items-center justify-center">
                         {p.role}
                       </span>
                     </div>

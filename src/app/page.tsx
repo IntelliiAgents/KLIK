@@ -706,11 +706,11 @@ export default function HomePage() {
                 </div>
               )}
 
-              <div className="min-w-0 w-full pt-1.5 border-t border-parchment-200/60">
-                <strong className="block font-serif font-bold text-xs text-teal-festival truncate">
+              <div className="min-w-0 w-full pt-1.5 border-t border-parchment-200/60 flex flex-col justify-center">
+                <strong className="block font-serif font-bold text-xs text-teal-festival leading-tight line-clamp-2 min-h-[2rem] flex items-center justify-center">
                   {partner.name}
                 </strong>
-                <span className="text-[10px] text-ink-muted block mt-0.5 leading-tight line-clamp-2">
+                <span className="text-[10px] text-ink-muted block mt-0.5 leading-tight line-clamp-2 min-h-[1.5rem] flex items-center justify-center">
                   {partner.role}
                 </span>
               </div>

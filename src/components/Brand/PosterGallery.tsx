@@ -110,7 +110,7 @@ export const PosterGallery: React.FC<PosterGalleryProps> = ({ compact = false })
         className={
           compact
             ? "flex gap-3 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1"
-            : "grid grid-cols-2 sm:grid-cols-4 gap-3"
+            : "grid grid-cols-2 gap-3 max-w-xl mx-auto"
         }
       >
         {OFFICIAL_POSTERS.map((poster, index) => (
@@ -142,10 +142,10 @@ export const PosterGallery: React.FC<PosterGalleryProps> = ({ compact = false })
             </div>
 
             <div className="p-2.5 sm:p-3 space-y-0.5">
-              <h4 className="font-serif font-bold text-xs sm:text-[13px] text-teal-festival leading-tight line-clamp-1 group-hover:text-terracotta-festival transition-colors">
+              <h4 className="font-serif font-bold text-xs sm:text-[13px] text-teal-festival leading-tight line-clamp-2 min-h-[2rem] flex items-center group-hover:text-terracotta-festival transition-colors">
                 {poster.title}
               </h4>
-              <p className="text-[10px] sm:text-[11px] text-ink-muted leading-tight line-clamp-1">
+              <p className="text-[10px] sm:text-[11px] text-ink-muted leading-tight line-clamp-2">
                 {poster.subtitle}
               </p>
             </div>
