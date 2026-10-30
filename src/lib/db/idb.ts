@@ -138,6 +138,7 @@ export async function saveEvent(eventId: string): Promise<void> {
         list.push(record);
         localStorage.setItem("klik_saved_events", JSON.stringify(list));
       }
+      window.dispatchEvent(new Event("klik_saved_events_changed"));
     } catch {
       // ignore
     }
@@ -162,6 +163,7 @@ export async function removeSavedEvent(eventId: string): Promise<void> {
         const filtered = list.filter((x) => x.eventId !== eventId);
         localStorage.setItem("klik_saved_events", JSON.stringify(filtered));
       }
+      window.dispatchEvent(new Event("klik_saved_events_changed"));
     } catch {
       // ignore
     }

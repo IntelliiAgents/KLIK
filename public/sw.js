@@ -1,5 +1,5 @@
 // KliK 2026 Kunstefees Service Worker
-const CACHE_NAME = 'klik-v1.3.1';
+const CACHE_NAME = 'klik-v1.4.0';
 
 const PRECACHE_URLS = [
   '/',
@@ -16,6 +16,7 @@ const PRECACHE_URLS = [
   '/icons/icon.svg',
   '/icons/icon-192.png',
   '/icons/icon-512.png',
+  '/assets/klik-logo-hero.png',
 ];
 
 // Install: Pre-cache app shell and offline fallback

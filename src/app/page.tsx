@@ -151,14 +151,15 @@ export default function HomePage() {
       <section className="pt-2 space-y-5">
         {/* Official KliK Identity */}
         <div className="text-center space-y-3">
-          <div className="w-full max-w-[260px] sm:max-w-[320px] md:max-w-[350px] mx-auto">
+          <div className="w-full max-w-[280px] sm:max-w-[340px] md:max-w-[380px] mx-auto">
             <Image
-              src="/assets/klik-logo-transparent-2x.png"
+              src="/assets/klik-logo-hero.png"
               alt="KliK — Kleinmond inniebos Kunstefees"
-              width={480}
-              height={280}
-              className="w-full h-auto object-contain mx-auto"
+              width={1192}
+              height={724}
               priority
+              quality={95}
+              className="w-full h-auto object-contain mx-auto drop-shadow-xs"
             />
           </div>
 

@@ -28,12 +28,12 @@ export const BottomNav: React.FC = () => {
     };
 
     updateCount();
-    const interval = setInterval(updateCount, 2500);
     window.addEventListener("storage", updateCount);
+    window.addEventListener("klik_saved_events_changed", updateCount);
 
     return () => {
-      clearInterval(interval);
       window.removeEventListener("storage", updateCount);
+      window.removeEventListener("klik_saved_events_changed", updateCount);
     };
   }, [pathname]);
 
@@ -75,6 +75,7 @@ export const BottomNav: React.FC = () => {
             <Link
               key={item.name}
               href={item.href}
+              prefetch={true}
               className={`flex-1 flex flex-col items-center justify-center h-full min-h-[48px] py-1 px-1 rounded-xl transition-all relative focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-terracotta-festival ${
                 isActive
                   ? "text-terracotta-festival font-bold"

@@ -3,6 +3,7 @@ import "@/styles/globals.css";
 import { TopHeader } from "@/components/Navigation/TopHeader";
 import { BottomNav } from "@/components/Navigation/BottomNav";
 import { InstallPrompt } from "@/components/UI/InstallPrompt";
+import { UpdatePrompt } from "@/components/UI/UpdatePrompt";
 import { SimulatedMailboxNotification } from "@/components/Auth/SimulatedMailboxNotification";
 
 export const metadata: Metadata = {
@@ -91,6 +92,7 @@ export default function RootLayout({
 
         <SimulatedMailboxNotification />
         <InstallPrompt />
+        <UpdatePrompt />
         <BottomNav />
 
         {/* Register Service Worker client script */}
