@@ -27,11 +27,11 @@ const SATELLITE_TILE_URL =
 const SATELLITE_ATTRIBUTION =
   "Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP";
 
-// Clean, high-legibility street tiles (CartoDB Voyager)
+// Clean, high-legibility street tiles (Esri World Street Map - no API key required)
 const STREET_TILE_URL =
-  "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png";
+  "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}";
 const STREET_ATTRIBUTION =
-  "&copy; <a href='https://www.openstreetmap.org/copyright'>OpenStreetMap</a> &copy; <a href='https://carto.com/attributions'>CARTO</a>";
+  "Tiles &copy; Esri &mdash; Source: Esri, DeLorme, NAVTEQ, USGS, Intermap, iPC, NRCAN, Esri Japan, METI, Esri China (Hong Kong), Esri (Thailand), TomTom";
 
 export const InteractiveMap: React.FC<InteractiveMapProps> = ({
   venues,
@@ -440,20 +440,20 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
           </div>
         )}
 
-        {/* Selected Venue Bottom Card Overlay */}
+        {/* Selected Venue Bottom Card Overlay (High-contrast glass on map) */}
         {selectedVenue && (
-          <div className="absolute bottom-3 left-3 right-3 sm:left-3 sm:right-auto sm:max-w-md z-20 bg-parchment-50/98 backdrop-blur-sm p-4 rounded-2xl shadow-raised border border-parchment-300 animate-in slide-in-from-bottom-2 space-y-2.5">
+          <div className="absolute bottom-3 left-3 right-3 sm:left-3 sm:right-auto sm:max-w-md z-20 bg-[#142628]/95 backdrop-blur-md p-4 rounded-2xl shadow-2xl border border-white/20 animate-in slide-in-from-bottom-2 space-y-2.5 text-white">
             <div className="flex items-start justify-between gap-2">
               <div className="min-w-0">
-                <span className="editorial-kicker">
+                <span className="text-[10px] font-bold tracking-widest uppercase text-terracotta-light">
                   {selectedVenue.category.replace("_", " ")}
                 </span>
-                <h4 className="font-serif font-bold text-base text-teal-festival leading-snug mt-0.5">
+                <h4 className="font-serif font-bold text-base text-white leading-snug mt-0.5">
                   {selectedVenue.name}
                 </h4>
-                <p className="text-xs text-ink-muted mt-0.5">{selectedVenue.address}</p>
+                <p className="text-xs text-parchment-200/90 mt-0.5">{selectedVenue.address}</p>
                 {selectedVenue.accessibilityNotes && (
-                  <p className="text-[11px] text-ink-light mt-1 line-clamp-2">
+                  <p className="text-[11px] text-white/70 mt-1 line-clamp-2">
                     {selectedVenue.accessibilityNotes}
                   </p>
                 )}
@@ -461,14 +461,14 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
               <button
                 type="button"
                 onClick={() => setSelectedVenue(null)}
-                className="min-w-[32px] min-h-[32px] text-ink-muted hover:text-ink-festival p-1 text-sm font-bold flex items-center justify-center shrink-0 rounded-lg hover:bg-parchment-200 transition-colors"
+                className="min-w-[32px] min-h-[32px] text-white/70 hover:text-white p-1 text-sm font-bold flex items-center justify-center shrink-0 rounded-lg hover:bg-white/10 transition-colors"
                 aria-label="Close venue details"
               >
                 ✕
               </button>
             </div>
 
-            <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-parchment-200 text-xs">
+            <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-white/15 text-xs">
               <a
                 href={`https://www.google.com/maps/dir/?api=1&destination=${selectedVenue.latitude},${selectedVenue.longitude}`}
                 target="_blank"
@@ -479,7 +479,7 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                     venueName: selectedVenue.name,
                   })
                 }
-                className="min-h-[40px] py-1.5 px-2 rounded-xl bg-teal-festival text-white font-bold flex items-center justify-center gap-1 shadow-xs hover:bg-teal-light transition-colors text-center"
+                className="min-h-[40px] py-1.5 px-2 rounded-xl bg-terracotta-festival hover:bg-terracotta-dark text-white font-bold flex items-center justify-center gap-1 shadow-md transition-colors text-center"
               >
                 <Navigation className="w-3.5 h-3.5 shrink-0" />
                 <span>Directions</span>
@@ -487,17 +487,17 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
 
               <Link
                 href={`/programme?venue=${selectedVenue.id}`}
-                className="min-h-[40px] py-1.5 px-2 rounded-xl bg-parchment-200/80 text-teal-festival font-bold flex items-center justify-center gap-1 border border-parchment-300 hover:bg-parchment-300 transition-colors text-center"
+                className="min-h-[40px] py-1.5 px-2 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold flex items-center justify-center gap-1 border border-white/20 transition-colors text-center"
               >
-                <Calendar className="w-3.5 h-3.5 text-terracotta-festival shrink-0" />
+                <Calendar className="w-3.5 h-3.5 text-amber-300 shrink-0" />
                 <span>What&apos;s On</span>
               </Link>
 
               <Link
                 href={`/ride?destination=${encodeURIComponent(selectedVenue.name)}`}
-                className="min-h-[40px] py-1.5 px-2 rounded-xl bg-parchment-200/80 text-teal-festival font-bold flex items-center justify-center gap-1 border border-parchment-300 hover:bg-parchment-300 transition-colors text-center"
+                className="min-h-[40px] py-1.5 px-2 rounded-xl bg-white/15 hover:bg-white/25 text-white font-bold flex items-center justify-center gap-1 border border-white/20 transition-colors text-center"
               >
-                <Car className="w-3.5 h-3.5 text-teal-accent shrink-0" />
+                <Car className="w-3.5 h-3.5 text-teal-light shrink-0" />
                 <span>Get a Ride</span>
               </Link>
             </div>
