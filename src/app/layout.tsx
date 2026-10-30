@@ -7,31 +7,29 @@ import { UpdatePrompt } from "@/components/UI/UpdatePrompt";
 import { SimulatedMailboxNotification } from "@/components/Auth/SimulatedMailboxNotification";
 
 export const metadata: Metadata = {
-  title: "KliK 2026 - Kleinmond Inniebos Kunstefees",
+  title: "KliK 2026 — Kleinmond inniebos Kunstefees | Official Festival App",
   description:
-    "Official Progressive Web App for KliK 2026 Kunstefees. Stories, poetry, music, art and community in Kleinmond, Western Cape. 27–29 November 2026.",
+    "Official festival guide for KliK 2026. Explore full programmes, artists, venues, interactive maps, shuttle rides, and book tickets for 27–29 November 2026 in Kleinmond.",
   manifest: "/manifest.webmanifest",
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_APP_URL || "https://klik2026.netlify.app"
-  ),
+  metadataBase: new URL("https://klik2026.netlify.app"),
   openGraph: {
-    title: "KliK 2026 | Kleinmond Inniebos Kunstefees",
+    title: "KliK 2026 — Kleinmond inniebos Kunstefees",
     description:
-      "Official PWA for KliK 2026 Kunstefees. Stories, poetry, music, art and community in Kleinmond. 27–29 November 2026.",
-    url: process.env.NEXT_PUBLIC_APP_URL || "https://klik2026.netlify.app",
+      "Explore the official festival programme, artists, venue map, and book tickets for Kleinmond inniebos Kunstefees (27–29 Nov 2026).",
+    url: "https://klik2026.netlify.app",
     siteName: "KliK 2026 Kunstefees",
     images: [
       {
-        url: "/og-image.jpg",
-        width: 1200,
-        height: 630,
-        alt: "KliK 2026 Kleinmond Inniebos Kunstefees Official Artwork",
-      },
-      {
-        url: "/og-square.jpg",
+        url: "https://klik2026.netlify.app/og-square.jpg",
         width: 600,
         height: 600,
-        alt: "KliK 2026 Official Logo Square",
+        alt: "KliK 2026 — Kleinmond inniebos Kunstefees",
+      },
+      {
+        url: "https://klik2026.netlify.app/og-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "KliK 2026 — Kleinmond inniebos Kunstefees",
       },
     ],
     locale: "en_ZA",
@@ -39,10 +37,10 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "KliK 2026 | Kleinmond Inniebos Kunstefees",
+    title: "KliK 2026 — Kleinmond inniebos Kunstefees",
     description:
-      "Official PWA for KliK 2026 Kunstefees. Stories, poetry, music, art and community in Kleinmond.",
-    images: ["/og-image.jpg"],
+      "Official festival guide: programme, artists, venues, and ticket booking. 27–29 November 2026, Kleinmond.",
+    images: ["https://klik2026.netlify.app/og-image.jpg"],
   },
   icons: {
     icon: [
