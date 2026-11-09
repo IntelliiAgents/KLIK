@@ -462,10 +462,10 @@ George Werner's piano playing is a key element of the band's sound, with his dyn
 Camissa Knights' music is perfect for fans of South African jazz and anyone who loves a good groove or a killer solo. Whether they're playing in a club, festival, or concert hall, this band always brings the house down with their infectious energy and joyful music.`,
   },
   {
-    id: "art-beverley-brown",
-    name: "Beverley (Bev) Brown",
+    id: "art-beveley-brown",
+    name: "Beveley (Bev) Brown",
     discipline: "Visual Artist & Community Art Facilitator",
-    bio: `Beverley Brown has over 43 years of experience conducting community art sessions with youth in art and female social inclusive programs as part of therapy and escapism. Her accolades include winning school competitions and private sector prizes, including the BP South Africa competition which funded her second-year studies.
+    bio: `Beveley Brown has over 43 years of experience conducting community art sessions with youth in art and female social inclusive programs as part of therapy and escapism. Her accolades include winning school competitions and private sector prizes, including the BP South Africa competition which funded her second-year studies.
 
 She already has over 100 artworks in circulation, the majority of them commissions. Many of her pieces were designed for individual South African clients living abroad, who love having memories of home away from home. Her Township Art and the Bo-Kaap colourful houses series are two such examples. The Bo-Kaap works have been seen in a variety of locations around the world, including different provinces. Bev also has an international footprint, with two wall murals in Namibia.
 
@@ -492,6 +492,12 @@ Bev's style is primarily realistic but is elevated by impressionistic techniques
     bio: `Shihaam is a creative producer and indigenous food storyteller whose work fuses ancestral knowledge, foraged ingredients, and culinary heritage in contemporary food experiences. Her practice is rooted in honouring the land and sea, drawing on indigenous plants and seasonal abundance to craft menus that are as much about memory and identity as they are about taste. Shihaam has curated food stories that reconnect people with the histories of the Cape, including a menu in honour of Krotoa. This timeless menu reimagines what might have been eaten at the Cape in the 1600s using ingredients sourced from veld, coast, and small-scale custodians.
 
 Her work often bridges ritual and innovation, from reimagining childhood traditions such as Easter pickled fish to leading conversations at the Food Imbizo about the risks and potentials of indigenous food revival. Through her cooking, storytelling, and advocacy, Shihaam invites communities to rediscover the dignity, creativity, and resilience within indigenous food systems; reviving lost flavours while nourishing a deeper sense of belonging to place and culture.`,
+  },
+  {
+    id: "art-dance4all",
+    name: "Dance4All",
+    discipline: "Youth Dance Coaching & Performance",
+    bio: "Dance4All facilitates accessible, high-energy youth dance workshops and coaching sessions, empowering young dancers to explore rhythm, movement, and creative stage performance.",
   },
   {
     id: "art-vusumuzi-mpofu",
@@ -778,7 +784,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
     id: "evt-sat-youth-visual-art",
     title: "Visual Art",
     description:
-      "Children & Youth Programme creative visual art session facilitated by Beverley (Bev) Brown at Mthimkhulu Smart Kids.",
+      "Children & Youth Programme creative visual art session facilitated by Beveley (Bev) Brown at Mthimkhulu Smart Kids.",
     date: "2026-11-28",
     startTime: "10:00",
     endTime: "12:00",
@@ -789,8 +795,8 @@ export const SEED_EVENTS: FestivalEvent[] = [
     language: "multilingual",
     isTicketed: false,
     ageGroup: "10–12",
-    facilitatorDisplay: "Beverley (Bev) Brown",
-    artists: [SEED_ARTISTS.find((a) => a.id === "art-beverley-brown")!],
+    facilitatorDisplay: "Beveley (Bev) Brown",
+    artists: [SEED_ARTISTS.find((a) => a.id === "art-beveley-brown")!],
     accessibilityInfo: "Accessible classroom space at Mthimkhulu Village Centre.",
     scheduleStatus: "scheduled",
     checkInAvailable: true,
@@ -877,6 +883,28 @@ export const SEED_EVENTS: FestivalEvent[] = [
     checkInAvailable: true,
     isFeatured: false,
     isDraft: true,
+    venueHub: "around_kleinmond",
+  },
+  {
+    id: "evt-sat-shed-dance4all",
+    title: "Dance4All: Youth Dance Coaching & Workshop",
+    description:
+      "High-energy youth dance coaching and workshop session facilitated by Dance4All at The Shed, Kleinmond Harbour. Free Zone.",
+    date: "2026-11-28",
+    startTime: "11:00",
+    endTime: "12:00",
+    venueId: "loc-the-shed",
+    venueName: "The Shed, Kleinmond Harbour",
+    category: "youth",
+    language: "multilingual",
+    isTicketed: false,
+    facilitatorDisplay: "Dance4All",
+    artists: [SEED_ARTISTS.find((a) => a.id === "art-dance4all")!],
+    accessibilityInfo: "Ground level, wide doors, full wheelchair ramp access.",
+    scheduleStatus: "scheduled",
+    statusNotice: "Youth Dance Coaching / Workshop",
+    checkInAvailable: true,
+    isFeatured: true,
     venueHub: "around_kleinmond",
   },
   {
@@ -1220,7 +1248,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
       "Andre Louw and Consuelo Roland in conversation with Sonja van der Westhuizen (Catalyst Press) at The Grail Centre.",
     date: "2026-11-28",
     startTime: "14:00",
-    endTime: "16:00",
+    endTime: "15:00",
     venueId: "loc-the-grail",
     venueName: "The Grail Centre, 39 15th Avenue",
     category: "stories",
@@ -1244,7 +1272,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
     id: "evt-sat-sip-and-paint",
     title: "Sip & Paint",
     description:
-      "Create your own canvas with guided instruction by artist Beverley (Bev) Brown overlooking Kleinmond Harbour at Tides Restaurant.",
+      "Create your own canvas with guided instruction by artist Beveley (Bev) Brown overlooking Kleinmond Harbour at Tides Restaurant.",
     date: "2026-11-28",
     startTime: "14:00",
     endTime: "17:00",
@@ -1255,7 +1283,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
     isTicketed: true,
     ticketPrice: "R100",
     capacityNote: "Limited to 30 participants",
-    artists: [SEED_ARTISTS.find((a) => a.id === "art-beverley-brown")!],
+    artists: [SEED_ARTISTS.find((a) => a.id === "art-beveley-brown")!],
     accessibilityInfo: "Waterfront restaurant terrace, accessible tables and parking.",
     scheduleStatus: "scheduled",
     statusNotice: "Create your own canvas • Limited to 30 participants",

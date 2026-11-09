@@ -151,10 +151,15 @@ export default function YouthProgrammePage() {
 
             {/* Room / Sub-venue & Capacity */}
             <div className="flex items-center gap-2.5 flex-wrap text-xs text-ink-muted pt-0.5">
-              {evt.subVenue && (
+              {evt.subVenue ? (
                 <span className="inline-flex items-center gap-1 font-medium text-teal-festival">
                   <MapPin className="w-3.5 h-3.5 text-terracotta-festival shrink-0" />
                   <span>{evt.subVenue}</span>
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 font-medium text-teal-festival">
+                  <MapPin className="w-3.5 h-3.5 text-terracotta-festival shrink-0" />
+                  <span>{evt.venueName}</span>
                 </span>
               )}
 
