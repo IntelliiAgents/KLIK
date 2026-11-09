@@ -11,6 +11,8 @@ import {
   Maximize2,
   Car,
   LocateFixed,
+  Box,
+  ExternalLink,
 } from "lucide-react";
 import Link from "next/link";
 import { trackEvent } from "@/lib/analytics";
@@ -467,6 +469,28 @@ export const InteractiveMap: React.FC<InteractiveMapProps> = ({
                 ✕
               </button>
             </div>
+
+            {selectedVenue.id === "loc-mthimkhulu" && (
+              <div className="pt-2 border-t border-white/15">
+                <a
+                  href="https://mthimkhulu-lab-entrance.wiry-hero-7050.chatgpt.site/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={() => trackEvent("things_to_do_view", { item: "mthimkhulu_3d_campus_map_popup" })}
+                  className="w-full min-h-[38px] py-1.5 px-3 rounded-xl bg-gradient-to-r from-teal-accent/30 to-teal-light/20 hover:from-teal-accent/40 hover:to-teal-light/30 text-white font-bold text-xs flex items-center justify-between border border-teal-light/40 transition-all group shadow-sm"
+                  title="Explore 3D Campus by Derique Coetzee"
+                >
+                  <span className="flex items-center gap-1.5">
+                    <Box className="w-3.5 h-3.5 text-mustard-light group-hover:rotate-12 transition-transform" />
+                    <span>3D Model of Mthimkhulu Centre</span>
+                  </span>
+                  <span className="text-[10px] text-white/80 font-normal flex items-center gap-1">
+                    <span>by Derique Coetzee</span>
+                    <ExternalLink className="w-3 h-3 text-white/70" />
+                  </span>
+                </a>
+              </div>
+            )}
 
             <div className="grid grid-cols-3 gap-1.5 pt-2 border-t border-white/15 text-xs">
               <a

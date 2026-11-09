@@ -35,6 +35,8 @@ import {
   Sparkles,
   Users,
   ArrowRight,
+  Box,
+  ExternalLink,
 } from "lucide-react";
 
 const formatShortDay = (isoDate: string): string => {
@@ -391,7 +393,7 @@ export default function HomePage() {
               </span>
             </div>
 
-            <div className="pt-1">
+            <div className="pt-1 flex flex-wrap items-center gap-2.5">
               <Link
                 href="/youth"
                 onClick={() => trackEvent("youth_programme_view", { source: "home_shortcut" })}
@@ -400,6 +402,19 @@ export default function HomePage() {
                 <span>Explore Activities</span>
                 <ArrowRight className="w-4 h-4" />
               </Link>
+
+              <a
+                href="https://mthimkhulu-lab-entrance.wiry-hero-7050.chatgpt.site/"
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={() => trackEvent("things_to_do_view", { item: "mthimkhulu_3d_campus_home" })}
+                className="inline-flex min-h-[46px] w-full sm:w-auto items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-white/15 hover:bg-white/25 text-white border border-white/25 font-semibold text-xs sm:text-sm backdrop-blur-xs transition-all group"
+                title="Explore 3D Virtual Tour by Derique Coetzee"
+              >
+                <Box className="w-4 h-4 text-mustard-light group-hover:rotate-12 transition-transform" />
+                <span>Explore 3D Campus</span>
+                <ExternalLink className="w-3.5 h-3.5 opacity-75" />
+              </a>
             </div>
           </div>
         </div>

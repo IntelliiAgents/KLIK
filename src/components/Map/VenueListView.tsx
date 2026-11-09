@@ -13,6 +13,8 @@ import {
   Utensils,
   X,
   CheckCircle2,
+  Box,
+  ExternalLink,
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 
@@ -132,6 +134,32 @@ export const VenueListView: React.FC<VenueListViewProps> = ({
                       <span>Food nearby</span>
                     </span>
                   )}
+                </div>
+              )}
+
+              {/* Optional 3D Model CTA for Mthimkhulu Centre */}
+              {venue.id === "loc-mthimkhulu" && (
+                <div className="pt-2 border-t border-parchment-200">
+                  <a
+                    href="https://mthimkhulu-lab-entrance.wiry-hero-7050.chatgpt.site/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      trackEvent("things_to_do_view", { item: "mthimkhulu_3d_campus_venue_list" });
+                    }}
+                    className="w-full min-h-[42px] py-2 px-3 rounded-xl bg-gradient-to-r from-teal-festival to-teal-dark hover:from-teal-dark hover:to-teal-festival text-white text-xs font-bold flex items-center justify-between shadow-subtle group transition-all"
+                    title="Explore 3D Virtual Tour by Derique Coetzee"
+                  >
+                    <span className="flex items-center gap-2">
+                      <Box className="w-4 h-4 text-mustard-light group-hover:rotate-12 transition-transform shrink-0" />
+                      <span>3D Model of Mthimkhulu Centre</span>
+                    </span>
+                    <span className="text-[11px] font-normal text-parchment-100/90 flex items-center gap-1 shrink-0">
+                      <span>by Derique Coetzee</span>
+                      <ExternalLink className="w-3.5 h-3.5 opacity-80" />
+                    </span>
+                  </a>
                 </div>
               )}
 

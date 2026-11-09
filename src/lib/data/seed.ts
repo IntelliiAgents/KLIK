@@ -58,19 +58,19 @@ export const YOUTH_PROGRAMME_INFO = {
 
 export const OFFICIAL_POSTERS: OfficialPoster[] = [
   {
-    id: "poster-programme-1",
-    title: "Festival Programme — Page 1",
-    subtitle: "Friday 27 Nov & Saturday 28 Nov",
-    imageUrl: "/assets/programme-poster-page-1.jpg",
-    downloadName: "KliK-2026-Programme-Page-1.jpg",
-    aspectRatio: "a4",
-  },
-  {
     id: "poster-programme-2",
     title: "Festival Programme — Page 2",
     subtitle: "Saturday 28 Nov (Cont.) & Sunday 29 Nov",
     imageUrl: "/assets/programme-poster-page-2.jpg",
     downloadName: "KliK-2026-Programme-Page-2.jpg",
+    aspectRatio: "a4",
+  },
+  {
+    id: "poster-youth",
+    title: "Youth Festival Poster",
+    subtitle: "Saturday 28 Nov • Workshops & Kleinmond Has Talent",
+    imageUrl: "/assets/youth-poster.jpg",
+    downloadName: "KliK-2026-Youth-Festival-Poster.jpg",
     aspectRatio: "a4",
   },
 ];
@@ -713,14 +713,14 @@ export const SEED_EVENTS: FestivalEvent[] = [
   },
   {
     id: "evt-sat-marching-band",
-    title: "Kleinmond Marching Band",
+    title: "Street March: Proteadorp to Town Hall",
     description:
-      "Parade from Kleinmond Main Road to Kleinmond Town Hall featuring the celebratory fanfare of the Kleinmond Marching Band.",
+      "Parade and street march from Proteadorp along Main Road to Kleinmond Town Hall featuring the celebratory fanfare of the Kleinmond Marching Band.",
     date: "2026-11-28",
     startTime: "09:00",
-    endTime: "09:45",
+    endTime: "10:00",
     venueId: "loc-marching-route",
-    venueName: "Kleinmond Main Road to Kleinmond Town Hall",
+    venueName: "Proteadorp to Kleinmond Town Hall",
     category: "music",
     language: "multilingual",
     isTicketed: false,
@@ -959,7 +959,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
     id: "evt-sat-youth-hip-hop",
     title: "Hip Hop Dance-Off",
     description:
-      "Afternoon Children & Youth Programme high-energy Hip Hop Dance-Off facilitated by the Cape Winelands Hip Hop Academy.",
+      "Afternoon Children & Youth Programme high-energy Hip Hop Dance-Off facilitated by Edward Karelse (Founder & Director, Cape Winelands Hip Hop Academy), teaching dance styles and identifying talent for further development.",
     date: "2026-11-28",
     startTime: "13:00",
     endTime: "14:00",
@@ -969,7 +969,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
     category: "youth",
     language: "multilingual",
     isTicketed: false,
-    facilitatorDisplay: "Cape Winelands Hip Hop Academy",
+    facilitatorDisplay: "Edward Karelse (Cape Winelands Hip Hop Academy)",
     artists: [],
     accessibilityInfo: "Outdoor stage and amphitheatre courtyard at Mthimkhulu Village Centre.",
     scheduleStatus: "scheduled",
@@ -1295,7 +1295,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
     id: "evt-sat-kleinmond-talent",
     title: "KliK Kleinmond Has Talent Competition",
     description:
-      "Community talent competition at The Shed, Kleinmond Harbour, hosted by MCs Shardikah Carelse, Vusumuzi Mpofu, and Nathan Appel, featuring a judging panel, certificates, and prizes.",
+      "Community talent competition for young people aged 12–25 at The Shed, Kleinmond Harbour, hosted by MCs Shardikah Carelse, Vusumiso Mavusi, and Nathan Appel, featuring a judging panel, certificates, and prizes.",
     date: "2026-11-28",
     startTime: "16:00",
     endTime: "18:30",
@@ -1304,7 +1304,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
     category: "competition",
     language: "multilingual",
     isTicketed: false,
-    hosts: ["Shardikah Carelse", "Vusumuzi Mpofu", "Nathan Appel"],
+    hosts: ["Shardikah Carelse", "Vusumiso Mavusi", "Nathan Appel"],
     highlights: ["Judging panel", "Certificates", "Prizes"],
     artists: [SEED_ARTISTS.find((a) => a.id === "art-vusumuzi-mpofu")!],
     accessibilityInfo: "Accessible harbour venue, level entrance and seating areas.",
