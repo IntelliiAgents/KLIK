@@ -110,7 +110,9 @@ export const PosterGallery: React.FC<PosterGalleryProps> = ({ compact = false })
         className={
           compact
             ? "flex gap-3 overflow-x-auto no-scrollbar pb-1 -mx-1 px-1"
-            : "grid grid-cols-2 gap-3 max-w-xl mx-auto"
+            : OFFICIAL_POSTERS.length === 1
+              ? "max-w-[260px] sm:max-w-[280px] mx-auto"
+              : "grid grid-cols-2 gap-3 max-w-xl mx-auto"
         }
       >
         {OFFICIAL_POSTERS.map((poster, index) => (
@@ -168,7 +170,10 @@ export const PosterGallery: React.FC<PosterGalleryProps> = ({ compact = false })
                 {activePoster.title}
               </h3>
               <p className="text-[11px] text-parchment-200/80 truncate">
-                {activePoster.subtitle} • {activeIndex + 1} of {OFFICIAL_POSTERS.length}
+                {activePoster.subtitle}
+                {OFFICIAL_POSTERS.length > 1
+                  ? ` • ${activeIndex + 1} of ${OFFICIAL_POSTERS.length}`
+                  : ""}
               </p>
             </div>
 
@@ -257,35 +262,43 @@ export const PosterGallery: React.FC<PosterGalleryProps> = ({ compact = false })
 
           {/* Bottom Prev / Next Bar */}
           <div className="px-4 py-3 border-t border-white/10 bg-teal-dark/85 flex items-center justify-between gap-3 shrink-0 pb-[max(0.75rem,env(safe-area-inset-bottom))]">
-            <button
-              type="button"
-              onClick={() => {
-                setZoomLevel(1);
-                setActiveIndex(
-                  (activeIndex - 1 + OFFICIAL_POSTERS.length) % OFFICIAL_POSTERS.length
-                );
-              }}
-              className="min-h-[40px] px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
-            >
-              <ChevronLeft className="w-4 h-4" />
-              <span>Previous</span>
-            </button>
+            {OFFICIAL_POSTERS.length > 1 ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setZoomLevel(1);
+                    setActiveIndex(
+                      (activeIndex - 1 + OFFICIAL_POSTERS.length) % OFFICIAL_POSTERS.length
+                    );
+                  }}
+                  className="min-h-[40px] px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Previous</span>
+                </button>
 
-            <span className="text-[11px] text-parchment-200/75 text-center hidden sm:inline">
-              Tap zoom ({zoomLevel}×) to inspect schedule details
-            </span>
+                <span className="text-[11px] text-parchment-200/75 text-center hidden sm:inline">
+                  Tap zoom ({zoomLevel}×) to inspect schedule details
+                </span>
 
-            <button
-              type="button"
-              onClick={() => {
-                setZoomLevel(1);
-                setActiveIndex((activeIndex + 1) % OFFICIAL_POSTERS.length);
-              }}
-              className="min-h-[40px] px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
-            >
-              <span>Next</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setZoomLevel(1);
+                    setActiveIndex((activeIndex + 1) % OFFICIAL_POSTERS.length);
+                  }}
+                  className="min-h-[40px] px-3.5 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-white text-xs font-semibold flex items-center gap-1.5 transition-colors"
+                >
+                  <span>Next</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              </>
+            ) : (
+              <span className="text-[11px] text-parchment-200/75 text-center mx-auto">
+                Tap zoom ({zoomLevel}×) to inspect poster details
+              </span>
+            )}
           </div>
         </div>
       )}

@@ -454,10 +454,10 @@ function ProgrammeContent() {
         <div>
           <span className="editorial-kicker">Print Reference</span>
           <h2 className="font-serif font-bold text-lg text-teal-festival mt-0.5">
-            Official Programme Posters
+            Official Festival Poster
           </h2>
           <p className="text-xs text-ink-muted mt-0.5">
-            Tap either poster to view full-screen, zoom in, share, or download. Note: Children &amp; Youth (10:00–14:00) and Talent Competition (16:00–18:30) reflect the latest committee updates above.
+            Tap the poster to view full-screen, zoom in, share, or download. Note: Interactive sessions above reflect the latest committee updates.
           </p>
         </div>
         <PosterGallery compact />

@@ -58,14 +58,6 @@ export const YOUTH_PROGRAMME_INFO = {
 
 export const OFFICIAL_POSTERS: OfficialPoster[] = [
   {
-    id: "poster-programme-2",
-    title: "Festival Programme — Page 2",
-    subtitle: "Saturday 28 Nov (Cont.) & Sunday 29 Nov",
-    imageUrl: "/assets/programme-poster-page-2.jpg",
-    downloadName: "KliK-2026-Programme-Page-2.jpg",
-    aspectRatio: "a4",
-  },
-  {
     id: "poster-youth",
     title: "Youth Festival Poster",
     subtitle: "Saturday 28 Nov • Workshops & Kleinmond Has Talent",
@@ -372,12 +364,6 @@ In Rooisand: Die verhaal van Dirk Aruseb en die Bondelswarts (2024) he co-author
     name: "Colleen Higgs",
     discipline: "Publisher, Writer & Writing Teacher (Modjaji Books)",
     bio: `Colleen Higgs is a publisher, a writer, and writing teacher. Two collections of her poems have been published — Half Born Woman (2004) and Lava Lamp Poems (2011). Her short story collection, Looking for Trouble came out in 2012 and was recently republished in the US by Catalyst Press. Her memoir, my mother, my madness was published in 2020 by deep south. Modjaji Books, which she started in 2007, has become an award-winning, internationally recognised small, independent feminist press. She lives in Cape Town with her daughter, a cat and a dog.`,
-  },
-  {
-    id: "art-winslow-schalkwyk",
-    name: "Winslow Schalkwyk",
-    discipline: "Facilitator & Writer",
-    bio: "Skilled writing facilitator and performer co-directing creative workshops and open mic platforms.",
   },
   {
     id: "art-naren-sewpaul",
@@ -1190,7 +1176,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
     id: "evt-sat-writing-workshop",
     title: "Writing into the Darkness",
     description:
-      "A Writing Workshop with Colleen Higgs (Modjaji Books) facilitated by Winslow Schalkwyk at The Grail Centre. The workshop encourages participants to access their own writing voice and to write with courage and vitality.",
+      "A Writing Workshop with Colleen Higgs (Modjaji Books) at The Grail Centre. The workshop will encourage participants to access their own writing voice and to write with courage and vitality.",
     date: "2026-11-28",
     startTime: "10:00",
     endTime: "12:30",
@@ -1201,10 +1187,9 @@ export const SEED_EVENTS: FestivalEvent[] = [
     isTicketed: true,
     ticketPrice: "R100",
     capacityNote: "Limited to 20 participants",
-    artists: [
-      SEED_ARTISTS.find((a) => a.id === "art-colleen-higgs")!,
-      SEED_ARTISTS.find((a) => a.id === "art-winslow-schalkwyk")!,
-    ],
+    facilitatorDisplay: "Colleen Higgs",
+    affiliation: "Modjaji Books",
+    artists: [SEED_ARTISTS.find((a) => a.id === "art-colleen-higgs")!],
     accessibilityInfo: "Quiet workshop room with natural light and level access at The Grail Centre.",
     scheduleStatus: "scheduled",
     statusNotice: "Modjaji Books Workshop • Limited to 20 participants",
@@ -1387,7 +1372,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
     id: "evt-sun-open-mic",
     title: "Open Mic",
     description:
-      "Open community acoustic and poetry stage facilitated by Vusumuzi Mpofu and Winslow Schalkwyk at The Grail Centre. Free Zone.",
+      "Open community acoustic and poetry stage facilitated by Vusumuzi Mpofu at The Grail Centre. Free Zone.",
     date: "2026-11-29",
     startTime: "12:00",
     endTime: "12:45",
@@ -1396,10 +1381,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
     category: "poetry",
     language: "multilingual",
     isTicketed: false,
-    artists: [
-      SEED_ARTISTS.find((a) => a.id === "art-vusumuzi-mpofu")!,
-      SEED_ARTISTS.find((a) => a.id === "art-winslow-schalkwyk")!,
-    ],
+    artists: [SEED_ARTISTS.find((a) => a.id === "art-vusumuzi-mpofu")!],
     accessibilityInfo: "Garden lawn and shaded patio with level access.",
     scheduleStatus: "scheduled",
     checkInAvailable: true,

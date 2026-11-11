@@ -646,10 +646,10 @@ export default function HomePage() {
             id="posters-heading"
             className="font-serif font-bold text-lg sm:text-xl text-teal-festival"
           >
-            Official Festival Posters
+            Official Festival Poster
           </h2>
           <p className="text-xs text-ink-muted">
-            Tap any poster to expand, zoom, download, or share. For the latest session updates, use the interactive Programme.
+            Tap the poster to expand, zoom, download, or share. For the latest session updates, use the interactive Programme.
           </p>
         </div>
 
