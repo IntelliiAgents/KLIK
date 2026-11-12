@@ -1,5 +1,5 @@
 // KliK 2026 Kunstefees Service Worker
-const CACHE_NAME = 'klik-v1.4.2';
+const CACHE_NAME = 'klik-v1.5.0';
 
 const PRECACHE_URLS = [
   '/',

@@ -98,6 +98,16 @@ function ProgrammeContent() {
         setEvents(allEvents);
         setVenues(allVenues);
         setSavedEventIds(savedList.map((s) => s.eventId));
+
+        const eventParam = searchParams.get("event");
+        if (eventParam) {
+          const targetEvent = allEvents.find((e) => e.id === eventParam);
+          if (targetEvent) {
+            setSelectedEvent(targetEvent);
+            const targetDay = DAYS.find((d) => d.fullDate === targetEvent.date);
+            if (targetDay) setSelectedDayId(targetDay.id);
+          }
+        }
       } catch (err) {
         console.error("Programme load error:", err);
       } finally {
@@ -454,13 +464,23 @@ function ProgrammeContent() {
         <div>
           <span className="editorial-kicker">Print Reference</span>
           <h2 className="font-serif font-bold text-lg text-teal-festival mt-0.5">
-            Official Festival Poster
+            Official Festival Posters
           </h2>
           <p className="text-xs text-ink-muted mt-0.5">
-            Tap the poster to view full-screen, zoom in, share, or download. Note: Interactive sessions above reflect the latest committee updates.
+            Tap any poster to view full-screen, zoom in, share, or download. Browse the 3 primary posters first or expand to explore all 10 official posters.
           </p>
         </div>
-        <PosterGallery compact />
+        <PosterGallery
+          compact
+          onSelectEventId={(eventId) => {
+            const evt = events.find((e) => e.id === eventId);
+            if (evt) {
+              const targetDay = DAYS.find((d) => d.fullDate === evt.date);
+              if (targetDay) setSelectedDayId(targetDay.id);
+              setSelectedEvent(evt);
+            }
+          }}
+        />
       </section>
 
       {/* Programme Editorial Footer */}

@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import { Artist, FestivalEvent, VenueLocation } from "@/lib/types";
+import { OFFICIAL_POSTERS, OfficialPoster } from "@/lib/data/seed";
 import { FestivalStripe } from "@/components/Brand/FestivalStripe";
 import { ArtistProfileModal } from "@/components/Artists/ArtistProfileModal";
 import {
@@ -20,6 +21,9 @@ import {
   Users,
   ChevronRight,
   Award,
+  FileImage,
+  Maximize2,
+  Download,
 } from "lucide-react";
 import { trackEvent } from "@/lib/analytics";
 
@@ -51,10 +55,17 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
 }) => {
   const [copiedLink, setCopiedLink] = useState(false);
   const [selectedArtist, setSelectedArtist] = useState<Artist | null>(null);
+  const [previewPoster, setPreviewPoster] = useState<OfficialPoster | null>(null);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !selectedArtist) onClose();
+      if (e.key === "Escape") {
+        if (previewPoster) {
+          setPreviewPoster(null);
+        } else if (!selectedArtist) {
+          onClose();
+        }
+      }
     };
     if (event) {
       trackEvent("event_view", { eventId: event.id, title: event.title });
@@ -65,9 +76,15 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
       document.body.style.overflow = "auto";
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [event, onClose, selectedArtist]);
+  }, [event, onClose, selectedArtist, previewPoster]);
 
   if (!event) return null;
+
+  const relatedPosters = OFFICIAL_POSTERS.filter(
+    (p) =>
+      p.linkedEventId === event.id ||
+      (p.linkedEventIds && p.linkedEventIds.includes(event.id))
+  );
 
   const quicketUrl =
     event.quicketUrl ||
@@ -382,6 +399,39 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
                 Draft programme — session details remain subject to change.
               </p>
             )}
+
+            {/* Associated Official Event Posters */}
+            {relatedPosters.length > 0 && (
+              <div className="space-y-2 pt-2 border-t border-parchment-200">
+                <h3 className="font-serif font-bold text-sm text-teal-festival flex items-center gap-1.5">
+                  <FileImage className="w-4 h-4 text-terracotta-festival" />
+                  <span>Official Event Poster{relatedPosters.length > 1 ? "s" : ""}</span>
+                </h3>
+                <div className="space-y-1.5">
+                  {relatedPosters.map((poster) => (
+                    <button
+                      key={poster.id}
+                      type="button"
+                      onClick={() => setPreviewPoster(poster)}
+                      className="w-full text-left p-3 rounded-xl bg-[#FCFBF7] hover:bg-parchment-100 border border-parchment-300 text-xs flex items-center justify-between gap-2.5 transition-colors group"
+                    >
+                      <div className="min-w-0">
+                        <strong className="font-serif font-bold text-teal-festival group-hover:text-terracotta-festival transition-colors block truncate">
+                          {poster.title}
+                        </strong>
+                        <span className="text-[11px] text-ink-muted block truncate">
+                          {poster.subtitle}
+                        </span>
+                      </div>
+                      <span className="px-2.5 py-1 rounded-lg bg-parchment-100 group-hover:bg-terracotta-festival group-hover:text-white text-teal-festival text-[11px] font-semibold inline-flex items-center gap-1 shrink-0 transition-colors">
+                        <Maximize2 className="w-3 h-3" />
+                        <span>View Poster</span>
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Primary CTA Footer */}
@@ -467,6 +517,62 @@ export const EventDetailsModal: React.FC<EventDetailsModalProps> = ({
             : undefined
         }
       />
+
+      {/* Full-Screen Poster Preview Modal */}
+      {previewPoster && (
+        <div
+          className="fixed inset-0 z-[75] bg-teal-dark/94 backdrop-blur-sm flex flex-col animate-in fade-in duration-200"
+          role="dialog"
+          aria-modal="true"
+          aria-label={previewPoster.title}
+        >
+          <div className="px-4 py-3 border-b border-white/10 flex items-center justify-between gap-3 bg-teal-dark/90 text-white shrink-0">
+            <div className="min-w-0">
+              <h3 className="font-serif font-bold text-sm sm:text-base text-white truncate">
+                {previewPoster.title}
+              </h3>
+              <p className="text-[11px] text-parchment-200/85 truncate">
+                {previewPoster.subtitle}
+              </p>
+            </div>
+            <div className="flex items-center gap-1.5 shrink-0">
+              <a
+                href={previewPoster.imageUrl}
+                download={previewPoster.downloadName}
+                className="min-w-[40px] min-h-[40px] p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition-colors"
+                aria-label={`Download ${previewPoster.title}`}
+                title="Download poster"
+              >
+                <Download className="w-4 h-4" />
+              </a>
+              <button
+                type="button"
+                onClick={() => setPreviewPoster(null)}
+                className="min-w-[40px] min-h-[40px] p-2 rounded-xl bg-white/15 hover:bg-terracotta-festival text-white flex items-center justify-center transition-colors"
+                aria-label="Close poster preview"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+          </div>
+
+          <div
+            className="flex-1 overflow-auto p-3 sm:p-6 flex items-start sm:items-center justify-center"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setPreviewPoster(null);
+            }}
+          >
+            <div className="w-full max-w-[724px] mx-auto my-auto">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={previewPoster.imageUrl}
+                alt={previewPoster.title}
+                className="w-full h-auto rounded-xl shadow-2xl bg-parchment-50 select-none"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

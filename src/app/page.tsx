@@ -646,14 +646,19 @@ export default function HomePage() {
             id="posters-heading"
             className="font-serif font-bold text-lg sm:text-xl text-teal-festival"
           >
-            Official Festival Poster
+            Official Festival Posters
           </h2>
           <p className="text-xs text-ink-muted">
-            Tap the poster to expand, zoom, download, or share. For the latest session updates, use the interactive Programme.
+            Tap any poster to expand, zoom, download, or share. Browse the 3 primary programme posters below, or expand to view all 10 official event posters.
           </p>
         </div>
 
-        <PosterGallery />
+        <PosterGallery
+          onSelectEventId={(eventId) => {
+            const evt = events.find((e) => e.id === eventId);
+            if (evt) handleOpenDetails(evt);
+          }}
+        />
       </section>
 
       {/* 7. CULTURE TRAIL PROMOTION */}

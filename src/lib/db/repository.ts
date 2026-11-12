@@ -60,7 +60,7 @@ export interface FestivalRepository {
   publishNotice(notice: Omit<FestivalNotice, "id" | "createdAt">): Promise<FestivalNotice>;
 }
 
-const CURRENT_PROGRAM_VERSION = "9.5-programme-writing-cape-fear-posters";
+const CURRENT_PROGRAM_VERSION = "10.0-klik-2026-10-posters-hermien-nodance4all";
 
 // In-Memory & Local Storage implementation of FestivalRepository
 class LocalSeedRepository implements FestivalRepository {

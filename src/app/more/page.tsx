@@ -111,10 +111,10 @@ export default function MorePage() {
               </div>
               <div>
                 <span className="font-semibold text-sm sm:text-base text-teal-festival block leading-snug">
-                  Official Festival Poster
+                  Official Festival Posters (10)
                 </span>
                 <span className="text-xs text-ink-muted block">
-                  Expand, zoom, share, or download print sheet
+                  Expand, zoom, share, or download print sheets
                 </span>
               </div>
             </div>
@@ -127,7 +127,7 @@ export default function MorePage() {
           {openSection === "posters" && (
             <div className="px-4 sm:px-5 pb-5 pt-3 bg-parchment-100/70 border-t border-parchment-200 animate-in fade-in space-y-2.5">
               <p className="text-xs text-ink-muted leading-relaxed">
-                Tap the poster to inspect at full resolution, zoom in, share, or save to your device.
+                Tap any poster to inspect at full resolution, zoom in, share, or save to your device.
               </p>
               <PosterGallery compact />
             </div>
