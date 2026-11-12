@@ -97,7 +97,7 @@ export const OFFICIAL_POSTERS: OfficialPoster[] = [
     title: "KLiK Youth Festival",
     subtitle: "Saturday 28 Nov • Workshops & Kleinmond Has Talent",
     description:
-      "Free entry to all KLiK Youth Festival events on Saturday, 28 November: Street March from Proteadorp to Town Hall (09:00–10:00), Mthimkhulu Village Centre workshops and performances (10:00–14:00: Visual Art, Graphic Novels & Storytelling, Storytelling & Poetry, Storytelling, Drama & Choral Verse with Hermien de Vos, Jazz Jamming, Hip Hop Dance-Off), and Kleinmond Has Talent Competition at The Shed (16:00–18:30).",
+      "Free entry to all KLiK Youth Festival events on Saturday, 28 November: Street March from Proteadorp to Town Hall (09:00–10:00), Mthimkhulu Village Centre workshops and performances (10:00–14:00: Visual Art, Graphic Novels & Storytelling, Storytelling & Poetry, Storytelling, Drama & Choral Verse with Hermien de Vos, Jazz Jamming, Hip Hop Dance-Off), and Kleinmond Has Talent Competition at The Shed (16:00–19:00).",
     imageUrl: "/assets/posters/KLiK_Youth_Festival_A3_FINAL_2026-11-11 (1).jpg",
     downloadName: "KLiK_Youth_Festival_A3_FINAL_2026-11-11 (1).jpg",
     aspectRatio: "a4",
@@ -1445,7 +1445,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
       "Community talent competition for young people aged 12–25 at The Shed, Kleinmond Harbour, featuring judging and prize-giving across solo singing, hip-hop dance, contemporary dance, indigenous dance, spiritual dance, individual poetry recital, and choral verse / group poetry recital. Free Zone.",
     date: "2026-11-28",
     startTime: "16:00",
-    endTime: "18:30",
+    endTime: "19:00",
     venueId: "loc-the-shed",
     venueName: "The Shed, Kleinmond Harbour",
     category: "competition",
