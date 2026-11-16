@@ -10,9 +10,13 @@ import {
   Award,
   MapPin,
   Gift,
+  MessageCircle,
+  User,
   X,
 } from "lucide-react";
 import confetti from "canvas-confetti";
+import { buildPrizeDrawWhatsAppUrl } from "@/lib/config";
+import { trackEvent } from "@/lib/analytics";
 
 interface QuestTrackerProps {
   challenge: Challenge;
@@ -29,10 +33,33 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
 }) => {
   const [showCelebration, setShowCelebration] = useState(false);
   const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
+  const [participantName, setParticipantName] = useState("");
+  const [hasSentWhatsApp, setHasSentWhatsApp] = useState(false);
 
   const completedCount = progress.totalCheckInsCount;
   const targetCount = challenge.requiredCheckInCount || 5;
   const percentComplete = Math.min(100, Math.round((completedCount / targetCount) * 100));
+  const ticketNumber = progress.rewardDrawTicketNumber || "KLIK-2026-WIN";
+
+  useEffect(() => {
+    try {
+      const savedName = localStorage.getItem("klik_participant_name");
+      if (savedName) setParticipantName(savedName);
+      const sentFlag = localStorage.getItem("klik_prize_draw_submitted");
+      if (sentFlag === "true") setHasSentWhatsApp(true);
+    } catch {
+      // ignore storage errors
+    }
+  }, []);
+
+  const handleNameChange = (val: string) => {
+    setParticipantName(val);
+    try {
+      localStorage.setItem("klik_participant_name", val);
+    } catch {
+      // ignore
+    }
+  };
 
   useEffect(() => {
     if (progress.isCompleted && !hasTriggeredConfetti) {
@@ -52,6 +79,28 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
   }, [progress.isCompleted, hasTriggeredConfetti]);
 
   const checkedVenueIds = new Set(checkIns.map((c) => c.locationId));
+  const visitedVenueNames = venues
+    .filter((v) => checkedVenueIds.has(v.id))
+    .map((v) => v.shortName || v.name);
+
+  const whatsAppEntryUrl = buildPrizeDrawWhatsAppUrl({
+    ticketNumber,
+    participantName,
+    visitedVenues: visitedVenueNames,
+  });
+
+  const handleWhatsAppClick = () => {
+    setHasSentWhatsApp(true);
+    try {
+      localStorage.setItem("klik_prize_draw_submitted", "true");
+    } catch {
+      // ignore
+    }
+    trackEvent("culture_trail_open", {
+      action: "whatsapp_lucky_draw_entry",
+      ticketNumber,
+    });
+  };
 
   return (
     <div className="space-y-6">
@@ -99,17 +148,56 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
         </div>
 
         {progress.isCompleted && (
-          <div className="p-3.5 rounded-2xl bg-olive-festival/10 border border-olive-festival/20 text-olive-dark flex items-center justify-between">
-            <div className="flex items-center gap-2 text-xs font-bold">
-              <Gift className="w-4 h-4 text-terracotta-festival" />
-              <span>You&apos;ve completed the trail!</span>
+          <div className="p-4 sm:p-5 rounded-2xl bg-parchment-100 border-2 border-olive-festival/35 space-y-3.5 mt-2">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-1.5 text-xs font-bold text-olive-dark">
+                <Gift className="w-4 h-4 text-terracotta-festival shrink-0" />
+                <span>Official Lucky Draw &amp; Redemption Ticket</span>
+              </div>
+              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-olive-festival text-white">
+                Active
+              </span>
             </div>
-            <button
-              onClick={() => setShowCelebration(true)}
-              className="text-xs font-bold text-teal-festival underline"
-            >
-              View Ticket
-            </button>
+
+            <div className="bg-white p-3.5 rounded-xl border border-parchment-300 text-center space-y-1 shadow-2xs">
+              <span className="text-[10px] uppercase font-bold tracking-wider text-ink-muted block">
+                Your Unique Lucky Draw Code
+              </span>
+              <span className="font-mono font-black text-xl sm:text-2xl text-teal-festival tracking-wide block">
+                {ticketNumber}
+              </span>
+              {participantName.trim() && (
+                <span className="text-xs font-semibold text-olive-dark block">
+                  Holder: {participantName.trim()}
+                </span>
+              )}
+              <p className="text-[11px] text-ink-muted pt-1">
+                This code remains permanently active on your app. Present this screen to redeem your prize if you win!
+              </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              <a
+                href={whatsAppEntryUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleWhatsAppClick}
+                className="flex-1 py-2.5 px-3.5 rounded-xl bg-[#1E7E45] hover:bg-[#186838] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+              >
+                <MessageCircle className="w-4 h-4 shrink-0" />
+                <span>
+                  {hasSentWhatsApp ? "Resend Entry via WhatsApp" : "Send Entry via WhatsApp"}
+                </span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => setShowCelebration(true)}
+                className="py-2.5 px-3.5 rounded-xl bg-teal-festival hover:bg-teal-light text-white text-xs font-bold transition-colors"
+              >
+                {participantName.trim() ? "Full-Screen Ticket" : "Add Name & View Ticket"}
+              </button>
+            </div>
           </div>
         )}
       </div>
@@ -183,7 +271,16 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
           role="dialog"
           aria-modal="true"
         >
-          <div className="bg-parchment-50 w-full max-w-sm rounded-3xl p-6 border border-parchment-300 shadow-2xl text-center space-y-4 animate-in zoom-in-95">
+          <div className="bg-parchment-50 w-full max-w-sm rounded-3xl p-6 border border-parchment-300 shadow-2xl text-center space-y-4 animate-in zoom-in-95 relative">
+            <button
+              type="button"
+              onClick={() => setShowCelebration(false)}
+              aria-label="Close modal"
+              className="absolute top-4 right-4 p-1.5 rounded-full text-ink-muted hover:text-ink-festival hover:bg-parchment-200 transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+
             <div className="w-14 h-14 rounded-2xl bg-olive-festival/15 text-olive-dark mx-auto flex items-center justify-center">
               <Award className="w-8 h-8 text-olive-festival" />
             </div>
@@ -193,7 +290,7 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
                 Congratulations!
               </h3>
               <p className="text-xs text-ink-muted leading-relaxed">
-                You have visited 5 festival checkpoints and completed the KLiK Culture Trail.
+                You have visited {completedCount} festival checkpoints and completed the KLiK Culture Trail.
               </p>
             </div>
 
@@ -202,19 +299,55 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
                 Festival Lucky Draw Number
               </span>
               <span className="font-mono font-black text-xl text-teal-festival block">
-                {progress.rewardDrawTicketNumber || "KLIK-2026-WIN"}
+                {ticketNumber}
               </span>
               <p className="text-[11px] text-ink-muted pt-1">
-                Show this ticket number at the Festival Info Desk to enter the community prize draw.
+                Enter your name below and tap WhatsApp to register your entry. This ticket stays permanently active on your app so you can show it to redeem your prize!
               </p>
             </div>
 
-            <button
-              onClick={() => setShowCelebration(false)}
-              className="w-full py-3 px-4 rounded-xl bg-teal-festival hover:bg-teal-light text-white font-bold text-xs shadow-xs transition-colors"
-            >
-              Close
-            </button>
+            {/* Name Input for WhatsApp Entry */}
+            <div className="text-left space-y-1.5">
+              <label
+                htmlFor="lucky-draw-name"
+                className="block text-[11px] font-bold uppercase tracking-wider text-teal-festival"
+              >
+                Your Full Name
+              </label>
+              <div className="relative">
+                <User className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+                <input
+                  id="lucky-draw-name"
+                  type="text"
+                  value={participantName}
+                  onChange={(e) => handleNameChange(e.target.value)}
+                  placeholder="e.g. Sarah van der Merwe"
+                  className="w-full pl-9 pr-3.5 py-2.5 rounded-xl bg-white border border-parchment-300 text-xs text-ink-festival placeholder:text-ink-muted/60 focus:outline-none focus:ring-2 focus:ring-teal-festival"
+                />
+              </div>
+            </div>
+
+            {/* WhatsApp Entry CTA */}
+            <div className="space-y-2 pt-1">
+              <a
+                href={whatsAppEntryUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                onClick={handleWhatsAppClick}
+                className="w-full py-3.5 px-4 rounded-xl bg-[#1E7E45] hover:bg-[#186838] text-white font-bold text-xs shadow-sm transition-colors flex items-center justify-center gap-2"
+              >
+                <MessageCircle className="w-4 h-4 shrink-0" />
+                <span>Send Lucky Draw Entry via WhatsApp</span>
+              </a>
+
+              <button
+                type="button"
+                onClick={() => setShowCelebration(false)}
+                className="w-full py-2.5 px-4 rounded-xl bg-parchment-200 hover:bg-parchment-300 text-teal-festival font-bold text-xs transition-colors"
+              >
+                Close
+              </button>
+            </div>
           </div>
         </div>
       )}

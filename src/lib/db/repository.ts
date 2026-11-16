@@ -193,9 +193,39 @@ class LocalSeedRepository implements FestivalRepository {
     const totalCount = visitedLocationIds.size;
     const categoriesArray = Array.from(distinctCategories);
 
+    let savedTicket: string | null = null;
+    let savedCompletedAt: string | null = null;
+    if (typeof window !== "undefined") {
+      try {
+        savedTicket = localStorage.getItem("klik_lucky_draw_ticket");
+        savedCompletedAt = localStorage.getItem("klik_lucky_draw_completed_at");
+      } catch {
+        // ignore storage errors
+      }
+    }
+
     const isCompleted =
-      totalCount >= challenge.requiredCheckInCount &&
-      categoriesArray.length >= challenge.requiredDistinctCategoriesCount;
+      totalCount >= challenge.requiredCheckInCount || Boolean(savedTicket);
+
+    let rewardDrawTicketNumber = savedTicket || undefined;
+    let completedAt = savedCompletedAt || undefined;
+
+    if (isCompleted) {
+      if (!rewardDrawTicketNumber) {
+        rewardDrawTicketNumber = `KLIK-${participantId.slice(-6).toUpperCase()}-2026`;
+      }
+      if (!completedAt) {
+        completedAt = new Date().toISOString();
+      }
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem("klik_lucky_draw_ticket", rewardDrawTicketNumber);
+          localStorage.setItem("klik_lucky_draw_completed_at", completedAt);
+        } catch {
+          // ignore storage errors
+        }
+      }
+    }
 
     return {
       challengeId: challenge.id,
@@ -204,11 +234,9 @@ class LocalSeedRepository implements FestivalRepository {
       distinctCategoriesMet: categoriesArray,
       totalCheckInsCount: totalCount,
       isCompleted,
-      completedAt: isCompleted ? new Date().toISOString() : undefined,
+      completedAt,
       isEligibleForReward: isCompleted,
-      rewardDrawTicketNumber: isCompleted
-        ? `KLIK-${participantId.slice(-6).toUpperCase()}-2026`
-        : undefined,
+      rewardDrawTicketNumber,
     };
   }
 

@@ -895,7 +895,7 @@ export default function AdminPage() {
                     Continue exploring Kleinmond
                   </div>
                   <p className="text-[9px] sm:text-[10px] text-[#263E47]/70 max-w-xs mx-auto">
-                    Visit festival venues, collect your check-ins, and claim your exclusive reward at the Information Kiosk.
+                    Visit 5 festival venues, collect your check-ins, and send your Lucky Draw Ticket directly via WhatsApp from the app to enter the community prize draw!
                   </p>
                   <div className="text-[8px] sm:text-[9px] uppercase tracking-wider text-[#747A57] font-semibold pt-0.5">
                     Official Festival Guide • klikfees.co.za
