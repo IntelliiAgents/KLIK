@@ -1521,7 +1521,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
     category: "outdoor",
     language: "bilingual",
     isTicketed: true,
-    ticketPrice: "R100",
+    ticketPrice: "R150",
     artists: [SEED_ARTISTS.find((a) => a.id === "art-shihaam-domingo")!],
     accessibilityInfo: "Walking route from gardens to coastal paths. Comfortable shoes advised.",
     scheduleStatus: "scheduled",

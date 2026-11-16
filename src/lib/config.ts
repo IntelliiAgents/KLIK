@@ -15,7 +15,7 @@ export const FESTIVAL_CONFIG = {
     { name: "NSRI Kleinmond (Sea Rescue)", phone: "082 990 5964" },
     { name: "Kleinmond Police (SAPS)", phone: "028 271 8200" },
     { name: "Overstrand Fire & Rescue", phone: "028 312 2400" },
-    { name: "Festival Info Desk", phone: "028 271 4050" },
+    { name: "Festival Info Desk", phone: "063 939 2761" },
   ],
 };
 
