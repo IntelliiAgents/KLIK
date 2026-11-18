@@ -1004,7 +1004,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
     description:
       "Children & Youth Programme storytelling and poetry workshop facilitated by the Mengelmoesdigters (Merle Danhouse & Theresa Carstens) in Erica Classroom 2.",
     date: "2026-11-28",
-    startTime: "10:00",
+    startTime: "11:00",
     endTime: "12:00",
     venueId: "loc-mthimkhulu",
     venueName: "Mthimkhulu Village Centre, 105 9th Avenue",

@@ -60,7 +60,7 @@ export interface FestivalRepository {
   publishNotice(notice: Omit<FestivalNotice, "id" | "createdAt">): Promise<FestivalNotice>;
 }
 
-const CURRENT_PROGRAM_VERSION = "10.2-klik-2026-kruie-r150-infodesk";
+const CURRENT_PROGRAM_VERSION = "10.3-klik-2026-youth-storytelling-11am";
 
 // In-Memory & Local Storage implementation of FestivalRepository
 class LocalSeedRepository implements FestivalRepository {
