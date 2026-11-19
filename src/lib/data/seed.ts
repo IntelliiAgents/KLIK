@@ -98,8 +98,8 @@ export const OFFICIAL_POSTERS: OfficialPoster[] = [
     subtitle: "Saturday 28 Nov • Workshops & Kleinmond Has Talent",
     description:
       "Free entry to all KLiK Youth Festival events on Saturday, 28 November: Street March from Proteadorp to Town Hall (09:00–10:00), Mthimkhulu Village Centre workshops and performances (10:00–14:00: Visual Art, Graphic Novels & Storytelling, Storytelling & Poetry, Storytelling, Drama & Choral Verse with Hermien de Vos, Jazz Jamming, Hip Hop Dance-Off), and Kleinmond Has Talent Competition at The Shed (16:00–19:00).",
-    imageUrl: "/assets/posters/KLiK_Youth_Festival_A3_FINAL_2026-11-11 (1).jpg",
-    downloadName: "KLiK_Youth_Festival_A3_FINAL_2026-11-11 (1).jpg",
+    imageUrl: "/assets/posters/KLiK_Youth_Festival_A3_FINAL_2026-11-19.jpg",
+    downloadName: "KLiK_Youth_Festival_A3_FINAL_2026-11-19.jpg",
     aspectRatio: "a4",
     isPrimary: true,
     programmeUrl: "/youth",
@@ -626,9 +626,9 @@ Camissa Knights' music is perfect for fans of South African jazz and anyone who 
   },
   {
     id: "art-beveley-brown",
-    name: "Beveley (Bev) Brown",
+    name: "Beverley (Bev) Brown",
     discipline: "Visual Artist & Community Art Facilitator",
-    bio: `Beveley Brown has over 43 years of experience conducting community art sessions with youth in art and female social inclusive programs as part of therapy and escapism. Her accolades include winning school competitions and private sector prizes, including the BP South Africa competition which funded her second-year studies.
+    bio: `Beverley Brown has over 43 years of experience conducting community art sessions with youth in art and female social inclusive programs as part of therapy and escapism. Her accolades include winning school competitions and private sector prizes, including the BP South Africa competition which funded her second-year studies.
 
 She already has over 100 artworks in circulation, the majority of them commissions. Many of her pieces were designed for individual South African clients living abroad, who love having memories of home away from home. Her Township Art and the Bo-Kaap colourful houses series are two such examples. The Bo-Kaap works have been seen in a variety of locations around the world, including different provinces. Bev also has an international footprint, with two wall murals in Namibia.
 
@@ -952,7 +952,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
     id: "evt-sat-youth-visual-art",
     title: "Visual Art",
     description:
-      "Children & Youth Programme creative visual art workshop facilitated by Beveley (Bev) Brown at Mthimkhulu Smart Kids.",
+      "Children & Youth Programme creative visual art workshop facilitated by Beverley Brown at Mthimkhulu Smart Kids.",
     date: "2026-11-28",
     startTime: "10:00",
     endTime: "12:00",
@@ -963,7 +963,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
     language: "multilingual",
     isTicketed: false,
     ageGroup: "10–12",
-    facilitatorDisplay: "Beveley (Bev) Brown",
+    facilitatorDisplay: "Beverley Brown",
     artists: [SEED_ARTISTS.find((a) => a.id === "art-beveley-brown")!],
     accessibilityInfo: "Accessible classroom space at Mthimkhulu Village Centre.",
     scheduleStatus: "scheduled",
@@ -1418,7 +1418,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
     id: "evt-sat-sip-and-paint",
     title: "Sip & Paint",
     description:
-      "Create your own canvas / masterpiece with guided instruction by artist Beveley Brown overlooking Kleinmond Harbour at Tides Restaurant. Limited to 30 participants.",
+      "Create your own canvas / masterpiece with guided instruction by artist Beverley Brown overlooking Kleinmond Harbour at Tides Restaurant. Limited to 30 participants.",
     date: "2026-11-28",
     startTime: "14:00",
     endTime: "17:00",
@@ -1428,7 +1428,7 @@ export const SEED_EVENTS: FestivalEvent[] = [
     language: "bilingual",
     isTicketed: true,
     ticketPrice: "R100",
-    facilitatorDisplay: "Beveley Brown",
+    facilitatorDisplay: "Beverley Brown",
     capacityNote: "Limited to 30 participants",
     artists: [SEED_ARTISTS.find((a) => a.id === "art-beveley-brown")!],
     accessibilityInfo: "Waterfront restaurant terrace, accessible tables and parking.",

@@ -83,6 +83,11 @@ export default function YouthProgrammePage() {
     [allEvents]
   );
 
+  const kleinmondTalentEvent = useMemo(
+    () => allEvents.find((e) => e.id === "evt-sat-kleinmond-talent") || null,
+    [allEvents]
+  );
+
   const morningActivities = useMemo(
     () => youthEvents.filter((e) => e.startTime < "12:00"),
     [youthEvents]
@@ -294,7 +299,7 @@ export default function YouthProgrammePage() {
                   Mthimkhulu Village Centre
                 </strong>
                 <span className="text-xs text-ink-muted">
-                  Mthimkhulu Community Development, 9th Avenue, Kleinmond
+                  Mthimkhulu Community Development, 105 9th Avenue, Kleinmond
                 </span>
               </div>
             </div>
@@ -408,6 +413,25 @@ export default function YouthProgrammePage() {
               </div>
             </section>
           ))}
+
+          {/* Evening Youth Showcase: Kleinmond Has Talent Competition (16:00–19:00) */}
+          {kleinmondTalentEvent && (
+            <section className="space-y-3">
+              <div className="sticky top-14 z-20 bg-parchment/95 backdrop-blur-xs py-2 flex items-center gap-3">
+                <span className="font-serif font-bold text-xl sm:text-2xl text-teal-festival tabular-time">
+                  {kleinmondTalentEvent.startTime}
+                </span>
+                <div className="flex-1 h-px bg-parchment-300" />
+                <span className="text-[11px] font-medium text-ink-muted">
+                  The Shed • Kleinmond Harbour
+                </span>
+              </div>
+
+              <div className="grid grid-cols-1 gap-3">
+                {renderActivityCard(kleinmondTalentEvent)}
+              </div>
+            </section>
+          )}
         </div>
       )}
 
@@ -417,7 +441,7 @@ export default function YouthProgrammePage() {
           KliK 2026 Children &amp; Youth Programme • Free Zone
         </p>
         <p className="text-[11px]">
-          Programme details are in draft and subject to change.
+          Free entry to all KLiK Youth Festival events • Programme subject to change.
         </p>
       </footer>
 
