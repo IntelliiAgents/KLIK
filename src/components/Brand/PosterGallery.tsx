@@ -42,7 +42,7 @@ export const PosterGallery: React.FC<PosterGalleryProps> = ({
 
   // Primary posters: first 3 in exact order (Page 1, Page 2, Youth Festival)
   const primaryPosters = OFFICIAL_POSTERS.filter((p) => p.isPrimary);
-  // Remaining 7 event-specific posters
+  // Remaining event-specific posters
   const additionalPosters = OFFICIAL_POSTERS.filter((p) => !p.isPrimary);
 
   const activePoster: OfficialPoster | null =
@@ -274,7 +274,7 @@ export const PosterGallery: React.FC<PosterGalleryProps> = ({
                   Additional Official Event Posters ({additionalPosters.length})
                 </span>
                 <span className="text-[11px] text-ink-muted block truncate">
-                  Official Opening, Writers Café, Our Stories, Grail Centre, Sip &amp; Paint &amp; Sunset Session
+                  Official Opening, Writers Café, Our Stories, Grail Centre, Sip &amp; Paint, Kleinmond Has Talent &amp; Sunset Session
                 </span>
               </div>
             </div>
@@ -305,7 +305,7 @@ export const PosterGallery: React.FC<PosterGalleryProps> = ({
                   Event-Specific Festival Posters
                 </h3>
                 <span className="text-[11px] text-ink-muted">
-                  All 10 official posters available in full-screen viewer
+                  All {OFFICIAL_POSTERS.length} official posters available in full-screen viewer
                 </span>
               </div>
 

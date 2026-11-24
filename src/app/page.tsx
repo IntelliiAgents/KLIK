@@ -649,7 +649,7 @@ export default function HomePage() {
             Official Festival Posters
           </h2>
           <p className="text-xs text-ink-muted">
-            Tap any poster to expand, zoom, download, or share. Browse the 3 primary programme posters below, or expand to view all 10 official event posters.
+            Tap any poster to expand, zoom, download, or share. Browse the 3 primary programme posters below, or expand to view all 11 official event posters.
           </p>
         </div>
 

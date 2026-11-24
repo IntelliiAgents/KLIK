@@ -111,7 +111,7 @@ export default function MorePage() {
               </div>
               <div>
                 <span className="font-semibold text-sm sm:text-base text-teal-festival block leading-snug">
-                  Official Festival Posters (10)
+                  Official Festival Posters (11)
                 </span>
                 <span className="text-xs text-ink-muted block">
                   Expand, zoom, share, or download print sheets

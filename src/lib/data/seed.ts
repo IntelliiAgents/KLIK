@@ -118,7 +118,7 @@ export const OFFICIAL_POSTERS: OfficialPoster[] = [
   },
 
   // ==========================================
-  // REMAINING SEVEN EVENT-SPECIFIC POSTERS
+  // REMAINING EIGHT EVENT-SPECIFIC POSTERS
   // ==========================================
   {
     id: "poster-official-opening",
@@ -207,6 +207,21 @@ export const OFFICIAL_POSTERS: OfficialPoster[] = [
     linkedEventIds: ["evt-sat-sip-and-paint"],
     programmeUrl: "/programme?day=sat&event=evt-sat-sip-and-paint",
     programmeLinkLabel: "View Sip & Paint Event",
+  },
+  {
+    id: "poster-kleinmond-has-talent",
+    title: "Youth Festival – Kleinmond Has Talent",
+    subtitle: "Saturday 28 Nov • Workshops & Competitions (Ages 14–25)",
+    description:
+      "KliK Youth Festival – Kleinmond Has Talent workshops and competitions for young people. Lead-up workshops at Mthimkhulu Village Centre (20 September – 4 October 2026: Poetry & Drama, Contemporary & Indigenous Dance, Hip-hop, Breakdancing, Modern Jazz, Freestyle, Spiritual Dancing, Slam Poetry, Choral Verse, Storytelling, Music, Sketching & Painting) culminating in the Kleinmond Has Talent Competition on Saturday, 28 November 2026 (Solo Singing, Hip-hop Dance, Contemporary Dance, Indigenous Dance, Spiritual Dance, Individual Poetry Recital, and Choral Verse – Group Poetry Recital).",
+    imageUrl: "/assets/posters/KLiK_Youth_Festival_Kleinmond_Has_Talent.jpg",
+    downloadName: "KLiK_Youth_Festival_Kleinmond_Has_Talent.jpg",
+    aspectRatio: "a4",
+    isPrimary: false,
+    linkedEventId: "evt-sat-kleinmond-talent",
+    linkedEventIds: ["evt-sat-kleinmond-talent"],
+    programmeUrl: "/programme?day=sat&event=evt-sat-kleinmond-talent",
+    programmeLinkLabel: "View Kleinmond Has Talent Event",
   },
   {
     id: "poster-sunset-session",

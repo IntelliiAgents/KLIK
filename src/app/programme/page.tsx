@@ -467,7 +467,7 @@ function ProgrammeContent() {
             Official Festival Posters
           </h2>
           <p className="text-xs text-ink-muted mt-0.5">
-            Tap any poster to view full-screen, zoom in, share, or download. Browse the 3 primary posters first or expand to explore all 10 official posters.
+            Tap any poster to view full-screen, zoom in, share, or download. Browse the 3 primary posters first or expand to explore all 11 official posters.
           </p>
         </div>
         <PosterGallery
