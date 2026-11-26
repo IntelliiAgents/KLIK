@@ -141,9 +141,8 @@ export default function CultureTrailPage() {
                 <strong className="text-teal-festival">Lucky Draw</strong>. Every
                 eligible participant who completes verified check-ins at at least
                 five (5) distinct participating festival locations and submits
-                their unique competition entry code via WhatsApp (
-                {QUEST_CONFIG.whatsappLocalDisplay}) will be entered into the
-                draw.{" "}
+                their unique competition entry code via WhatsApp will be entered
+                into the draw.{" "}
                 <strong className="text-teal-festival">
                   The Lucky Draw will take place at the conclusion of the KLiK
                   Festival (Sunday, 29 November 2026).
@@ -162,8 +161,16 @@ export default function CultureTrailPage() {
                   valid until 28 February 2027
                 </strong>{" "}
                 and must be redeemed before this date. Bookings must be arranged
-                in advance via WhatsApp ({QUEST_CONFIG.whatsappLocalDisplay}),
-                subject to availability and safe weather conditions.
+                in advance via{" "}
+                <a
+                  href={QUEST_CONFIG.whatsappBaseUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="font-bold text-[#1E7E45] hover:underline"
+                >
+                  WhatsApp
+                </a>
+                , subject to availability and safe weather conditions.
               </li>
               <li>
                 <strong className="text-teal-festival">Not Redeemable for Cash:</strong>{" "}

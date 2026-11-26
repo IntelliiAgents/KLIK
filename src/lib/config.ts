@@ -81,7 +81,7 @@ export const QUEST_SPONSORS: QuestSponsor[] = [
       "Whether you're looking for a relaxing paddle or an unforgettable outdoor experience, there's no better way to explore our waterways.",
     ],
     location: "Based in Kleinmond, Western Cape.",
-    ctaLabel: "WhatsApp 079 698 1395 to Book / Enquire",
+    ctaLabel: "Book / Enquire on WhatsApp",
     whatsappMessage:
       "Hi Pura Vida Kayaking Adventures! I saw your feature on the KLiK Festival app and would love to book or get more information about kayaking on the Kleinmond Lagoon / Palmiet River.",
     imageUrl: "/assets/sponsors/pura-vida-kayak-activity.jpg",
@@ -100,7 +100,7 @@ export const QUEST_SPONSORS: QuestSponsor[] = [
       "More adventure. Less effort. Endless possibilities.",
     ],
     location: "Based in Kleinmond, Western Cape.",
-    ctaLabel: "WhatsApp 079 698 1395 to Book / Enquire",
+    ctaLabel: "Book / Enquire on WhatsApp",
     whatsappMessage:
       "Hi E-Motion E-Bike Adventures! I saw your feature on the KLiK Festival app and would love to book or get more information about guided e-bike experiences or rentals in Kleinmond.",
     imageUrl: "/assets/sponsors/emotion-ebike-activity.jpg",

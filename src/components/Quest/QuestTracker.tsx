@@ -380,13 +380,9 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
                         decoding="async"
                         className="w-full h-full object-cover object-center"
                       />
-                      <div
-                        className="pointer-events-none absolute inset-x-0 bottom-0 h-14 bg-gradient-to-t from-black/60 to-transparent"
-                        aria-hidden="true"
-                      />
                       {sponsor.logoUrl && (
                         <div
-                          className={`absolute bottom-2 left-2.5 overflow-hidden flex items-center justify-center ${
+                          className={`absolute top-2.5 left-2.5 overflow-hidden flex items-center justify-center ${
                             isDarkEmblem
                               ? "w-11 h-11 rounded-full drop-shadow-md"
                               : "h-10 px-2 py-1 rounded-lg bg-white/95 shadow-sm"
@@ -436,10 +432,7 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
                     className="inline-flex items-center gap-1.5 text-[11px] font-bold text-mustard-light hover:text-white transition-colors"
                   >
                     <MessageCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-                    <span>
-                      Want to book or need more info? WhatsApp{" "}
-                      {QUEST_CONFIG.whatsappLocalDisplay}
-                    </span>
+                    <span>Book / Enquire on WhatsApp</span>
                   </a>
                 </div>
               </div>
@@ -668,7 +661,7 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
                 <p className="text-[11px] text-teal-festival bg-teal-festival/5 border border-teal-festival/20 rounded-xl px-3 py-2 leading-relaxed">
                   WhatsApp was opened with your competition entry ready.{" "}
                   <strong>Make sure you tap Send inside WhatsApp</strong> to complete
-                  your entry (WhatsApp number: {QUEST_CONFIG.whatsappIntlDisplay}).
+                  your entry.
                 </p>
               )}
 
@@ -1089,9 +1082,8 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
               </a>
 
               <p className="text-[11px] text-ink-muted leading-snug">
-                Tap Send in WhatsApp ({QUEST_CONFIG.whatsappIntlDisplay}) to submit
-                your entry. Your code remains stored in the app if WhatsApp is
-                unavailable.
+                Tap Send in WhatsApp to submit your entry. Your code remains
+                stored in the app if WhatsApp is unavailable.
               </p>
             </div>
 

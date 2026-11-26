@@ -10,7 +10,6 @@ import {
   Award,
 } from "lucide-react";
 import {
-  QUEST_CONFIG,
   QUEST_SPONSORS,
   buildSponsorWhatsAppUrl,
 } from "@/lib/config";
@@ -128,22 +127,9 @@ export const SponsorShowcase: React.FC<SponsorShowcaseProps> = ({
         className="rounded-2xl bg-parchment-50 border border-parchment-300 px-4 py-3 shadow-subtle flex flex-col sm:flex-row sm:items-center justify-between gap-2.5"
         aria-label="KLiK Quest Prize Sponsors"
       >
-        <div className="space-y-0.5">
-          <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-teal-festival">
-            <Award className="w-4 h-4 text-mustard-dark shrink-0" aria-hidden="true" />
-            <span>Prizes Sponsored By</span>
-          </div>
-          <p className="text-[11px] text-ink-muted">
-            To book or for more info, WhatsApp{" "}
-            <a
-              href={QUEST_CONFIG.whatsappBaseUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-bold text-[#1E7E45] hover:underline"
-            >
-              {QUEST_CONFIG.whatsappLocalDisplay}
-            </a>
-          </p>
+        <div className="flex items-center gap-2 text-[11px] font-bold uppercase tracking-wider text-teal-festival shrink-0">
+          <Award className="w-4 h-4 text-mustard-dark shrink-0" aria-hidden="true" />
+          <span>Prizes Sponsored By</span>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
@@ -183,7 +169,7 @@ export const SponsorShowcase: React.FC<SponsorShowcaseProps> = ({
             <span>Prizes Sponsored by Our Local Adventure Partners</span>
           </span>
           <span className="text-[11px] text-ink-muted">
-            Bookings &amp; info: {QUEST_CONFIG.whatsappLocalDisplay}
+            Kleinmond, Western Cape
           </span>
         </div>
 
@@ -218,7 +204,7 @@ export const SponsorShowcase: React.FC<SponsorShowcaseProps> = ({
                 className="min-h-[40px] w-full py-2 px-3 rounded-lg bg-[#1E7E45] hover:bg-[#186838] text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
               >
                 <MessageCircle className="w-3.5 h-3.5 shrink-0" aria-hidden="true" />
-                <span>Book / Enquire ({QUEST_CONFIG.whatsappLocalDisplay})</span>
+                <span>Book / Enquire on WhatsApp</span>
               </a>
             </div>
           ))}
@@ -243,16 +229,7 @@ export const SponsorShowcase: React.FC<SponsorShowcaseProps> = ({
           PRIZES SPONSORED BY OUR LOCAL ADVENTURE PARTNERS
         </h2>
         <p className="text-xs sm:text-sm text-ink-muted max-w-lg mx-auto leading-relaxed">
-          Want to book an adventure or need more information? Contact{" "}
-          <a
-            href={QUEST_CONFIG.whatsappBaseUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="font-bold text-[#1E7E45] hover:underline whitespace-nowrap"
-          >
-            {QUEST_CONFIG.whatsappLocalDisplay} on WhatsApp
-          </a>{" "}
-          to connect directly with our Kleinmond adventure partners.
+          Support the local Kleinmond adventure businesses making the KLiK Quest prizes possible — tap below to book or enquire directly via WhatsApp.
         </p>
       </div>
 
@@ -266,7 +243,7 @@ export const SponsorShowcase: React.FC<SponsorShowcaseProps> = ({
               className="editorial-surface rounded-3xl overflow-hidden flex flex-col justify-between shadow-card hover:shadow-raised transition-shadow"
             >
               <div>
-                {/* Official Activity Photograph + Partner Logo Overlay */}
+                {/* Official Activity Photograph + Top-Left Partner Logo Overlay */}
                 <div className="relative w-full aspect-[16/10] bg-teal-dark border-b border-parchment-200 overflow-hidden">
                   {sponsor.imageUrl ? (
                     // eslint-disable-next-line @next/next/no-img-element
@@ -279,16 +256,10 @@ export const SponsorShowcase: React.FC<SponsorShowcaseProps> = ({
                     />
                   ) : null}
 
-                  {/* Subtle bottom gradient for crisp logo badge contrast */}
-                  <div
-                    className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/55 via-black/20 to-transparent"
-                    aria-hidden="true"
-                  />
-
-                  {/* Official Partner Logo Badge */}
+                  {/* Official Partner Logo Badge (Top-Left) */}
                   {sponsor.logoUrl && (
                     <div
-                      className={`absolute bottom-3 left-3 overflow-hidden flex items-center justify-center ${
+                      className={`absolute top-3 left-3 overflow-hidden flex items-center justify-center ${
                         isDarkEmblem
                           ? "w-14 h-14 rounded-full drop-shadow-md"
                           : "h-14 px-2 py-1 rounded-xl bg-white/95 backdrop-blur-xs shadow-sm"
@@ -334,14 +305,8 @@ export const SponsorShowcase: React.FC<SponsorShowcaseProps> = ({
                 </div>
               </div>
 
-              {/* Booking & More Info WhatsApp Callout */}
-              <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-1 space-y-2">
-                <p className="text-[11px] text-ink-muted text-center">
-                  To book or for more information, WhatsApp{" "}
-                  <strong className="text-teal-festival">
-                    {QUEST_CONFIG.whatsappLocalDisplay}
-                  </strong>
-                </p>
+              {/* Booking & Enquiry WhatsApp CTA */}
+              <div className="px-5 sm:px-6 pb-5 sm:pb-6 pt-1">
                 <a
                   href={buildSponsorWhatsAppUrl(sponsor.id)}
                   target="_blank"

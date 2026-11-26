@@ -461,8 +461,7 @@ function CheckInContent() {
                   <span>Submit My Competition Entry via WhatsApp</span>
                 </a>
                 <p className="text-[11px] text-ink-muted">
-                  Remember to tap Send in WhatsApp ({QUEST_CONFIG.whatsappIntlDisplay})
-                  to submit your entry.
+                  Remember to tap Send in WhatsApp to submit your entry.
                 </p>
               </div>
             )}
