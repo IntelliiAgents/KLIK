@@ -1,5 +1,6 @@
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 import { CheckIn, SavedEvent, CheckInSyncStatus } from "../types";
+import { isPreFestivalTimestamp } from "../quest/schedule";
 
 interface KliKDB extends DBSchema {
   saved_events: {
@@ -35,6 +36,71 @@ const PARTICIPANT_NAME_KEY = "klik_participant_name";
 const CHECK_INS_LS_KEY = "klik_check_ins";
 const TICKET_LS_KEY = "klik_lucky_draw_ticket";
 const COMPLETED_AT_LS_KEY = "klik_lucky_draw_completed_at";
+const PRE_LAUNCH_CLEANUP_KEY = "klik_pre_festival_test_reset_v1";
+
+/**
+ * Automatically purges any pre-festival test check-ins and pre-festival Lucky Draw tickets
+ * recorded prior to official KLiK 2026 opening (Fri 27 Nov 2026, 15:45 SAST).
+ * Runs safely once per device so legitimate festival check-ins are never touched.
+ */
+export async function purgePreFestivalTestData(): Promise<void> {
+  if (typeof window === "undefined") return;
+  try {
+    // Always filter out any check-ins timestamped before festival launch
+    const lsItems = readLocalStorageCheckIns();
+    const validLsItems = lsItems.filter((c) => !isPreFestivalTimestamp(c.timestamp));
+    if (validLsItems.length !== lsItems.length) {
+      writeLocalStorageCheckIns(validLsItems);
+    }
+
+    const db = getDb();
+    if (db) {
+      try {
+        const database = await db;
+        const idbItems = await database.getAll("check_ins");
+        for (const item of idbItems) {
+          if (isPreFestivalTimestamp(item.timestamp)) {
+            await database.delete("check_ins", item.id);
+            await database.delete("offline_queue", item.id);
+          }
+        }
+      } catch {
+        // ignore IDB errors
+      }
+    }
+
+    // Clear pre-festival Lucky Draw ticket if it was earned before launch OR if no valid festival check-ins exist
+    const completedAt = localStorage.getItem(COMPLETED_AT_LS_KEY);
+    const hasSavedTicket = Boolean(localStorage.getItem(TICKET_LS_KEY));
+    const alreadyCleaned = localStorage.getItem(PRE_LAUNCH_CLEANUP_KEY) === "done";
+
+    if (
+      hasSavedTicket &&
+      (isPreFestivalTimestamp(completedAt) || (!alreadyCleaned && validLsItems.length === 0))
+    ) {
+      localStorage.removeItem(TICKET_LS_KEY);
+      localStorage.removeItem(COMPLETED_AT_LS_KEY);
+      localStorage.removeItem("klik_prize_draw_submitted");
+      localStorage.removeItem("klik_quest_started_tracked");
+      localStorage.removeItem("klik_quest_completed_tracked");
+      if (db) {
+        try {
+          const database = await db;
+          await database.delete("keyval", TICKET_LS_KEY);
+          await database.delete("keyval", COMPLETED_AT_LS_KEY);
+        } catch {
+          // ignore
+        }
+      }
+    }
+
+    if (!alreadyCleaned) {
+      localStorage.setItem(PRE_LAUNCH_CLEANUP_KEY, "done");
+    }
+  } catch {
+    // ignore storage errors
+  }
+}
 
 let dbPromise: Promise<IDBPDatabase<KliKDB>> | null = null;
 
@@ -389,10 +455,13 @@ function writeLocalStorageCheckIns(items: CheckIn[]): void {
 }
 
 export async function getCheckIns(): Promise<CheckIn[]> {
+  await purgePreFestivalTestData();
   const lsItems = readLocalStorageCheckIns();
   const db = getDb();
   if (!db) {
-    return lsItems.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+    return lsItems
+      .filter((c) => !isPreFestivalTimestamp(c.timestamp))
+      .sort((a, b) => b.timestamp.localeCompare(a.timestamp));
   }
   try {
     const database = await db;
@@ -401,10 +470,14 @@ export async function getCheckIns(): Promise<CheckIn[]> {
     // Merge IDB + localStorage by id so progress is never lost even if one store was cleared
     const merged = new Map<string, CheckIn>();
     for (const item of lsItems) {
-      merged.set(item.id, item);
+      if (!isPreFestivalTimestamp(item.timestamp)) {
+        merged.set(item.id, item);
+      }
     }
     for (const item of idbItems) {
-      merged.set(item.id, item);
+      if (!isPreFestivalTimestamp(item.timestamp)) {
+        merged.set(item.id, item);
+      }
     }
 
     return Array.from(merged.values()).sort((a, b) =>
@@ -412,7 +485,9 @@ export async function getCheckIns(): Promise<CheckIn[]> {
     );
   } catch (err) {
     console.error("IDB getCheckIns error:", err);
-    return lsItems.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+    return lsItems
+      .filter((c) => !isPreFestivalTimestamp(c.timestamp))
+      .sort((a, b) => b.timestamp.localeCompare(a.timestamp));
   }
 }
 

@@ -11,7 +11,13 @@ import {
   getParticipantName,
   setParticipantName as persistParticipantName,
 } from "@/lib/db/idb";
-import { VenueLocation, CheckIn, ChallengeProgress } from "@/lib/types";
+import {
+  VenueLocation,
+  CheckIn,
+  ChallengeProgress,
+  FestivalEvent,
+} from "@/lib/types";
+import { getVenueCheckInAvailability } from "@/lib/quest/schedule";
 import {
   QUEST_CONFIG,
   buildPrizeDrawWhatsAppUrl,
@@ -46,6 +52,7 @@ function CheckInContent() {
   const manualApprovalToken = (searchParams.get("manual_approval") || "").trim();
 
   const [venue, setVenue] = useState<VenueLocation | null>(null);
+  const [events, setEvents] = useState<FestivalEvent[]>([]);
   const [progress, setProgress] = useState<ChallengeProgress | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -77,14 +84,16 @@ function CheckInContent() {
         return;
       }
       try {
-        const [v, hasAlready, pr] = await Promise.all([
+        const [v, hasAlready, pr, allEvts] = await Promise.all([
           repository.getVenueById(locationId),
           hasCheckedInLocation(locationId),
           repository.calculateQuestProgress(),
+          repository.getEvents(),
         ]);
         setVenue(v);
         setAlreadyCheckedIn(hasAlready);
         setProgress(pr);
+        setEvents(allEvts);
 
         // If participant arrived via an organiser-signed manual approval link, redeem automatically
         if (v && !hasAlready && manualApprovalToken) {
@@ -293,6 +302,7 @@ function CheckInContent() {
   }
 
   const participantId = progress?.participantId || getOrCreateParticipantId();
+  const availability = getVenueCheckInAvailability(venue.id, events);
   const completedCount = progress?.totalCheckInsCount || 0;
   const targetCount = QUEST_CONFIG.requiredLocations;
   const isQuestCompleted = Boolean(
@@ -486,7 +496,19 @@ function CheckInContent() {
               </div>
             )}
 
-            {hasValidQrToken ? (
+            {!availability.isOpen ? (
+              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs space-y-2 text-left">
+                <strong className="font-bold text-sm text-teal-festival block">
+                  Check-In Opens When This Venue Goes Live
+                </strong>
+                <p className="leading-relaxed">{availability.message}</p>
+                {availability.nextOpenLabel && (
+                  <p className="font-semibold text-teal-festival">
+                    Next live window: {availability.nextOpenLabel}
+                  </p>
+                )}
+              </div>
+            ) : hasValidQrToken ? (
               <div className="space-y-3">
                 <div className="p-3 rounded-xl bg-olive-festival/10 border border-olive-festival/25 text-xs text-teal-festival flex items-center justify-center gap-2">
                   <QrCode className="w-4 h-4 text-olive-festival shrink-0" />

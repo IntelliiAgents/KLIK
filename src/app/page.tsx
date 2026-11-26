@@ -9,7 +9,6 @@ import { EventDetailsModal } from "@/components/Events/EventDetailsModal";
 import { TicketsModal } from "@/components/UI/TicketsModal";
 import { BackToTopButton } from "@/components/UI/BackToTopButton";
 import { HomeQuestBanner } from "@/components/Quest/HomeQuestBanner";
-import { SponsorShowcase } from "@/components/Sponsors/SponsorShowcase";
 import { repository } from "@/lib/db/repository";
 import {
   saveEvent,
@@ -680,17 +679,11 @@ export default function HomePage() {
         />
       </section>
 
-      {/* 7. THE KLiK QUEST PROMOTIONAL BANNER (Original Position Below Posters) & ADVENTURE PRIZE SPONSORS */}
-      <div className="space-y-6">
-        <HomeQuestBanner
-          verifiedCount={questVerifiedCount}
-          isCompleted={questIsCompleted}
-        />
-
-        <div className="pt-4 border-t border-parchment-300/80">
-          <SponsorShowcase variant="full" placement="home_section" />
-        </div>
-      </div>
+      {/* 7. THE KLiK QUEST PROMOTIONAL BANNER (Original Position Below Posters — Full Details on /quest) */}
+      <HomeQuestBanner
+        verifiedCount={questVerifiedCount}
+        isCompleted={questIsCompleted}
+      />
 
       {/* 8. FESTIVAL PARTNERS & SUPPORTERS */}
       <section className="space-y-4 pt-5 border-t border-parchment-300/80">

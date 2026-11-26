@@ -5,9 +5,14 @@ import {
   Challenge,
   ChallengeProgress,
   CheckIn,
+  FestivalEvent,
   VenueLocation,
   CheckInVerificationMethod,
 } from "@/lib/types";
+import {
+  getVenueCheckInAvailability,
+  isBeforeFestivalLaunch,
+} from "@/lib/quest/schedule";
 import {
   CheckCircle2,
   Circle,
@@ -58,6 +63,7 @@ interface QuestTrackerProps {
   progress: ChallengeProgress;
   checkIns: CheckIn[];
   venues: VenueLocation[];
+  events: FestivalEvent[];
   onRefresh: () => Promise<void>;
 }
 
@@ -74,8 +80,10 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
   progress,
   checkIns,
   venues,
+  events,
   onRefresh,
 }) => {
+  const beforeFestival = isBeforeFestivalLaunch();
   const [showCelebration, setShowCelebration] = useState(false);
   const [hasTriggeredConfetti, setHasTriggeredConfetti] = useState(false);
   const [participantName, setParticipantName] = useState("");
@@ -341,13 +349,14 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
         </div>
 
         <p className="text-xs sm:text-sm text-parchment-100/95 leading-relaxed">
-          Take part in the <strong className="text-white">KLiK Quest</strong>, explore
-          our participating festival locations and stand a chance to win exciting
-          local Kleinmond adventure prizes worth{" "}
+          Take part in the <strong className="text-white">KLiK Quest Lucky Draw</strong>!
+          Explore our participating festival locations and stand a chance to win
+          exciting local Kleinmond adventure prizes worth{" "}
           <strong className="text-mustard-light">
             {QUEST_CONFIG.formattedPrizeValue}
           </strong>
-          !
+          . The Lucky Draw will be held at the conclusion of the KLiK Festival
+          (Sunday, 29 November 2026).
         </p>
 
         {/* Featured Prizes with Activity Photos, Official Logos, Brief Descriptions & WhatsApp Booking */}
@@ -542,15 +551,31 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
 
         {/* Method A Primary Scanner Action */}
         {!progress.isCompleted && (
-          <div className="pt-1">
-            <button
-              type="button"
-              onClick={() => setIsScannerOpen(true)}
-              className="w-full min-h-[48px] py-3 px-4 rounded-xl bg-teal-festival hover:bg-teal-light text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm active:scale-[0.99] transition-all"
-            >
-              <QrCode className="w-4 h-4 shrink-0" aria-hidden="true" />
-              <span>Scan Venue QR Code (Preferred Method)</span>
-            </button>
+          <div className="pt-1 space-y-2">
+            {beforeFestival ? (
+              <div className="p-3.5 rounded-2xl bg-amber-50 border border-amber-200 text-amber-900 text-xs flex items-start gap-2.5 leading-relaxed">
+                <Clock className="w-4 h-4 text-amber-700 shrink-0 mt-0.5" aria-hidden="true" />
+                <div>
+                  <strong className="font-bold block text-teal-festival">
+                    Check-Ins Unlock When Festival Events Go Live
+                  </strong>
+                  <span>
+                    KLiK 2026 opens Friday, 27 November at 16:00. Each venue unlocks
+                    for check-in once its scheduled event goes live (15 min before
+                    start).
+                  </span>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setIsScannerOpen(true)}
+                className="w-full min-h-[48px] py-3 px-4 rounded-xl bg-teal-festival hover:bg-teal-light text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm active:scale-[0.99] transition-all"
+              >
+                <QrCode className="w-4 h-4 shrink-0" aria-hidden="true" />
+                <span>Scan Venue QR Code (Preferred Method)</span>
+              </button>
+            )}
           </div>
         )}
 
@@ -693,6 +718,7 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
             const feedback = venueFeedback[venue.id];
             const isHelpOpen = openHelpVenueId === venue.id;
             const radiusM = getVenueGeofenceRadiusMeters(venue.id);
+            const availability = getVenueCheckInAvailability(venue.id, events);
             const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${venue.latitude},${venue.longitude}`;
 
             const selfieWhatsAppUrl = buildSelfieVerificationWhatsAppUrl({
@@ -795,43 +821,69 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
                   </div>
                 )}
 
-                {/* 3 Check-In Methods (for unvisited venues) */}
+                {/* 3 Check-In Methods (for unvisited venues — gated by live event schedule) */}
                 {!isVisited && (
                   <div className="space-y-2.5 pt-1 border-t border-parchment-200">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                      {/* Method A — QR Code (Primary) */}
-                      <button
-                        type="button"
-                        onClick={() => setIsScannerOpen(true)}
-                        className="min-h-[44px] py-2 px-3 rounded-xl bg-teal-festival hover:bg-teal-light text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
-                      >
-                        <QrCode className="w-4 h-4 shrink-0" aria-hidden="true" />
-                        <span>Scan QR at Venue</span>
-                      </button>
-
-                      {/* Method B — GPS Location Check-In */}
-                      <button
-                        type="button"
-                        onClick={() => handleGpsCheckIn(venue)}
-                        disabled={Boolean(gpsLoadingVenueId)}
-                        className="min-h-[44px] py-2 px-3 rounded-xl bg-parchment-100 hover:bg-parchment-200 text-teal-festival text-xs font-bold flex items-center justify-center gap-1.5 border border-parchment-300 transition-colors disabled:opacity-60"
-                      >
-                        {isGpsLoading ? (
-                          <>
-                            <RefreshCw className="w-4 h-4 animate-spin shrink-0" />
-                            <span>Verifying GPS...</span>
-                          </>
-                        ) : (
-                          <>
-                            <LocateFixed
-                              className="w-4 h-4 text-terracotta-festival shrink-0"
-                              aria-hidden="true"
-                            />
-                            <span>Check In Using My Location</span>
-                          </>
-                        )}
-                      </button>
+                    {/* Live / Scheduled Window Pill */}
+                    <div className="flex items-center justify-between gap-2 flex-wrap text-[11px]">
+                      {availability.isOpen ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-olive-festival/15 text-olive-dark font-bold">
+                          <span className="w-1.5 h-1.5 rounded-full bg-olive-festival animate-pulse" />
+                          <span>Live Now — Check-In Open</span>
+                        </span>
+                      ) : availability.nextOpenLabel ? (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-parchment-200 text-teal-festival font-semibold">
+                          <Clock className="w-3 h-3 text-terracotta-festival" />
+                          <span>Opens {availability.nextOpenLabel}</span>
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-parchment-200 text-ink-muted font-semibold">
+                          <Clock className="w-3 h-3" />
+                          <span>Scheduled events ended</span>
+                        </span>
+                      )}
                     </div>
+
+                    {availability.isOpen ? (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        {/* Method A — QR Code (Primary) */}
+                        <button
+                          type="button"
+                          onClick={() => setIsScannerOpen(true)}
+                          className="min-h-[44px] py-2 px-3 rounded-xl bg-teal-festival hover:bg-teal-light text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-2xs"
+                        >
+                          <QrCode className="w-4 h-4 shrink-0" aria-hidden="true" />
+                          <span>Scan QR at Venue</span>
+                        </button>
+
+                        {/* Method B — GPS Location Check-In */}
+                        <button
+                          type="button"
+                          onClick={() => handleGpsCheckIn(venue)}
+                          disabled={Boolean(gpsLoadingVenueId)}
+                          className="min-h-[44px] py-2 px-3 rounded-xl bg-parchment-100 hover:bg-parchment-200 text-teal-festival text-xs font-bold flex items-center justify-center gap-1.5 border border-parchment-300 transition-colors disabled:opacity-60"
+                        >
+                          {isGpsLoading ? (
+                            <>
+                              <RefreshCw className="w-4 h-4 animate-spin shrink-0" />
+                              <span>Verifying GPS...</span>
+                            </>
+                          ) : (
+                            <>
+                              <LocateFixed
+                                className="w-4 h-4 text-terracotta-festival shrink-0"
+                                aria-hidden="true"
+                              />
+                              <span>Check In Using My Location</span>
+                            </>
+                          )}
+                        </button>
+                      </div>
+                    ) : (
+                      <p className="text-[11px] text-ink-muted bg-parchment-100 border border-parchment-200 rounded-xl px-3 py-2 leading-relaxed">
+                        {availability.message}
+                      </p>
+                    )}
 
                     {/* Method C Toggle — Having trouble checking in? */}
                     <div className="flex items-center justify-between gap-2 flex-wrap">

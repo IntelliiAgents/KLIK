@@ -2,10 +2,16 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, FileText } from "lucide-react";
 import { repository } from "@/lib/db/repository";
 import { getCheckIns } from "@/lib/db/idb";
-import { Challenge, ChallengeProgress, CheckIn, VenueLocation } from "@/lib/types";
+import {
+  Challenge,
+  ChallengeProgress,
+  CheckIn,
+  FestivalEvent,
+  VenueLocation,
+} from "@/lib/types";
 import { QuestTracker } from "@/components/Quest/QuestTracker";
 import { SponsorShowcase } from "@/components/Sponsors/SponsorShowcase";
 import { BackToTopButton } from "@/components/UI/BackToTopButton";
@@ -17,20 +23,23 @@ export default function CultureTrailPage() {
   const [progress, setProgress] = useState<ChallengeProgress | null>(null);
   const [checkIns, setCheckIns] = useState<CheckIn[]>([]);
   const [venues, setVenues] = useState<VenueLocation[]>([]);
+  const [events, setEvents] = useState<FestivalEvent[]>([]);
   const [loading, setLoading] = useState(true);
 
   const loadQuestData = useCallback(async () => {
     try {
-      const [ch, pr, chks, vns] = await Promise.all([
+      const [ch, pr, chks, vns, evts] = await Promise.all([
         repository.getChallenge(),
         repository.calculateQuestProgress(),
         getCheckIns(),
         repository.getVenues(),
+        repository.getEvents(),
       ]);
       setChallenge(ch);
       setProgress(pr);
       setCheckIns(chks);
       setVenues(vns);
+      setEvents(evts);
     } catch (err) {
       console.error("KLiK Quest load error:", err);
     } finally {
@@ -93,6 +102,7 @@ export default function CultureTrailPage() {
             progress={progress}
             checkIns={checkIns}
             venues={venues}
+            events={events}
             onRefresh={loadQuestData}
           />
 
@@ -100,6 +110,93 @@ export default function CultureTrailPage() {
           <div className="pt-4 border-t border-parchment-300/80">
             <SponsorShowcase variant="full" placement="quest_landing" />
           </div>
+
+          {/* Competition Terms & Conditions (Lucky Draw Rules) */}
+          <section
+            aria-labelledby="quest-terms-heading"
+            className="editorial-surface rounded-3xl p-5 sm:p-6 space-y-3"
+          >
+            <div className="flex items-center gap-2 text-teal-festival">
+              <FileText
+                className="w-4 h-4 text-terracotta-festival shrink-0"
+                aria-hidden="true"
+              />
+              <h2
+                id="quest-terms-heading"
+                className="font-serif font-bold text-base sm:text-lg text-teal-festival"
+              >
+                Competition Terms &amp; Conditions
+              </h2>
+            </div>
+
+            <p className="text-xs text-ink-muted leading-relaxed">
+              By participating in the KLiK Quest competition, entrants agree to
+              the following rules and conditions:
+            </p>
+
+            <ul className="list-disc pl-5 space-y-2 text-xs text-ink-festival/90 leading-relaxed">
+              <li>
+                <strong className="text-teal-festival">Lucky Draw Format &amp; Draw Date:</strong>{" "}
+                The KLiK Quest competition is a{" "}
+                <strong className="text-teal-festival">Lucky Draw</strong>. Every
+                eligible participant who completes verified check-ins at at least
+                five (5) distinct participating festival locations and submits
+                their unique competition entry code via WhatsApp (
+                {QUEST_CONFIG.whatsappLocalDisplay}) will be entered into the
+                draw.{" "}
+                <strong className="text-teal-festival">
+                  The Lucky Draw will take place at the conclusion of the KLiK
+                  Festival (Sunday, 29 November 2026).
+                </strong>
+              </li>
+              <li>
+                <strong className="text-teal-festival">Staff &amp; Family Exclusion:</strong>{" "}
+                Staff, organisers, committee members, volunteers, prize sponsors,
+                and immediate family members of the KLiK Festival team do not
+                qualify to participate or win prizes in this competition.
+              </li>
+              <li>
+                <strong className="text-teal-festival">Prize Validity (Until February 2027):</strong>{" "}
+                All prizes are{" "}
+                <strong className="text-teal-festival">
+                  valid until 28 February 2027
+                </strong>{" "}
+                and must be redeemed before this date. Bookings must be arranged
+                in advance via WhatsApp ({QUEST_CONFIG.whatsappLocalDisplay}),
+                subject to availability and safe weather conditions.
+              </li>
+              <li>
+                <strong className="text-teal-festival">Not Redeemable for Cash:</strong>{" "}
+                Prizes are{" "}
+                <strong className="text-teal-festival">
+                  not redeemable or exchangeable for cash
+                </strong>
+                , credit, or alternative goods, and may not be resold.
+              </li>
+              <li>
+                <strong className="text-teal-festival">One Entry Per Participant:</strong>{" "}
+                Participants are limited to one (1) official Lucky Draw entry.
+                Duplicate check-ins at the same venue do not increase progress,
+                and fraudulent or tampered submissions will be disqualified.
+              </li>
+              <li>
+                <strong className="text-teal-festival">Winner Notification &amp; Redemption:</strong>{" "}
+                Winners will be contacted via WhatsApp or telephone after the
+                festival draw using the contact details from their submitted
+                entry. Participants should retain their unique competition code
+                on the app for verification. If a winner cannot be reached within
+                14 days, the organisers reserve the right to select a new winner.
+              </li>
+              <li>
+                <strong className="text-teal-festival">Safety &amp; General Conditions:</strong>{" "}
+                Guided coastal e-bike and lagoon kayaking experiences are subject
+                to the standard safety briefings, age/fitness requirements, and
+                indemnity terms of E-Motion E-Bike Adventures and Pura Vida
+                Kayaking Adventures. The KLiK Festival organisers&apos; decision
+                on verification and the Lucky Draw outcome is final.
+              </li>
+            </ul>
+          </section>
         </>
       )}
 

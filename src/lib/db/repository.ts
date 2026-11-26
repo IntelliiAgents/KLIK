@@ -39,6 +39,10 @@ import {
   type GpsVerificationInput,
   type GpsVerificationResult,
 } from "../quest/geo";
+import {
+  getVenueCheckInAvailability,
+  isPreFestivalTimestamp,
+} from "../quest/schedule";
 import { FESTIVAL_CONFIG } from "../config";
 import { trackEvent } from "../analytics";
 
@@ -302,11 +306,17 @@ class LocalSeedRepository implements FestivalRepository {
 
         const totalCount = verifiedLocationSet.size;
         const saved = await getSavedCompetitionCode();
+        const hasValidSavedCode =
+          Boolean(saved.code) && !isPreFestivalTimestamp(saved.completedAt);
         const isCompleted =
-          totalCount >= challenge.requiredCheckInCount || Boolean(saved.code);
+          totalCount >= challenge.requiredCheckInCount || hasValidSavedCode;
 
-        let rewardDrawTicketNumber = saved.code || undefined;
-        let completedAt = saved.completedAt || undefined;
+        let rewardDrawTicketNumber = hasValidSavedCode
+          ? saved.code || undefined
+          : undefined;
+        let completedAt = hasValidSavedCode
+          ? saved.completedAt || undefined
+          : undefined;
 
         if (isCompleted) {
           const persisted = await getOrCreateCompetitionCode();
@@ -458,6 +468,21 @@ class LocalSeedRepository implements FestivalRepository {
         };
       }
 
+      // Validate that an event at this venue is currently live before permitting QR check-in
+      const availability = getVenueCheckInAvailability(venue.id, this.events);
+      if (!availability.isOpen) {
+        trackEvent("checkin_method_used", {
+          method: "qr",
+          status: "failed",
+          venueId: venue.id,
+          reason: availability.reason,
+        });
+        return {
+          success: false,
+          message: availability.message,
+        };
+      }
+
       // Validate the scanned QR token matches the official distributed QR code for this venue
       const cleanToken = (token || "").trim();
       if (!cleanToken || cleanToken !== venue.qrCodeToken) {
@@ -506,6 +531,21 @@ class LocalSeedRepository implements FestivalRepository {
           checkIn: existingVerified,
           progress,
           message: `You have already checked in at ${venue.name}.`,
+        };
+      }
+
+      // Validate that an event at this venue is currently live before permitting GPS check-in
+      const availability = getVenueCheckInAvailability(venue.id, this.events);
+      if (!availability.isOpen) {
+        trackEvent("checkin_method_used", {
+          method: "gps",
+          status: "failed",
+          venueId: venue.id,
+          reason: availability.reason,
+        });
+        return {
+          success: false,
+          message: availability.message,
         };
       }
 
