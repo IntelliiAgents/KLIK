@@ -386,10 +386,10 @@ export const QuestTracker: React.FC<QuestTrackerProps> = ({
                       />
                       {sponsor.logoUrl && (
                         <div
-                          className={`absolute bottom-2 left-2.5 shadow-sm overflow-hidden flex items-center justify-center border ${
+                          className={`absolute bottom-2 left-2.5 overflow-hidden flex items-center justify-center ${
                             isDarkEmblem
-                              ? "w-10 h-10 rounded-full bg-black border-white/60 p-0.5"
-                              : "h-10 px-2 py-1 rounded-lg bg-white/95 border-white/80"
+                              ? "w-11 h-11 rounded-full drop-shadow-md"
+                              : "h-10 px-2 py-1 rounded-lg bg-white/95 shadow-sm"
                           }`}
                         >
                           {/* eslint-disable-next-line @next/next/no-img-element */}

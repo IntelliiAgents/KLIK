@@ -1,5 +1,5 @@
 // KliK 2026 Kunstefees Service Worker
-const CACHE_NAME = 'klik-v1.6.4';
+const CACHE_NAME = 'klik-v1.6.5';
 
 const PRECACHE_URLS = [
   '/',
@@ -17,7 +17,7 @@ const PRECACHE_URLS = [
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/assets/klik-logo-hero.png',
-  '/assets/sponsors/emotion-ebike-logo.jpg',
+  '/assets/sponsors/emotion-ebike-logo.png',
   '/assets/sponsors/emotion-ebike-activity.jpg',
   '/assets/sponsors/pura-vida-kayak-logo.jpg',
   '/assets/sponsors/pura-vida-kayak-activity.jpg',

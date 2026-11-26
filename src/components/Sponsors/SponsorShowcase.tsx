@@ -39,10 +39,8 @@ function SponsorLogoThumb({
   if (sponsor.logoUrl) {
     return (
       <div
-        className={`${sizeClass} shrink-0 overflow-hidden flex items-center justify-center border ${
-          isDarkEmblem
-            ? "rounded-full bg-black border-black/20 p-0.5"
-            : "rounded-xl bg-white border-parchment-200 p-1"
+        className={`${sizeClass} shrink-0 overflow-hidden flex items-center justify-center ${
+          isDarkEmblem ? "rounded-full" : ""
         }`}
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -290,10 +288,10 @@ export const SponsorShowcase: React.FC<SponsorShowcaseProps> = ({
                   {/* Official Partner Logo Badge */}
                   {sponsor.logoUrl && (
                     <div
-                      className={`absolute bottom-3 left-3 shadow-card overflow-hidden flex items-center justify-center border ${
+                      className={`absolute bottom-3 left-3 overflow-hidden flex items-center justify-center ${
                         isDarkEmblem
-                          ? "w-14 h-14 rounded-full bg-black border-white/60 p-0.5"
-                          : "h-14 px-2.5 py-1.5 rounded-xl bg-white/95 backdrop-blur-xs border-white/80"
+                          ? "w-14 h-14 rounded-full drop-shadow-md"
+                          : "h-14 px-2 py-1 rounded-xl bg-white/95 backdrop-blur-xs shadow-sm"
                       }`}
                     >
                       {/* eslint-disable-next-line @next/next/no-img-element */}

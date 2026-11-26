@@ -104,9 +104,9 @@ export const QUEST_SPONSORS: QuestSponsor[] = [
     whatsappMessage:
       "Hi E-Motion E-Bike Adventures! I saw your feature on the KLiK Festival app and would love to book or get more information about guided e-bike experiences or rentals in Kleinmond.",
     imageUrl: "/assets/sponsors/emotion-ebike-activity.jpg",
-    logoUrl: "/assets/sponsors/emotion-ebike-logo.jpg",
+    logoUrl: "/assets/sponsors/emotion-ebike-logo.png",
     expectedImageFilename: "public/assets/sponsors/emotion-ebike-activity.jpg",
-    expectedLogoFilename: "public/assets/sponsors/emotion-ebike-logo.jpg",
+    expectedLogoFilename: "public/assets/sponsors/emotion-ebike-logo.png",
   },
 ];
 
