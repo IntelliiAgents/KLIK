@@ -229,7 +229,7 @@ export const SponsorShowcase: React.FC<SponsorShowcaseProps> = ({
           PRIZES SPONSORED BY OUR LOCAL ADVENTURE PARTNERS
         </h2>
         <p className="text-xs sm:text-sm text-ink-muted max-w-lg mx-auto leading-relaxed">
-          Support the local Kleinmond adventure businesses making the KLiK Quest prizes possible — tap below to book or enquire directly via WhatsApp.
+          Support the local Kleinmond adventure businesses making the KLiK Quest prizes possible. Tap below to book or enquire directly via WhatsApp.
         </p>
       </div>
 

@@ -49,7 +49,7 @@ export const QUEST_PRIZES: QuestPrize[] = [
     formattedValue: "R1,700",
     sponsorName: "E-Motion E-Bike Adventures",
     briefDescription:
-      "Cruise effortlessly along Kleinmond's dramatic coastline and mountain trails with a local guide on two electric bikes — soaking up sweeping sea views and hidden Overstrand gems at your own pace.",
+      "Enjoy a 2.5 to 3 hour guided electric bike experience for two along Kleinmond's coastline and mountain trails, with snacks and refreshments included. Take in sweeping ocean views and hidden Overstrand gems with a local guide at your own pace.",
   },
   {
     id: "prize-lagoon-kayaking",
@@ -59,7 +59,7 @@ export const QUEST_PRIZES: QuestPrize[] = [
     formattedValue: "R600",
     sponsorName: "Pura Vida Kayaking Adventures",
     briefDescription:
-      "Paddle together across the tranquil, mountain-framed waters of the Kleinmond Lagoon on a fun, beginner-friendly kayaking outing surrounded by Kogelberg coastal beauty.",
+      "Enjoy a 1 hour kayak outing for two down the calm waters of the Kleinmond Lagoon. A fun, beginner-friendly paddle framed by mountain views and Kogelberg coastal beauty.",
   },
 ];
 

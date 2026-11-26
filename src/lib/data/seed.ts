@@ -1595,7 +1595,7 @@ export const SEED_CHALLENGE: Challenge = {
   title: "The KLiK Quest",
   subtitle: "Explore 5 of 8 participating festival locations and stand a chance to win R2,300 in adventure prizes",
   description:
-    "Take part in the KLiK Quest, explore our participating festival locations and stand a chance to win exciting Kleinmond adventure prizes worth R2,300 — including a Guided Coastal E-Bike Experience for Two (R1,700) and a Kayaking Experience for Two on the Kleinmond Lagoon (R600)!",
+    "Take part in the KLiK Quest, explore our participating festival locations and stand a chance to win exciting Kleinmond adventure prizes worth R2,300, including a 2.5 to 3 hour Guided Coastal E-Bike Experience for Two (R1,700, snacks and refreshments included) and a 1 hour Kayaking Experience for Two on the Kleinmond Lagoon (R600).",
   rulesDescription:
     "1. Visit any 5 of the 8 participating KLiK Festival locations in Kleinmond.\n2. Check in by scanning the official QR poster at the venue (or use GPS Location Check-In or WhatsApp Selfie Verification if needed).\n3. Each distinct, verified participating location counts once toward your progress.\n4. Once 5 different locations are verified, unlock your unique competition entry code and submit it via WhatsApp!",
   requiredCheckInCount: 5,
