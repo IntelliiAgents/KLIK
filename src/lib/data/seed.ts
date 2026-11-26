@@ -360,6 +360,16 @@ export const SEED_PARTNERS: FestivalPartner[] = [
     role: "Youth Performance & Dance Partner",
     logoUrl: "/assets/partners/cape-winelands-hip-hop.jpg",
   },
+  {
+    name: "E-Motion E-Bike Adventures",
+    role: "KLiK Quest Adventure Partner",
+    logoUrl: "/assets/sponsors/emotion-ebike-logo.png",
+  },
+  {
+    name: "Pura Vida Kayaking Adventures",
+    role: "KLiK Quest Adventure Partner",
+    logoUrl: "/assets/sponsors/pura-vida-kayak-logo.jpg",
+  },
 ];
 
 // Held for organiser confirmation (present in Artist Profiles Draft 4, no confirmed programme session yet):
