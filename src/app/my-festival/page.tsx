@@ -126,12 +126,14 @@ export default function MyFestivalPage() {
     ].join("\r\n");
 
     const blob = new Blob([icsData], { type: "text/calendar;charset=utf-8" });
+    const blobUrl = window.URL.createObjectURL(blob);
     const link = document.createElement("a");
-    link.href = window.URL.createObjectURL(blob);
+    link.href = blobUrl;
     link.setAttribute("download", `klik-${event.id}.ics`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+    window.URL.revokeObjectURL(blobUrl);
   };
 
   const selectedVenueForModal = selectedEvent

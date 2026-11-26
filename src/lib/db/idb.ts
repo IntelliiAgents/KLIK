@@ -1,5 +1,5 @@
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
-import { CheckIn, SavedEvent, ChallengeProgress } from "../types";
+import { CheckIn, SavedEvent, CheckInSyncStatus } from "../types";
 
 interface KliKDB extends DBSchema {
   saved_events: {
@@ -29,6 +29,12 @@ interface KliKDB extends DBSchema {
 
 const DB_NAME = "klik-2026-store";
 const DB_VERSION = 1;
+
+const PARTICIPANT_ID_KEY = "klik_participant_id";
+const PARTICIPANT_NAME_KEY = "klik_participant_name";
+const CHECK_INS_LS_KEY = "klik_check_ins";
+const TICKET_LS_KEY = "klik_lucky_draw_ticket";
+const COMPLETED_AT_LS_KEY = "klik_lucky_draw_completed_at";
 
 let dbPromise: Promise<IDBPDatabase<KliKDB>> | null = null;
 
@@ -61,17 +67,198 @@ function getDb(): Promise<IDBPDatabase<KliKDB>> | null {
   return dbPromise;
 }
 
+export function isVerifiedCheckInStatus(status: CheckInSyncStatus): boolean {
+  return (
+    status === "verified" ||
+    status === "captured_offline" ||
+    status === "pending_sync"
+  );
+}
+
+// ----------------- KeyVal Helpers -----------------
+
+export async function getKeyVal<T = unknown>(key: string): Promise<T | null> {
+  const db = getDb();
+  if (db) {
+    try {
+      const database = await db;
+      const value = await database.get("keyval", key);
+      if (value !== undefined) return value as T;
+    } catch {
+      // fall back to localStorage
+    }
+  }
+  if (typeof window !== "undefined") {
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw !== null) {
+        try {
+          return JSON.parse(raw) as T;
+        } catch {
+          return raw as unknown as T;
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+  return null;
+}
+
+export async function setKeyVal(key: string, value: unknown): Promise<void> {
+  const db = getDb();
+  if (db) {
+    try {
+      const database = await db;
+      await database.put("keyval", value, key);
+    } catch {
+      // ignore
+    }
+  }
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(
+        key,
+        typeof value === "string" ? value : JSON.stringify(value)
+      );
+    } catch {
+      // ignore
+    }
+  }
+}
+
 // ----------------- Anonymous Participant -----------------
+
+function generateRandomAlphanumeric(length: number): string {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // Ambiguity-free characters (no 0/O/1/I)
+  if (typeof crypto !== "undefined" && crypto.getRandomValues) {
+    const bytes = new Uint8Array(length);
+    crypto.getRandomValues(bytes);
+    let out = "";
+    for (let i = 0; i < length; i++) {
+      out += alphabet[bytes[i] % alphabet.length];
+    }
+    return out;
+  }
+  let out = "";
+  for (let i = 0; i < length; i++) {
+    out += alphabet[Math.floor(Math.random() * alphabet.length)];
+  }
+  return out;
+}
 
 export function getOrCreateParticipantId(): string {
   if (typeof window === "undefined") return "klik_anon_server";
-  const KEY = "klik_participant_id";
-  let id = localStorage.getItem(KEY);
-  if (!id) {
-    id = `klik_anon_${Math.random().toString(36).substring(2, 9)}_${Date.now().toString(36)}`;
-    localStorage.setItem(KEY, id);
+  try {
+    let id = localStorage.getItem(PARTICIPANT_ID_KEY);
+    if (!id) {
+      id = `klik_anon_${generateRandomAlphanumeric(6).toLowerCase()}_${Date.now().toString(36)}`;
+      localStorage.setItem(PARTICIPANT_ID_KEY, id);
+    }
+    return id;
+  } catch {
+    return `klik_anon_${generateRandomAlphanumeric(6).toLowerCase()}`;
   }
-  return id;
+}
+
+export function getParticipantName(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    return localStorage.getItem(PARTICIPANT_NAME_KEY) || "";
+  } catch {
+    return "";
+  }
+}
+
+export function setParticipantName(name: string): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(PARTICIPANT_NAME_KEY, name);
+  } catch {
+    // ignore
+  }
+}
+
+/**
+ * Generates or retrieves the participant's single, persistent unique competition entry code.
+ * Preserves any previously saved code (never overwrites or duplicates).
+ */
+export async function getOrCreateCompetitionCode(): Promise<{
+  code: string;
+  completedAt: string;
+}> {
+  let existingCode: string | null = null;
+  let existingCompletedAt: string | null = null;
+
+  if (typeof window !== "undefined") {
+    try {
+      existingCode = localStorage.getItem(TICKET_LS_KEY);
+      existingCompletedAt = localStorage.getItem(COMPLETED_AT_LS_KEY);
+    } catch {
+      // ignore
+    }
+  }
+
+  if (!existingCode) {
+    const idbCode = await getKeyVal<string>(TICKET_LS_KEY);
+    if (typeof idbCode === "string" && idbCode.trim().length > 0) {
+      existingCode = idbCode;
+    }
+  }
+  if (!existingCompletedAt) {
+    const idbDate = await getKeyVal<string>(COMPLETED_AT_LS_KEY);
+    if (typeof idbDate === "string" && idbDate.trim().length > 0) {
+      existingCompletedAt = idbDate;
+    }
+  }
+
+  const code = existingCode || `KLIK-2026-${generateRandomAlphanumeric(6)}`;
+  const completedAt = existingCompletedAt || new Date().toISOString();
+
+  await setKeyVal(TICKET_LS_KEY, code);
+  await setKeyVal(COMPLETED_AT_LS_KEY, completedAt);
+
+  return { code, completedAt };
+}
+
+export async function getSavedCompetitionCode(): Promise<{
+  code: string | null;
+  completedAt: string | null;
+}> {
+  let code: string | null = null;
+  let completedAt: string | null = null;
+
+  if (typeof window !== "undefined") {
+    try {
+      code = localStorage.getItem(TICKET_LS_KEY);
+      completedAt = localStorage.getItem(COMPLETED_AT_LS_KEY);
+    } catch {
+      // ignore
+    }
+  }
+
+  if (!code) {
+    const idbCode = await getKeyVal<string>(TICKET_LS_KEY);
+    if (typeof idbCode === "string" && idbCode.trim()) {
+      code = idbCode;
+      if (typeof window !== "undefined") {
+        try {
+          localStorage.setItem(TICKET_LS_KEY, code);
+        } catch {
+          // ignore
+        }
+      }
+    }
+  }
+
+  if (!completedAt) {
+    const idbDate = await getKeyVal<string>(COMPLETED_AT_LS_KEY);
+    if (typeof idbDate === "string" && idbDate.trim()) {
+      completedAt = idbDate;
+    }
+  }
+
+  return { code, completedAt };
 }
 
 // ----------------- Saved Events (My Festival) -----------------
@@ -79,7 +266,6 @@ export function getOrCreateParticipantId(): string {
 export async function getSavedEvents(): Promise<SavedEvent[]> {
   const db = getDb();
   if (!db) {
-    // LocalStorage fallback for SSR / edge cases
     if (typeof window === "undefined") return [];
     try {
       const raw = localStorage.getItem("klik_saved_events");
@@ -94,6 +280,14 @@ export async function getSavedEvents(): Promise<SavedEvent[]> {
     return items.sort((a, b) => a.savedAt.localeCompare(b.savedAt));
   } catch (err) {
     console.error("IDB getSavedEvents error:", err);
+    if (typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem("klik_saved_events");
+        return raw ? JSON.parse(raw) : [];
+      } catch {
+        return [];
+      }
+    }
     return [];
   }
 }
@@ -102,9 +296,13 @@ export async function isEventSaved(eventId: string): Promise<boolean> {
   const db = getDb();
   if (!db) {
     if (typeof window === "undefined") return false;
-    const raw = localStorage.getItem("klik_saved_events");
-    const arr: SavedEvent[] = raw ? JSON.parse(raw) : [];
-    return arr.some((item) => item.eventId === eventId);
+    try {
+      const raw = localStorage.getItem("klik_saved_events");
+      const arr: SavedEvent[] = raw ? JSON.parse(raw) : [];
+      return arr.some((item) => item.eventId === eventId);
+    } catch {
+      return false;
+    }
   }
   try {
     const database = await db;
@@ -129,7 +327,6 @@ export async function saveEvent(eventId: string): Promise<void> {
       console.warn("Could not save to IDB:", e);
     }
   }
-  // Sync to localStorage
   if (typeof window !== "undefined") {
     try {
       const raw = localStorage.getItem("klik_saved_events");
@@ -172,30 +369,85 @@ export async function removeSavedEvent(eventId: string): Promise<void> {
 
 // ----------------- Check-Ins & Offline Queue -----------------
 
-export async function getCheckIns(): Promise<CheckIn[]> {
-  const db = getDb();
-  if (!db) {
-    if (typeof window === "undefined") return [];
-    try {
-      const raw = localStorage.getItem("klik_check_ins");
-      return raw ? JSON.parse(raw) : [];
-    } catch {
-      return [];
-    }
-  }
+function readLocalStorageCheckIns(): CheckIn[] {
+  if (typeof window === "undefined") return [];
   try {
-    const database = await db;
-    const items = await database.getAll("check_ins");
-    return items.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
-  } catch (err) {
-    console.error("IDB getCheckIns error:", err);
+    const raw = localStorage.getItem(CHECK_INS_LS_KEY);
+    return raw ? (JSON.parse(raw) as CheckIn[]) : [];
+  } catch {
     return [];
   }
 }
 
-export async function hasCheckedInLocation(locationId: string): Promise<boolean> {
+function writeLocalStorageCheckIns(items: CheckIn[]): void {
+  if (typeof window === "undefined") return;
+  try {
+    localStorage.setItem(CHECK_INS_LS_KEY, JSON.stringify(items));
+  } catch {
+    // ignore
+  }
+}
+
+export async function getCheckIns(): Promise<CheckIn[]> {
+  const lsItems = readLocalStorageCheckIns();
+  const db = getDb();
+  if (!db) {
+    return lsItems.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+  }
+  try {
+    const database = await db;
+    const idbItems = await database.getAll("check_ins");
+
+    // Merge IDB + localStorage by id so progress is never lost even if one store was cleared
+    const merged = new Map<string, CheckIn>();
+    for (const item of lsItems) {
+      merged.set(item.id, item);
+    }
+    for (const item of idbItems) {
+      merged.set(item.id, item);
+    }
+
+    return Array.from(merged.values()).sort((a, b) =>
+      b.timestamp.localeCompare(a.timestamp)
+    );
+  } catch (err) {
+    console.error("IDB getCheckIns error:", err);
+    return lsItems.sort((a, b) => b.timestamp.localeCompare(a.timestamp));
+  }
+}
+
+export async function getVerifiedCheckInForLocation(
+  locationId: string
+): Promise<CheckIn | null> {
   const checkIns = await getCheckIns();
-  return checkIns.some((c) => c.locationId === locationId);
+  return (
+    checkIns.find(
+      (c) => c.locationId === locationId && isVerifiedCheckInStatus(c.syncStatus)
+    ) || null
+  );
+}
+
+export async function getPendingCheckInForLocation(
+  locationId: string
+): Promise<CheckIn | null> {
+  const checkIns = await getCheckIns();
+  return (
+    checkIns.find(
+      (c) =>
+        c.locationId === locationId &&
+        (c.syncStatus === "pending_manual_review" ||
+          c.syncStatus === "requires_staff_review")
+    ) || null
+  );
+}
+
+/**
+ * Returns true only if the participant has a VERIFIED (or offline-captured valid) check-in
+ * for the given location. Pending manual reviews or rejected attempts return false.
+ */
+export async function hasCheckedInLocation(locationId: string): Promise<boolean> {
+  const verified = await getVerifiedCheckInForLocation(locationId);
+  return verified !== null;
 }
 
 export async function recordCheckIn(checkIn: CheckIn): Promise<void> {
@@ -204,7 +456,10 @@ export async function recordCheckIn(checkIn: CheckIn): Promise<void> {
     try {
       const database = await db;
       await database.put("check_ins", checkIn);
-      if (checkIn.syncStatus === "captured_offline" || checkIn.syncStatus === "pending_sync") {
+      if (
+        checkIn.syncStatus === "captured_offline" ||
+        checkIn.syncStatus === "pending_sync"
+      ) {
         await database.put("offline_queue", {
           id: checkIn.id,
           checkIn,
@@ -216,18 +471,39 @@ export async function recordCheckIn(checkIn: CheckIn): Promise<void> {
       console.warn("IDB recordCheckIn error:", e);
     }
   }
-  // Also persist in localStorage
+
   if (typeof window !== "undefined") {
     try {
-      const raw = localStorage.getItem("klik_check_ins");
-      const list: CheckIn[] = raw ? JSON.parse(raw) : [];
-      if (!list.some((x) => x.id === checkIn.id)) {
+      const list = readLocalStorageCheckIns();
+      const idx = list.findIndex((x) => x.id === checkIn.id);
+      if (idx >= 0) {
+        list[idx] = checkIn;
+      } else {
         list.push(checkIn);
-        localStorage.setItem("klik_check_ins", JSON.stringify(list));
       }
+      writeLocalStorageCheckIns(list);
+      window.dispatchEvent(new Event("klik_checkins_changed"));
     } catch {
       // ignore
     }
+  }
+}
+
+export async function deleteCheckInById(checkInId: string): Promise<void> {
+  const db = getDb();
+  if (db) {
+    try {
+      const database = await db;
+      await database.delete("check_ins", checkInId);
+      await database.delete("offline_queue", checkInId);
+    } catch {
+      // ignore
+    }
+  }
+  if (typeof window !== "undefined") {
+    const list = readLocalStorageCheckIns().filter((c) => c.id !== checkInId);
+    writeLocalStorageCheckIns(list);
+    window.dispatchEvent(new Event("klik_checkins_changed"));
   }
 }
 
@@ -251,9 +527,10 @@ export async function flushOfflineQueue(): Promise<{ synced: number; failed: num
   try {
     const database = await db;
     const queuedItems = await database.getAll("offline_queue");
+    const lsList = readLocalStorageCheckIns();
+
     for (const item of queuedItems) {
       try {
-        // When online, mark as verified (or call Supabase check-in API)
         const updatedCheckIn: CheckIn = {
           ...item.checkIn,
           syncStatus: "verified",
@@ -261,9 +538,23 @@ export async function flushOfflineQueue(): Promise<{ synced: number; failed: num
         };
         await database.put("check_ins", updatedCheckIn);
         await database.delete("offline_queue", item.id);
+
+        const idx = lsList.findIndex((c) => c.id === updatedCheckIn.id);
+        if (idx >= 0) {
+          lsList[idx] = updatedCheckIn;
+        } else {
+          lsList.push(updatedCheckIn);
+        }
         synced++;
       } catch {
         failed++;
+      }
+    }
+
+    if (synced > 0) {
+      writeLocalStorageCheckIns(lsList);
+      if (typeof window !== "undefined") {
+        window.dispatchEvent(new Event("klik_checkins_changed"));
       }
     }
   } catch (err) {

@@ -66,7 +66,9 @@ export const BottomNav: React.FC = () => {
                   pathname.startsWith("/artists") ||
                   pathname.startsWith("/youth") ||
                   pathname.startsWith("/ride") ||
-                  pathname.startsWith("/culture-trail")
+                  pathname.startsWith("/culture-trail") ||
+                  pathname.startsWith("/quest") ||
+                  pathname.startsWith("/check-in")
                 : pathname.startsWith(item.href);
 
           const IconComponent = item.icon;

@@ -3,12 +3,13 @@
 import React, { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { registerOrganizer } from "@/lib/auth/auth";
-import { ArrowLeft, Mail, Lock, User, CheckCircle2, AlertCircle } from "lucide-react";
+import { registerOrganizer, validateOrganizerInviteCode } from "@/lib/auth/auth";
+import { ArrowLeft, Mail, Lock, User, CheckCircle2, AlertCircle, KeyRound } from "lucide-react";
 
 export default function RegisterPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -18,6 +19,13 @@ export default function RegisterPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage("");
+
+    if (!validateOrganizerInviteCode(inviteCode)) {
+      setErrorMessage(
+        "Invalid organizer invite code. Contact the KLiK Festival lead coordinator to request staff access."
+      );
+      return;
+    }
 
     if (password !== confirmPassword) {
       setErrorMessage("Passwords do not match. Please verify.");
@@ -155,6 +163,23 @@ export default function RegisterPage() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="organizer@klik2026.co.za"
+                    className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-parchment-100 border border-parchment-300 text-xs text-ink-festival focus:outline-none focus:ring-2 focus:ring-teal-festival"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-bold uppercase tracking-wider text-ink-muted mb-1">
+                  Organizer Invite Code
+                </label>
+                <div className="relative">
+                  <KeyRound className="w-4 h-4 text-ink-muted absolute left-3 top-3" />
+                  <input
+                    type="password"
+                    required
+                    value={inviteCode}
+                    onChange={(e) => setInviteCode(e.target.value)}
+                    placeholder="Enter staff invite code"
                     className="w-full pl-9 pr-3 py-2.5 rounded-xl bg-parchment-100 border border-parchment-300 text-xs text-ink-festival focus:outline-none focus:ring-2 focus:ring-teal-festival"
                   />
                 </div>

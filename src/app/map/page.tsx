@@ -3,7 +3,7 @@
 import React, { useEffect, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import { repository } from "@/lib/db/repository";
-import { getCheckIns } from "@/lib/db/idb";
+import { getCheckIns, isVerifiedCheckInStatus } from "@/lib/db/idb";
 import { VenueLocation } from "@/lib/types";
 import { InteractiveMap } from "@/components/Map/InteractiveMap";
 import { BackToTopButton } from "@/components/UI/BackToTopButton";
@@ -27,7 +27,11 @@ function MapPageContent() {
           getCheckIns(),
         ]);
         setVenues(allVenues);
-        setCheckedInVenueIds(checkIns.map((c) => c.locationId));
+        setCheckedInVenueIds(
+          checkIns
+            .filter((c) => isVerifiedCheckInStatus(c.syncStatus))
+            .map((c) => c.locationId)
+        );
       } catch (e) {
         console.error("Map page load error:", e);
       } finally {

@@ -1,5 +1,5 @@
 // KliK 2026 Kunstefees Service Worker
-const CACHE_NAME = 'klik-v1.5.5';
+const CACHE_NAME = 'klik-v1.6.2';
 
 const PRECACHE_URLS = [
   '/',
@@ -17,6 +17,10 @@ const PRECACHE_URLS = [
   '/icons/icon-192.png',
   '/icons/icon-512.png',
   '/assets/klik-logo-hero.png',
+  '/assets/sponsors/emotion-ebike-logo.jpg',
+  '/assets/sponsors/emotion-ebike-activity.jpg',
+  '/assets/sponsors/pura-vida-kayak-logo.jpg',
+  '/assets/sponsors/pura-vida-kayak-activity.jpg',
 ];
 
 // Install: Pre-cache app shell and offline fallback
@@ -53,9 +57,10 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Never cache admin routes, map tiles, or external APIs
+  // Never cache admin routes, API routes, map tiles, or external APIs
   if (
     url.pathname.startsWith('/admin') ||
+    url.pathname.startsWith('/api/') ||
     url.hostname.includes('mapbox.com') ||
     url.hostname.includes('arcgisonline.com') ||
     url.hostname.includes('cartocdn.com')

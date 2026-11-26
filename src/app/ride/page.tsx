@@ -1,7 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { ArrowLeft, Car, Navigation, MessageCircle, AlertCircle, MapPin } from "lucide-react";
 import { repository } from "@/lib/db/repository";
 import { VenueLocation } from "@/lib/types";
@@ -19,9 +20,10 @@ const DESTINATION_OPTIONS = [
   { id: "other", label: "Other" },
 ];
 
-export default function RidePage() {
+function RidePageContent() {
+  const searchParams = useSearchParams();
   const [venues, setVenues] = useState<VenueLocation[]>([]);
-  const [selectedDestination, setSelectedDestination] = useState<string>("The Grail Centre");
+  const [selectedDestination, setSelectedDestination] = useState<string>("The Grail");
   const [customDestination, setCustomDestination] = useState<string>("");
   const [manualPickup, setManualPickup] = useState<string>("");
   const [isLocating, setIsLocating] = useState<boolean>(false);
@@ -31,7 +33,24 @@ export default function RidePage() {
   useEffect(() => {
     trackEvent("app_open", { screen: "ride" });
     repository.getVenues().then(setVenues).catch(console.error);
-  }, []);
+
+    const destParam = searchParams.get("destination");
+    if (destParam) {
+      const normalized = destParam.toLowerCase();
+      const matched = DESTINATION_OPTIONS.find(
+        (opt) =>
+          opt.id !== "other" &&
+          (normalized.includes(opt.label.toLowerCase()) ||
+            opt.label.toLowerCase().includes(normalized))
+      );
+      if (matched) {
+        setSelectedDestination(matched.label);
+      } else {
+        setSelectedDestination("Other");
+        setCustomDestination(destParam);
+      }
+    }
+  }, [searchParams]);
 
   const getEffectiveDestination = () => {
     if (selectedDestination === "Other") {
@@ -252,5 +271,20 @@ export default function RidePage() {
         </p>
       </div>
     </div>
+  );
+}
+
+export default function RidePage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="py-16 text-center space-y-3">
+          <div className="w-8 h-8 rounded-full border-3 border-teal-festival border-t-transparent animate-spin mx-auto" />
+          <p className="text-xs text-ink-muted">Loading shuttle request...</p>
+        </div>
+      }
+    >
+      <RidePageContent />
+    </Suspense>
   );
 }

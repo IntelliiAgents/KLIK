@@ -21,7 +21,7 @@ export interface FestivalEdition {
   status: FestivalEditionStatus;
 }
 
-export type VenueCategory = 
+export type VenueCategory =
   | 'performance'
   | 'theatre'
   | 'workshop'
@@ -42,13 +42,14 @@ export interface VenueLocation {
   address: string;
   latitude: number;
   longitude: number;
+  geofenceRadiusMeters?: number;
   accessibilityNotes: string;
   hasToilets: boolean;
   hasParking: boolean;
   hasFoodNearby: boolean;
   isWheelchairAccessible: boolean;
   capacity?: number;
-  qrCodeToken: string; // Token embedded in physical QR check-in stands
+  qrCodeToken: string; // Token embedded in physical QR check-in stands — DO NOT MODIFY
 }
 
 export type EventCategory =
@@ -130,9 +131,16 @@ export interface SavedEvent {
   savedAt: string;
 }
 
-export type CheckInSyncStatus = 
+export type CheckInVerificationMethod =
+  | 'qr'
+  | 'gps'
+  | 'manual_whatsapp_selfie'
+  | 'manual_staff_override';
+
+export type CheckInSyncStatus =
   | 'captured_offline'
   | 'pending_sync'
+  | 'pending_manual_review'
   | 'verified'
   | 'rejected'
   | 'requires_staff_review';
@@ -144,9 +152,28 @@ export interface CheckIn {
   locationName: string;
   timestamp: string;
   syncStatus: CheckInSyncStatus;
+  verificationMethod?: CheckInVerificationMethod;
   tokenUsed: string;
   verifiedAt?: string;
+  approvedBy?: string;
+  approvedAt?: string;
+  rejectionReason?: string;
   notes?: string;
+}
+
+export interface ManualCheckInAuditEntry {
+  id: string;
+  participantId: string;
+  participantName?: string;
+  locationId: string;
+  locationName: string;
+  action: 'approved' | 'rejected';
+  verificationMethod: CheckInVerificationMethod;
+  adminEmail: string;
+  adminName: string;
+  notes?: string;
+  approvalLink?: string;
+  timestamp: string;
 }
 
 export interface ChallengeStep {
@@ -176,6 +203,8 @@ export interface ChallengeProgress {
   challengeId: string;
   participantId: string;
   completedCheckInIds: string[];
+  verifiedLocationIds: string[];
+  pendingLocationIds: string[];
   distinctCategoriesMet: string[];
   totalCheckInsCount: number;
   isCompleted: boolean;
@@ -227,4 +256,21 @@ export interface SentEmail {
   actionText: string;
   type: 'activation' | 'password_reset';
   sentAt: string;
+}
+
+export interface QuestSponsor {
+  id: 'pura-vida-kayaking' | 'emotion-ebike';
+  name: string;
+  shortName: string;
+  tagline: string;
+  description: string[];
+  location: string;
+  ctaLabel: string;
+  whatsappMessage: string;
+  /** Optional drop-in photo URL once supplied by organiser (e.g. /assets/sponsors/pura-vida-kayaking.jpg) */
+  imageUrl?: string;
+  /** Optional drop-in logo URL once supplied by organiser (e.g. /assets/sponsors/pura-vida-logo.png) */
+  logoUrl?: string;
+  expectedImageFilename: string;
+  expectedLogoFilename: string;
 }

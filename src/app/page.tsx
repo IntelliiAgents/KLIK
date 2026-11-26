@@ -8,12 +8,13 @@ import { PosterGallery } from "@/components/Brand/PosterGallery";
 import { EventDetailsModal } from "@/components/Events/EventDetailsModal";
 import { TicketsModal } from "@/components/UI/TicketsModal";
 import { BackToTopButton } from "@/components/UI/BackToTopButton";
+import { HomeQuestBanner } from "@/components/Quest/HomeQuestBanner";
+import { SponsorShowcase } from "@/components/Sponsors/SponsorShowcase";
 import { repository } from "@/lib/db/repository";
 import {
   saveEvent,
   removeSavedEvent,
   getSavedEvents,
-  getCheckIns,
 } from "@/lib/db/idb";
 import { FestivalEvent, VenueLocation } from "@/lib/types";
 import { trackEvent } from "@/lib/analytics";
@@ -50,7 +51,8 @@ export default function HomePage() {
   const [events, setEvents] = useState<FestivalEvent[]>([]);
   const [venues, setVenues] = useState<VenueLocation[]>([]);
   const [savedEventIds, setSavedEventIds] = useState<string[]>([]);
-  const [checkInCount, setCheckInCount] = useState<number>(0);
+  const [questVerifiedCount, setQuestVerifiedCount] = useState<number>(0);
+  const [questIsCompleted, setQuestIsCompleted] = useState<boolean>(false);
   const [selectedEvent, setSelectedEvent] = useState<FestivalEvent | null>(null);
   const [selectedVenue, setSelectedVenue] = useState<VenueLocation | null>(null);
   const [isTicketsOpen, setIsTicketsOpen] = useState(false);
@@ -61,21 +63,38 @@ export default function HomePage() {
 
     const loadData = async () => {
       try {
-        const [allEvents, allVenues, savedList, checkIns] = await Promise.all([
+        const [allEvents, allVenues, savedList, questProgress] = await Promise.all([
           repository.getEvents(),
           repository.getVenues(),
           getSavedEvents(),
-          getCheckIns(),
+          repository.calculateQuestProgress(),
         ]);
         setEvents(allEvents);
         setVenues(allVenues);
         setSavedEventIds(savedList.map((s) => s.eventId));
-        setCheckInCount(checkIns.length);
+        setQuestVerifiedCount(questProgress.totalCheckInsCount);
+        setQuestIsCompleted(questProgress.isCompleted);
       } catch (err) {
         console.error("Home load error:", err);
       }
     };
     loadData();
+
+    const refreshQuest = async () => {
+      try {
+        const questProgress = await repository.calculateQuestProgress();
+        setQuestVerifiedCount(questProgress.totalCheckInsCount);
+        setQuestIsCompleted(questProgress.isCompleted);
+      } catch {
+        // ignore
+      }
+    };
+    window.addEventListener("klik_checkins_changed", refreshQuest);
+    window.addEventListener("focus", refreshQuest);
+    return () => {
+      window.removeEventListener("klik_checkins_changed", refreshQuest);
+      window.removeEventListener("focus", refreshQuest);
+    };
   }, []);
 
   const handleToggleSave = async (eventId: string) => {
@@ -661,31 +680,17 @@ export default function HomePage() {
         />
       </section>
 
-      {/* 7. CULTURE TRAIL PROMOTION */}
-      <section className="editorial-surface p-4 sm:p-5 rounded-2xl flex items-center justify-between gap-3">
-        <div className="flex items-center gap-3.5 min-w-0">
-          <div className="w-11 h-11 rounded-xl bg-olive-festival/15 text-olive-dark flex items-center justify-center shrink-0">
-            <Compass className="w-5 h-5 text-olive-festival" />
-          </div>
-          <div className="min-w-0">
-            <h3 className="font-serif font-bold text-sm sm:text-base text-teal-festival leading-tight">
-              The KliK Culture Trail
-            </h3>
-            <p className="text-xs text-ink-muted truncate">
-              {checkInCount > 0
-                ? `${checkInCount} of 5 venues visited`
-                : "Scan QR checkpoints across Kleinmond venues"}
-            </p>
-          </div>
+      {/* 7. THE KLiK QUEST PROMOTIONAL BANNER (Original Position Below Posters) & ADVENTURE PRIZE SPONSORS */}
+      <div className="space-y-6">
+        <HomeQuestBanner
+          verifiedCount={questVerifiedCount}
+          isCompleted={questIsCompleted}
+        />
+
+        <div className="pt-4 border-t border-parchment-300/80">
+          <SponsorShowcase variant="full" placement="home_section" />
         </div>
-        <Link
-          href="/culture-trail"
-          onClick={() => trackEvent("culture_trail_open")}
-          className="min-h-[40px] px-3.5 py-2 rounded-xl bg-parchment-100 hover:bg-parchment-200 text-teal-festival text-xs font-semibold shrink-0 border border-parchment-300 inline-flex items-center transition-colors"
-        >
-          View Trail
-        </Link>
-      </section>
+      </div>
 
       {/* 8. FESTIVAL PARTNERS & SUPPORTERS */}
       <section className="space-y-4 pt-5 border-t border-parchment-300/80">

@@ -17,7 +17,14 @@ import {
   FestivalNotice,
   Challenge,
   AuthSession,
+  ManualCheckInAuditEntry,
+  CheckInVerificationMethod,
 } from "@/lib/types";
+import { FESTIVAL_CONFIG, QUEST_CONFIG, QUEST_SPONSORS } from "@/lib/config";
+import {
+  getAnalyticsSummary,
+  type PrivacyAnalyticsSummary,
+} from "@/lib/analytics";
 import {
   Shield,
   Lock,
@@ -40,6 +47,11 @@ import {
   Download,
   Eye,
   ExternalLink,
+  Copy,
+  XCircle,
+  BarChart3,
+  MessageCircle,
+  Search,
 } from "lucide-react";
 
 export default function AdminPage() {
@@ -68,6 +80,24 @@ export default function AdminPage() {
   const [noticeLevel, setNoticeLevel] = useState<"info" | "important" | "urgent">("important");
   const [noticeSuccess, setNoticeSuccess] = useState(false);
 
+  // Manual Check-In Approval & Audit Trail state (authenticated organizers only)
+  const [manualParticipantId, setManualParticipantId] = useState("");
+  const [manualParticipantName, setManualParticipantName] = useState("");
+  const [manualVenueId, setManualVenueId] = useState("loc-the-shed");
+  const [manualMethod, setManualMethod] =
+    useState<CheckInVerificationMethod>("manual_whatsapp_selfie");
+  const [manualNotes, setManualNotes] = useState("");
+  const [manualFeedback, setManualFeedback] = useState<{
+    type: "success" | "error";
+    text: string;
+    approvalLink?: string;
+  } | null>(null);
+  const [auditTrail, setAuditTrail] = useState<ManualCheckInAuditEntry[]>([]);
+  const [auditSearch, setAuditSearch] = useState("");
+  const [copiedLinkId, setCopiedLinkId] = useState<string | null>(null);
+  const [analyticsSummary, setAnalyticsSummary] =
+    useState<PrivacyAnalyticsSummary | null>(null);
+
   // Initialize and check existing session
   useEffect(() => {
     const init = async () => {
@@ -85,16 +115,19 @@ export default function AdminPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const [evts, vns, notifs, ch] = await Promise.all([
+        const [evts, vns, notifs, ch, trail] = await Promise.all([
           repository.getEvents(),
           repository.getVenues(),
           repository.getNotices(),
           repository.getChallenge(),
+          repository.getManualCheckInAuditTrail(),
         ]);
         setEvents(evts);
         setVenues(vns);
         setNotices(notifs);
         setChallenge(ch);
+        setAuditTrail(trail);
+        setAnalyticsSummary(getAnalyticsSummary());
       } catch (err) {
         console.error("Admin load error:", err);
       }
@@ -144,10 +177,62 @@ export default function AdminPage() {
     setResendStatus(res.message);
   };
 
-  const handleQuickFillDemo = () => {
-    setEmail("admin@klik2026.co.za");
-    setPassword("Klik2026!");
-    setAuthError("");
+  const handleApproveManualCheckIn = async () => {
+    if (!authSession?.user) return;
+    setManualFeedback(null);
+    const res = await repository.approveManualCheckIn({
+      participantId: manualParticipantId,
+      participantName: manualParticipantName,
+      locationId: manualVenueId,
+      verificationMethod: manualMethod,
+      adminEmail: authSession.user.email,
+      adminName: authSession.user.name,
+      notes: manualNotes,
+    });
+    setManualFeedback({
+      type: res.success ? "success" : "error",
+      text: res.message,
+      approvalLink: res.approvalLink,
+    });
+    if (res.success) {
+      setManualNotes("");
+      setAuditTrail(await repository.getManualCheckInAuditTrail());
+      setAnalyticsSummary(getAnalyticsSummary());
+    }
+  };
+
+  const handleRejectManualCheckIn = async () => {
+    if (!authSession?.user) return;
+    setManualFeedback(null);
+    const res = await repository.rejectManualCheckIn({
+      participantId: manualParticipantId,
+      participantName: manualParticipantName,
+      locationId: manualVenueId,
+      verificationMethod: manualMethod,
+      adminEmail: authSession.user.email,
+      adminName: authSession.user.name,
+      notes: manualNotes,
+    });
+    setManualFeedback({
+      type: res.success ? "success" : "error",
+      text: res.message,
+    });
+    if (res.success) {
+      setManualNotes("");
+      setAuditTrail(await repository.getManualCheckInAuditTrail());
+    }
+  };
+
+  const handleCopyText = async (text: string, id: string) => {
+    try {
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(text);
+      }
+      setCopiedLinkId(id);
+      setTimeout(() => setCopiedLinkId(null), 2200);
+    } catch {
+      // ignore
+    }
   };
 
   const handleUpdateStatus = async (
@@ -183,7 +268,7 @@ export default function AdminPage() {
     const origin =
       typeof window !== "undefined" && window.location.origin
         ? window.location.origin
-        : "https://klikfees.co.za";
+        : FESTIVAL_CONFIG.appUrl;
     return `${origin}/check-in/${v.id}?token=${v.qrCodeToken}`;
   };
 
@@ -338,23 +423,15 @@ export default function AdminPage() {
             </button>
           </form>
 
-          {/* Quick Demo Access Bar */}
-          <div className="pt-2 border-t border-parchment-200 text-xs space-y-2">
-            <button
-              type="button"
-              onClick={handleQuickFillDemo}
-              className="w-full py-1.5 px-3 rounded-lg bg-mustard-festival/20 hover:bg-mustard-festival/35 text-ink-festival font-semibold text-[11px] transition-colors flex items-center justify-center gap-1.5"
-            >
-              <span>Auto-fill Demo Lead Admin (admin@klik2026.co.za)</span>
-            </button>
-
+          {/* Staff Registration Link (Invite Code Required) */}
+          <div className="pt-2 border-t border-parchment-200 text-xs space-y-1.5">
             <div className="text-ink-muted text-xs pt-1">
-              Need an organizer account?{" "}
+              Have a staff invite code?{" "}
               <Link
                 href="/admin/register"
                 className="font-bold text-teal-festival hover:underline"
               >
-                Register here
+                Register organizer account
               </Link>
             </div>
           </div>
@@ -682,16 +759,22 @@ export default function AdminPage() {
         </div>
       )}
 
-      {/* Tab: Culture Trail Overview */}
+      {/* Tab: KLiK Quest Manual Approvals, Analytics & Check-In Stations */}
       {activeTab === "quest" && challenge && (
         <div className="space-y-4">
+          {/* Quest Overview Card */}
           <div className="bg-parchment-50 p-4 rounded-2xl border border-parchment-200 space-y-3">
             <div className="flex items-start justify-between gap-2">
               <div>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-terracotta-festival">
+                  Competition Prize Pool: {QUEST_CONFIG.formattedPrizeValue}
+                </span>
                 <h3 className="font-serif font-bold text-base text-teal-festival">
                   {challenge.title}
                 </h3>
-                <p className="text-xs text-ink-muted mt-0.5">{challenge.description}</p>
+                <p className="text-xs text-ink-muted mt-0.5">
+                  WhatsApp Verification &amp; Entry Desk: {QUEST_CONFIG.whatsappIntlDisplay}
+                </p>
               </div>
               <button
                 type="button"
@@ -699,7 +782,7 @@ export default function AdminPage() {
                 className="px-3 py-1.5 rounded-xl bg-teal-festival text-white text-xs font-bold hover:bg-teal-light flex items-center gap-1.5 shrink-0 transition-colors shadow-sm"
               >
                 <Printer className="w-3.5 h-3.5" />
-                <span>Print All Signs</span>
+                <span>Print Signs</span>
               </button>
             </div>
 
@@ -707,21 +790,360 @@ export default function AdminPage() {
               <div className="p-3 rounded-xl bg-parchment-100">
                 <span className="text-ink-muted block text-[10px]">Required Stops:</span>
                 <span className="font-bold text-base text-teal-festival">
-                  {challenge.requiredCheckInCount} Locations
+                  {challenge.requiredCheckInCount} of {venues.length} Locations
                 </span>
               </div>
               <div className="p-3 rounded-xl bg-parchment-100">
-                <span className="text-ink-muted block text-[10px]">Required Categories:</span>
+                <span className="text-ink-muted block text-[10px]">Manual Audit Entries:</span>
                 <span className="font-bold text-base text-terracotta-festival">
-                  {challenge.requiredDistinctCategoriesCount} Distinct Categories
+                  {auditTrail.length} Recorded
                 </span>
               </div>
             </div>
           </div>
 
+          {/* Secure Manual Check-In Approval Form (Method C: Selfie / WhatsApp Verification) */}
+          <div className="bg-parchment-50 p-4 sm:p-5 rounded-2xl border border-parchment-300 space-y-3.5 shadow-subtle">
+            <div className="flex items-start justify-between gap-2">
+              <div>
+                <h4 className="font-serif font-bold text-sm text-teal-festival flex items-center gap-1.5">
+                  <UserCheck className="w-4 h-4 text-terracotta-festival" />
+                  <span>Manual Check-In Approval (WhatsApp Selfie Verification)</span>
+                </h4>
+                <p className="text-xs text-ink-muted mt-0.5">
+                  Verify photographic proof received on {QUEST_CONFIG.whatsappIntlDisplay}, then approve or reject the check-in below. Duplicate approvals are automatically blocked.
+                </p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-ink-muted mb-1">
+                  Participant Reference ID *
+                </label>
+                <input
+                  type="text"
+                  value={manualParticipantId}
+                  onChange={(e) => setManualParticipantId(e.target.value)}
+                  placeholder="e.g. klik_anon_abc123_..."
+                  className="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-parchment-300 text-xs font-mono text-ink-festival focus:outline-none focus:ring-2 focus:ring-teal-festival"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-ink-muted mb-1">
+                  Participant Name (Optional)
+                </label>
+                <input
+                  type="text"
+                  value={manualParticipantName}
+                  onChange={(e) => setManualParticipantName(e.target.value)}
+                  placeholder="From WhatsApp message"
+                  className="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-parchment-300 text-xs text-ink-festival focus:outline-none focus:ring-2 focus:ring-teal-festival"
+                />
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-ink-muted mb-1">
+                  Participating Establishment *
+                </label>
+                <select
+                  value={manualVenueId}
+                  onChange={(e) => setManualVenueId(e.target.value)}
+                  className="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-parchment-300 text-xs text-ink-festival focus:outline-none focus:ring-2 focus:ring-teal-festival"
+                >
+                  {venues.map((v) => (
+                    <option key={v.id} value={v.id}>
+                      {v.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-bold uppercase tracking-wider text-ink-muted mb-1">
+                  Verification Method *
+                </label>
+                <select
+                  value={manualMethod}
+                  onChange={(e) =>
+                    setManualMethod(e.target.value as CheckInVerificationMethod)
+                  }
+                  className="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-parchment-300 text-xs text-ink-festival focus:outline-none focus:ring-2 focus:ring-teal-festival"
+                >
+                  <option value="manual_whatsapp_selfie">
+                    WhatsApp Selfie Proof (QR / Staff)
+                  </option>
+                  <option value="manual_staff_override">
+                    In-Person Staff Override
+                  </option>
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[10px] font-bold uppercase tracking-wider text-ink-muted mb-1">
+                Verification / Rejection Notes
+              </label>
+              <input
+                type="text"
+                value={manualNotes}
+                onChange={(e) => setManualNotes(e.target.value)}
+                placeholder="e.g. Selfie with venue QR poster confirmed on WhatsApp"
+                className="w-full min-h-[40px] px-3 py-2 rounded-xl bg-white border border-parchment-300 text-xs text-ink-festival focus:outline-none focus:ring-2 focus:ring-teal-festival"
+              />
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-2">
+              <button
+                type="button"
+                onClick={handleApproveManualCheckIn}
+                className="flex-1 min-h-[44px] py-2.5 px-4 rounded-xl bg-olive-festival hover:bg-olive-dark text-white text-xs font-bold flex items-center justify-center gap-1.5 transition-colors shadow-xs"
+              >
+                <Check className="w-4 h-4" />
+                <span>Approve Manual Check-In</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleRejectManualCheckIn}
+                className="sm:w-auto min-h-[44px] py-2.5 px-4 rounded-xl bg-red-100 hover:bg-red-200 text-red-800 text-xs font-bold flex items-center justify-center gap-1.5 transition-colors"
+              >
+                <XCircle className="w-4 h-4" />
+                <span>Reject Proof</span>
+              </button>
+            </div>
+
+            {manualFeedback && (
+              <div
+                className={`p-3.5 rounded-xl text-xs space-y-2 ${
+                  manualFeedback.type === "success"
+                    ? "bg-olive-festival/12 border border-olive-festival/30 text-teal-festival"
+                    : "bg-red-50 border border-red-200 text-red-800"
+                }`}
+              >
+                <p className="font-semibold leading-relaxed">{manualFeedback.text}</p>
+                {manualFeedback.approvalLink && (
+                  <div className="space-y-1.5 pt-1 border-t border-olive-festival/20">
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-ink-muted block">
+                      Signed Confirmation Link (Reply to participant on WhatsApp):
+                    </span>
+                    <div className="p-2 rounded-lg bg-white border border-parchment-300 font-mono text-[10px] break-all text-teal-festival">
+                      {manualFeedback.approvalLink}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        handleCopyText(manualFeedback.approvalLink!, "latest_approval")
+                      }
+                      className="min-h-[36px] px-3 py-1.5 rounded-lg bg-teal-festival hover:bg-teal-light text-white text-[11px] font-bold inline-flex items-center gap-1.5"
+                    >
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>
+                        {copiedLinkId === "latest_approval"
+                          ? "Confirmation Link Copied!"
+                          : "Copy Confirmation Link for WhatsApp"}
+                      </span>
+                    </button>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+
+          {/* Manual Verification Audit Trail */}
+          <div className="bg-parchment-50 p-4 rounded-2xl border border-parchment-200 space-y-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+              <h4 className="font-serif font-bold text-xs uppercase tracking-wider text-teal-festival">
+                Manual Verification Audit Trail ({auditTrail.length})
+              </h4>
+              <div className="relative sm:w-56">
+                <Search className="w-3.5 h-3.5 text-ink-muted absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  type="text"
+                  value={auditSearch}
+                  onChange={(e) => setAuditSearch(e.target.value)}
+                  placeholder="Filter by participant or venue..."
+                  className="w-full pl-8 pr-3 py-1.5 rounded-lg bg-white border border-parchment-300 text-xs"
+                />
+              </div>
+            </div>
+
+            {auditTrail.length === 0 ? (
+              <p className="text-xs text-ink-muted py-3 text-center">
+                No manual check-in approvals or rejections recorded yet.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {auditTrail
+                  .filter((entry) => {
+                    if (!auditSearch.trim()) return true;
+                    const q = auditSearch.toLowerCase();
+                    return (
+                      entry.participantId.toLowerCase().includes(q) ||
+                      (entry.participantName || "").toLowerCase().includes(q) ||
+                      entry.locationName.toLowerCase().includes(q)
+                    );
+                  })
+                  .map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="p-3 rounded-xl bg-white border border-parchment-200 text-xs space-y-1.5"
+                    >
+                      <div className="flex items-center justify-between gap-2 flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase ${
+                              entry.action === "approved"
+                                ? "bg-olive-festival text-white"
+                                : "bg-red-100 text-red-700"
+                            }`}
+                          >
+                            {entry.action}
+                          </span>
+                          <strong className="font-serif font-bold text-teal-festival">
+                            {entry.locationName}
+                          </strong>
+                        </div>
+                        <span className="text-[10px] text-ink-muted">
+                          {new Date(entry.timestamp).toLocaleString()}
+                        </span>
+                      </div>
+
+                      <div className="text-[11px] text-ink-festival flex flex-wrap gap-x-3 gap-y-0.5">
+                        <span className="font-mono">Ref: {entry.participantId}</span>
+                        {entry.participantName && (
+                          <span>Name: {entry.participantName}</span>
+                        )}
+                        <span>Method: {entry.verificationMethod}</span>
+                        <span>By: {entry.adminEmail}</span>
+                      </div>
+
+                      {entry.notes && (
+                        <p className="text-[11px] text-ink-muted">{entry.notes}</p>
+                      )}
+
+                      {entry.approvalLink && (
+                        <button
+                          type="button"
+                          onClick={() => handleCopyText(entry.approvalLink!, entry.id)}
+                          className="text-[11px] font-bold text-teal-festival hover:underline inline-flex items-center gap-1"
+                        >
+                          <Copy className="w-3 h-3" />
+                          <span>
+                            {copiedLinkId === entry.id
+                              ? "Link Copied!"
+                              : "Copy Signed Approval Link"}
+                          </span>
+                        </button>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            )}
+          </div>
+
+          {/* Privacy-Conscious Sponsor & Quest Engagement Analytics */}
+          {analyticsSummary && (
+            <div className="bg-parchment-50 p-4 rounded-2xl border border-parchment-200 space-y-3">
+              <div className="flex items-center justify-between gap-2">
+                <h4 className="font-serif font-bold text-xs uppercase tracking-wider text-teal-festival flex items-center gap-1.5">
+                  <BarChart3 className="w-4 h-4 text-terracotta-festival" />
+                  <span>Sponsor Exposure &amp; Quest Analytics (Privacy-Safe Local Metrics)</span>
+                </h4>
+                <button
+                  type="button"
+                  onClick={() => setAnalyticsSummary(getAnalyticsSummary())}
+                  className="text-[11px] font-semibold text-teal-festival hover:underline inline-flex items-center gap-1"
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  <span>Refresh</span>
+                </button>
+              </div>
+
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-xs">
+                <div className="p-2.5 rounded-xl bg-white border border-parchment-200">
+                  <span className="text-[10px] text-ink-muted block">Banner Clicks</span>
+                  <strong className="text-base text-teal-festival">
+                    {analyticsSummary.homeQuestBannerClicks}
+                  </strong>
+                </div>
+                <div className="p-2.5 rounded-xl bg-white border border-parchment-200">
+                  <span className="text-[10px] text-ink-muted block">Quest Starts</span>
+                  <strong className="text-base text-teal-festival">
+                    {analyticsSummary.questStarts}
+                  </strong>
+                </div>
+                <div className="p-2.5 rounded-xl bg-white border border-parchment-200">
+                  <span className="text-[10px] text-ink-muted block">Completions</span>
+                  <strong className="text-base text-olive-dark">
+                    {analyticsSummary.questCompletions}
+                  </strong>
+                </div>
+                <div className="p-2.5 rounded-xl bg-white border border-parchment-200">
+                  <span className="text-[10px] text-ink-muted block">WhatsApp Entries</span>
+                  <strong className="text-base text-terracotta-festival">
+                    {analyticsSummary.questEntryWhatsAppClicks}
+                  </strong>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 text-[11px]">
+                <div className="p-2 rounded-xl bg-parchment-100 text-center">
+                  <span className="text-ink-muted block">QR Check-ins</span>
+                  <strong className="text-sm text-teal-festival">
+                    {analyticsSummary.checkInMethods.qr}
+                  </strong>
+                </div>
+                <div className="p-2 rounded-xl bg-parchment-100 text-center">
+                  <span className="text-ink-muted block">GPS Check-ins</span>
+                  <strong className="text-sm text-teal-festival">
+                    {analyticsSummary.checkInMethods.gps}
+                  </strong>
+                </div>
+                <div className="p-2 rounded-xl bg-parchment-100 text-center">
+                  <span className="text-ink-muted block">Manual Check-ins</span>
+                  <strong className="text-sm text-teal-festival">
+                    {analyticsSummary.checkInMethods.manual_whatsapp_selfie +
+                      analyticsSummary.checkInMethods.manual_staff_override}
+                  </strong>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {QUEST_SPONSORS.map((s) => {
+                  const m = analyticsSummary.sponsors[s.id] || {
+                    impressions: 0,
+                    cardClicks: 0,
+                    whatsappClicks: 0,
+                  };
+                  return (
+                    <div
+                      key={s.id}
+                      className="p-3 rounded-xl bg-white border border-parchment-200 text-xs space-y-1.5"
+                    >
+                      <strong className="font-serif font-bold text-teal-festival block">
+                        {s.name}
+                      </strong>
+                      <div className="flex items-center justify-between text-[11px] text-ink-muted">
+                        <span>Impressions: <strong className="text-teal-festival">{m.impressions}</strong></span>
+                        <span>Card Clicks: <strong className="text-teal-festival">{m.cardClicks}</strong></span>
+                        <span className="inline-flex items-center gap-0.5">
+                          <MessageCircle className="w-3 h-3 text-[#1E7E45]" />
+                          <strong className="text-[#1E7E45]">{m.whatsappClicks}</strong>
+                        </span>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          {/* Existing 8 Check-In Stations (Preserved QR Signs) */}
           <div className="bg-parchment-50 p-4 rounded-2xl border border-parchment-200 space-y-3">
             <h4 className="font-serif font-bold text-xs uppercase tracking-wider text-teal-festival">
-              Check-In Stations ({venues.length})
+              Check-In Stations ({venues.length}) — Existing Distributed QR Codes Preserved
             </h4>
             <div className="space-y-2">
               {venues.map((v) => (
@@ -898,7 +1320,7 @@ export default function AdminPage() {
                     Visit 5 festival venues, collect your check-ins, and send your Lucky Draw Ticket directly via WhatsApp from the app to enter the community prize draw!
                   </p>
                   <div className="text-[8px] sm:text-[9px] uppercase tracking-wider text-[#747A57] font-semibold pt-0.5">
-                    Official Festival Guide • klikfees.co.za
+                    Official Festival Guide • klik2026.netlify.app
                   </div>
                 </div>
               </div>

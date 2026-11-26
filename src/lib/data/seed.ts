@@ -1592,15 +1592,15 @@ export const SEED_EVENTS: FestivalEvent[] = [
 
 export const SEED_CHALLENGE: Challenge = {
   id: "klik-culture-trail-2026",
-  title: "The KliK Culture Trail",
-  subtitle: "Explore 5 festival venues across Kleinmond to earn your official badge",
+  title: "The KLiK Quest",
+  subtitle: "Explore 5 of 8 participating festival locations and stand a chance to win R2,300 in adventure prizes",
   description:
-    "Embark on the official KliK 2026 Culture Trail! Check in at participating festival venues (The Shed, Town Hall, Main Beach, The Grail Centre, Central Café, Mthimkhulu Village Centre, or Tides Restaurant) by scanning the QR checkpoint stands.",
+    "Take part in the KLiK Quest, explore our participating festival locations and stand a chance to win exciting Kleinmond adventure prizes worth R2,300 — including a Guided Coastal E-Bike Experience for Two (R1,700) and a Kayaking Experience for Two on the Kleinmond Lagoon (R600)!",
   rulesDescription:
-    "1. Visit at least 5 distinct festival checkpoints during KliK 2026.\n2. Check in by tapping or scanning the QR checkpoint sign at each venue.\n3. Check-ins work seamlessly even while offline—they sync automatically when you regain signal.\n4. Complete the trail to unlock your digital badge and enter the festival prize draw!",
+    "1. Visit any 5 of the 8 participating KLiK Festival locations in Kleinmond.\n2. Check in by scanning the official QR poster at the venue (or use GPS Location Check-In or WhatsApp Selfie Verification if needed).\n3. Each distinct, verified participating location counts once toward your progress.\n4. Once 5 different locations are verified, unlock your unique competition entry code and submit it via WhatsApp!",
   requiredCheckInCount: 5,
-  requiredDistinctCategoriesCount: 3,
-  badgeName: "Official KliK 2026 Culture Explorer",
+  requiredDistinctCategoriesCount: 1,
+  badgeName: "Official KLiK 2026 Quest Finisher",
   badgeIcon: "/assets/klik-round-logo-128.png",
   steps: [
     {

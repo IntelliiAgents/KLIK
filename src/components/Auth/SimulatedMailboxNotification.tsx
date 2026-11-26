@@ -9,7 +9,11 @@ export function SimulatedMailboxNotification() {
   const [latestEmail, setLatestEmail] = useState<SentEmail | null>(null);
   const [isDismissed, setIsDismissed] = useState(false);
 
+  // Never expose simulated auth mailbox notifications in production builds
+  const isProduction = process.env.NODE_ENV === "production";
+
   useEffect(() => {
+    if (isProduction) return;
     const handleEmailSent = (e: Event) => {
       const customEvent = e as CustomEvent<SentEmail>;
       if (customEvent.detail) {
@@ -22,9 +26,9 @@ export function SimulatedMailboxNotification() {
     return () => {
       window.removeEventListener("klik_email_sent", handleEmailSent);
     };
-  }, []);
+  }, [isProduction]);
 
-  if (!latestEmail || isDismissed) return null;
+  if (isProduction || !latestEmail || isDismissed) return null;
 
   return (
     <div className="fixed top-4 right-4 left-4 sm:left-auto sm:w-[420px] z-[9999] animate-in slide-in-from-top-4 duration-300">

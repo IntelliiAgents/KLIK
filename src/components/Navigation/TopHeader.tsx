@@ -13,6 +13,7 @@ import { FestivalNotice } from "@/lib/types";
 
 const DESKTOP_QUICK_LINKS = [
   { label: "Programme", href: "/programme" },
+  { label: "KLiK Quest", href: "/quest" },
   { label: "Children & Youth", href: "/youth" },
   { label: "Artists", href: "/artists" },
   { label: "Map", href: "/map" },

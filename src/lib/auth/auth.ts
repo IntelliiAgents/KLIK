@@ -49,8 +49,14 @@ export async function initDefaultAdmin(): Promise<void> {
     };
     users.unshift(seedAdmin);
     saveStoredUsers(users);
-    console.log('[KliK Auth] Seed admin initialized: admin@klik2026.co.za (Klik2026!)');
   }
+}
+
+const ORGANIZER_INVITE_CODE =
+  process.env.NEXT_PUBLIC_ORGANIZER_INVITE_CODE || 'KLIK-STAFF-2026';
+
+export function validateOrganizerInviteCode(code: string): boolean {
+  return code.trim().toUpperCase() === ORGANIZER_INVITE_CODE.trim().toUpperCase();
 }
 
 export async function registerOrganizer({

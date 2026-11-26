@@ -23,7 +23,7 @@ import {
 import { TicketsModal } from "@/components/UI/TicketsModal";
 import { PosterGallery } from "@/components/Brand/PosterGallery";
 import { BackToTopButton } from "@/components/UI/BackToTopButton";
-import { FESTIVAL_CONFIG } from "@/lib/config";
+import { FESTIVAL_CONFIG, QUEST_CONFIG } from "@/lib/config";
 import { ABOUT_KLIK_2026, SEED_PARTNERS } from "@/lib/data/seed";
 import { trackEvent } from "@/lib/analytics";
 
@@ -151,17 +151,22 @@ export default function MorePage() {
           <ChevronRight className="w-4 h-4 text-parchment-400 group-hover:text-teal-festival transition-colors" />
         </Link>
 
-        {/* 2. KliK Culture Trail */}
+        {/* 2. The KLiK Quest */}
         <Link
-          href="/culture-trail"
-          onClick={() => trackEvent("culture_trail_open")}
+          href="/quest"
+          onClick={() => trackEvent("culture_trail_open", { source: "more_menu" })}
           className="flex items-center justify-between p-4 min-h-[56px] hover:bg-parchment-100 transition-colors group"
         >
           <div className="flex items-center gap-3.5">
             <Award className="w-5 h-5 text-terracotta-festival" />
-            <span className="font-semibold text-sm sm:text-base text-teal-festival">
-              KliK Culture Trail
-            </span>
+            <div>
+              <span className="font-semibold text-sm sm:text-base text-teal-festival block leading-snug">
+                The KLiK Quest
+              </span>
+              <span className="text-xs text-ink-muted block">
+                Visit 5 of 8 locations • {QUEST_CONFIG.formattedPrizeValue} in prizes
+              </span>
+            </div>
           </div>
           <ChevronRight className="w-4 h-4 text-parchment-400 group-hover:text-terracotta-festival transition-colors" />
         </Link>
@@ -468,7 +473,7 @@ export default function MorePage() {
                   <strong className="text-ink-festival">On-Device Storage:</strong> Your saved festival sessions, Culture Trail venue check-ins, and cached offline programme data are stored locally on your device using browser storage (<code className="text-[11px]">IndexedDB</code> and <code className="text-[11px]">localStorage</code>) so the app works reliably without mobile signal.
                 </li>
                 <li>
-                  <strong className="text-ink-festival">Optional Location:</strong> Device GPS is accessed only if you explicitly tap &ldquo;Show My Location&rdquo; on the map or &ldquo;Use Current Location&rdquo; when requesting a shuttle ride, and is never stored on a server.
+                  <strong className="text-ink-festival">Optional Location:</strong> Device GPS is accessed only if you explicitly tap &ldquo;Show My Location&rdquo; on the map, &ldquo;Check In Using My Location&rdquo; in KLiK Quest, or &ldquo;Request a Ride&rdquo;, and your precise coordinates are never stored on a server.
                 </li>
                 <li>
                   <strong className="text-ink-festival">External Services:</strong> Opening Quicket (ticketing), Google Maps (directions), or WhatsApp (shuttle booking) navigates to those external platforms under their respective privacy policies.
